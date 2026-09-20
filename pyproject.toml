@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "retrybench"
+version = "0.1.0"
+description = "A conformance benchmark for safe recovery from ambiguous tool outcomes in LLM agents"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+authors = [{name = "RetryBench contributors"}]
+classifiers = [
+  "Programming Language :: Python :: 3",
+]
+
+[project.scripts]
+retrybench = "retrybench.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
