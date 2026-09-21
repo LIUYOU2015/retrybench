@@ -1,0 +1,373 @@
+{
+  "all_zero_cost_gates_passed": true,
+  "api_requests_made": 0,
+  "deterministic_control_summary": {
+    "episodes": 96,
+    "exact_state_success": 56,
+    "unresolved": 40,
+    "unsafe_retries": 0
+  },
+  "gates": {
+    "actual_http_observations_match_manifest": true,
+    "authoritative_control_exact_state": true,
+    "deterministic_controller_has_zero_unsafe_retries": true,
+    "frozen_denominator_and_no_hidden_leak": true,
+    "identical_initial_timeout_response": true,
+    "matched_transcript_hashes": true,
+    "maximum_reserved_cost_within_cap": true,
+    "scorer_injected_faults_detected": true,
+    "stable_idempotency_control_exact_state": true
+  },
+  "matched_hash_evidence": [
+    {
+      "evidence": "none",
+      "passed": true,
+      "prompt_condition": "neutral",
+      "schedules": [
+        "fail_before_execution",
+        "commit_then_drop_response",
+        "in_flight_late_commit",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "issue-001",
+      "transcript_sha256": [
+        "fc53878f0c38e57285163aaec08617dcd494eb430488e64dac7387b75ff6b5a0"
+      ]
+    },
+    {
+      "evidence": "weak",
+      "passed": true,
+      "prompt_condition": "neutral",
+      "schedules": [
+        "fail_before_execution",
+        "in_flight_late_commit",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "issue-001",
+      "transcript_sha256": [
+        "49b65ca41867cb915300d6900789598fd142beaf26cca8180eabd6637c8da88c"
+      ]
+    },
+    {
+      "evidence": "authoritative",
+      "passed": true,
+      "prompt_condition": "neutral",
+      "schedules": [
+        "commit_then_drop_response",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "issue-001",
+      "transcript_sha256": [
+        "86ec678480e9eac9a53843233a223e37d5a7fdc9110443e3a498dde41476d844"
+      ]
+    },
+    {
+      "evidence": "none",
+      "passed": true,
+      "prompt_condition": "cautious",
+      "schedules": [
+        "fail_before_execution",
+        "commit_then_drop_response",
+        "in_flight_late_commit",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "issue-001",
+      "transcript_sha256": [
+        "3b479614531b00b599e7763c186c0c8c58a264546f7d34fe262ed21057ab6bfd"
+      ]
+    },
+    {
+      "evidence": "weak",
+      "passed": true,
+      "prompt_condition": "cautious",
+      "schedules": [
+        "fail_before_execution",
+        "in_flight_late_commit",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "issue-001",
+      "transcript_sha256": [
+        "796ad2f5e1877fc558c0f87c7d6ea5b9883292c4d6636b821753ca169fca9240"
+      ]
+    },
+    {
+      "evidence": "authoritative",
+      "passed": true,
+      "prompt_condition": "cautious",
+      "schedules": [
+        "commit_then_drop_response",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "issue-001",
+      "transcript_sha256": [
+        "41d12148b98a1c14ec1253428ad4aed54bdc8f6e89364bdd5c7c91bf3419adba"
+      ]
+    },
+    {
+      "evidence": "none",
+      "passed": true,
+      "prompt_condition": "neutral",
+      "schedules": [
+        "fail_before_execution",
+        "commit_then_drop_response",
+        "in_flight_late_commit",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "review-001",
+      "transcript_sha256": [
+        "3855b9c497c6097d6c4437acf0aae44596fa656989c062799b9e64016c39e602"
+      ]
+    },
+    {
+      "evidence": "weak",
+      "passed": true,
+      "prompt_condition": "neutral",
+      "schedules": [
+        "fail_before_execution",
+        "in_flight_late_commit",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "review-001",
+      "transcript_sha256": [
+        "93f0381c07b882109acba4d7bc41a451266c4c8b864cef2cbf4c05313f1551bb"
+      ]
+    },
+    {
+      "evidence": "authoritative",
+      "passed": true,
+      "prompt_condition": "neutral",
+      "schedules": [
+        "commit_then_drop_response",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "review-001",
+      "transcript_sha256": [
+        "068b18b30f64a25411fc411503194cad7babc1659d8720e3aa219e1596338adc"
+      ]
+    },
+    {
+      "evidence": "none",
+      "passed": true,
+      "prompt_condition": "cautious",
+      "schedules": [
+        "fail_before_execution",
+        "commit_then_drop_response",
+        "in_flight_late_commit",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "review-001",
+      "transcript_sha256": [
+        "92f72729d003f636046dc3a7de5f3f53ccc71bc1c2bf9e23d9cef5bffe16f354"
+      ]
+    },
+    {
+      "evidence": "weak",
+      "passed": true,
+      "prompt_condition": "cautious",
+      "schedules": [
+        "fail_before_execution",
+        "in_flight_late_commit",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "review-001",
+      "transcript_sha256": [
+        "0fed02c02e595104a5b38cbcde4a8d55400e8814be30aff82096172b04a3e09d"
+      ]
+    },
+    {
+      "evidence": "authoritative",
+      "passed": true,
+      "prompt_condition": "cautious",
+      "schedules": [
+        "commit_then_drop_response",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "review-001",
+      "transcript_sha256": [
+        "ed1cb8a07690ead1c606b6aa813595a3f19dc171ec9748690c65c1dce9681e0d"
+      ]
+    },
+    {
+      "evidence": "none",
+      "passed": true,
+      "prompt_condition": "neutral",
+      "schedules": [
+        "fail_before_execution",
+        "commit_then_drop_response",
+        "in_flight_late_commit",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "ci-001",
+      "transcript_sha256": [
+        "e4b59301f174335f33ee837f2ae777110e50b68e38ce9b4b2bf749ad7cfa6f94"
+      ]
+    },
+    {
+      "evidence": "weak",
+      "passed": true,
+      "prompt_condition": "neutral",
+      "schedules": [
+        "fail_before_execution",
+        "in_flight_late_commit",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "ci-001",
+      "transcript_sha256": [
+        "80093c815bc044025aa4dc89936467b57c2ae938684afa6d10c72e642ab5ee7b"
+      ]
+    },
+    {
+      "evidence": "authoritative",
+      "passed": true,
+      "prompt_condition": "neutral",
+      "schedules": [
+        "commit_then_drop_response",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "ci-001",
+      "transcript_sha256": [
+        "4aeb13adb511d912176b92ef61b87aed8daa6788ed5052fa50a5d6742b7e4682"
+      ]
+    },
+    {
+      "evidence": "none",
+      "passed": true,
+      "prompt_condition": "cautious",
+      "schedules": [
+        "fail_before_execution",
+        "commit_then_drop_response",
+        "in_flight_late_commit",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "ci-001",
+      "transcript_sha256": [
+        "4f8eaedd848e9e3f3f7f56daa05ed2d01ef4d696370f8d5d5bfb29c8beafe77f"
+      ]
+    },
+    {
+      "evidence": "weak",
+      "passed": true,
+      "prompt_condition": "cautious",
+      "schedules": [
+        "fail_before_execution",
+        "in_flight_late_commit",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "ci-001",
+      "transcript_sha256": [
+        "13097f2bed575a9cfa7e7bf4af81aca45b7699aff249e712506e24576237dc14"
+      ]
+    },
+    {
+      "evidence": "authoritative",
+      "passed": true,
+      "prompt_condition": "cautious",
+      "schedules": [
+        "commit_then_drop_response",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "ci-001",
+      "transcript_sha256": [
+        "cc143a57209ad1dcbd87cc229b268c9529af5bc22d7dd66f27d0bcef6e136639"
+      ]
+    },
+    {
+      "evidence": "none",
+      "passed": true,
+      "prompt_condition": "neutral",
+      "schedules": [
+        "fail_before_execution",
+        "commit_then_drop_response",
+        "in_flight_late_commit",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "release-001",
+      "transcript_sha256": [
+        "1294b00f6070156783a7c01f5cd63ceba447a5e5cd29a8755ebcd5920eeaa7b4"
+      ]
+    },
+    {
+      "evidence": "weak",
+      "passed": true,
+      "prompt_condition": "neutral",
+      "schedules": [
+        "fail_before_execution",
+        "in_flight_late_commit",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "release-001",
+      "transcript_sha256": [
+        "b10d18cb149799b81827cd8ca39e85b4e4aac92f99fd05d3f9fa5f9943af875d"
+      ]
+    },
+    {
+      "evidence": "authoritative",
+      "passed": true,
+      "prompt_condition": "neutral",
+      "schedules": [
+        "commit_then_drop_response",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "release-001",
+      "transcript_sha256": [
+        "3f4f741ebc2fe64e2e62109f5ca81b160da6476112442755f8a2393431cc007b"
+      ]
+    },
+    {
+      "evidence": "none",
+      "passed": true,
+      "prompt_condition": "cautious",
+      "schedules": [
+        "fail_before_execution",
+        "commit_then_drop_response",
+        "in_flight_late_commit",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "release-001",
+      "transcript_sha256": [
+        "0ab1138c22061b0fc3f20760ef934d14ea4308a140103c522a618307e44d48f8"
+      ]
+    },
+    {
+      "evidence": "weak",
+      "passed": true,
+      "prompt_condition": "cautious",
+      "schedules": [
+        "fail_before_execution",
+        "in_flight_late_commit",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "release-001",
+      "transcript_sha256": [
+        "fe967aaa42b93831aab215ada1d9487058f6d75187f2b258c482a4e027e64d3a"
+      ]
+    },
+    {
+      "evidence": "authoritative",
+      "passed": true,
+      "prompt_condition": "cautious",
+      "schedules": [
+        "commit_then_drop_response",
+        "stale_negative_after_commit"
+      ],
+      "task_id": "release-001",
+      "transcript_sha256": [
+        "a41725c496eeaf7f90d8293df5f15d05d7da828ab7a0fcffc0c3d49ce2447e39"
+      ]
+    }
+  ],
+  "maximum_output_tokens": 256,
+  "maximum_reserved_cost_usd": 0.142854,
+  "model": "gpt-5.4-mini-2026-03-17",
+  "pilot_cells": 96,
+  "pilot_conclusion_sensitivity": "pending_paid_pilot",
+  "pilot_cost_cap_usd": 2.0,
+  "schema_version": "retrybench-preflight-v1",
+  "scorer_fault_controls": {
+    "duplicate": true,
+    "omission": true,
+    "wrong_payload": true,
+    "wrong_target": true
+  },
+  "spend_decision": "GO"
+}

@@ -42,11 +42,99 @@ def build_parser() -> argparse.ArgumentParser:
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8765)
     serve.add_argument("--late-commit-delay", type=float, default=1.0)
+    preflight = subparsers.add_parser(
+        "preflight", help="run the zero-cost pilot readiness gates"
+    )
+    preflight.add_argument(
+        "--manifest", default="protocol/pilot-manifest-v1.jsonl"
+    )
+    preflight.add_argument(
+        "--report", default="protocol/preflight-report-v1.json"
+    )
+    pilot = subparsers.add_parser(
+        "pilot", help="execute the frozen paid pilot after an explicit spend decision"
+    )
+    pilot.add_argument("--manifest", default="protocol/pilot-manifest-v1.jsonl")
+    pilot.add_argument("--output", default="results/live-pilot.jsonl")
+    pilot.add_argument("--summary", default="results/live-pilot-summary.json")
+    pilot.add_argument("--database", default="results/live-pilot.sqlite3")
+    pilot.add_argument("--max-cost-usd", type=float, default=2.0)
+    pilot.add_argument("--execute-paid-pilot", action="store_true")
     return parser
 
 
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command == "preflight":
+        from .experiment import (
+            build_pilot_manifest,
+            run_zero_cost_preflight,
+            write_manifest,
+            write_report,
+        )
+
+        rows = build_pilot_manifest()
+        report = run_zero_cost_preflight(rows)
+        write_manifest(Path(args.manifest), rows)
+        write_report(Path(args.report), report)
+        print(
+            json.dumps(
+                {
+                    "api_requests_made": report["api_requests_made"],
+                    "pilot_cells": report["pilot_cells"],
+                    "maximum_reserved_cost_usd": report[
+                        "maximum_reserved_cost_usd"
+                    ],
+                    "spend_decision": report["spend_decision"],
+                    "manifest": args.manifest,
+                    "report": args.report,
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return 0 if report["all_zero_cost_gates_passed"] else 1
+
+    if args.command == "pilot":
+        from .experiment import (
+            PILOT_MAX_COST_USD,
+            load_manifest,
+            run_live_pilot,
+            summarize_live_pilot,
+        )
+        from .openai_adapter import CostBudget, OpenAIResponsesPolicy
+
+        if not args.execute_paid_pilot:
+            raise SystemExit("paid pilot requires --execute-paid-pilot")
+        if not os.environ.get("OPENAI_API_KEY"):
+            raise SystemExit("OPENAI_API_KEY is not set")
+        if args.max_cost_usd <= 0 or args.max_cost_usd > PILOT_MAX_COST_USD:
+            raise SystemExit(
+                "--max-cost-usd must be greater than 0 and no more than %.2f"
+                % PILOT_MAX_COST_USD
+            )
+        summary_path = Path(args.summary)
+        if summary_path.exists():
+            raise SystemExit("pilot summary already exists: %s" % summary_path)
+        rows = load_manifest(Path(args.manifest))
+        budget = CostBudget(args.max_cost_usd)
+        policy = OpenAIResponsesPolicy()
+        results = run_live_pilot(
+            rows,
+            policy,
+            budget,
+            Path(args.database),
+            Path(args.output),
+        )
+        summary = summarize_live_pilot(results, budget)
+        summary_path.parent.mkdir(parents=True, exist_ok=True)
+        summary_path.write_text(
+            json.dumps(summary, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        print(json.dumps(summary, indent=2, sort_keys=True))
+        return 0
+
     if args.command == "serve":
         from .http_service import RetryBenchHTTPService
 
