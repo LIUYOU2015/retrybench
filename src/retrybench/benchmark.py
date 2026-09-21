@@ -7,6 +7,7 @@ from typing import Dict, Iterable, Iterator, List
 
 from .model import EvidenceContract, PolicyName, Schedule, TASKS, TaskSpec
 from .policies import apply_policy
+from .scoring import score_exact_state
 from .service import AmbiguousTimeout, DeterministicService, seed_original_idempotency_record
 
 
@@ -25,6 +26,11 @@ class EpisodeResult:
     duplicate_effect: bool
     omission: bool
     unresolved: bool
+    wrong_operation_identity: bool
+    wrong_task: bool
+    wrong_tool: bool
+    wrong_target: bool
+    wrong_payload: bool
     retries: int
     probes: int
     recovery_steps: int
@@ -53,8 +59,8 @@ def run_episode(
 
     outcome = apply_policy(policy, service, operation_id)
     service.settle()
-    count = len(service.effects)
     unresolved = outcome.final_action.value == "unresolved"
+    score = score_exact_state(task, operation_id, service.effects, unresolved)
     return EpisodeResult(
         task_id=task.task_id,
         tool=task.tool,
@@ -64,11 +70,8 @@ def run_episode(
         initial_observation=initial_observation,
         policy_observations=[item.value for item in outcome.observations],
         final_action=outcome.final_action.value,
-        effect_count=count,
-        exact_state_success=(count == 1 and not unresolved),
-        duplicate_effect=count > 1,
-        omission=count == 0,
-        unresolved=unresolved,
+        effect_count=len(service.effects),
+        **score.to_dict(),
         retries=outcome.retries,
         probes=service.probes,
         recovery_steps=service.steps,
@@ -86,4 +89,3 @@ def run_matrix(
             for evidence in evidence_contracts:
                 for policy in policies:
                     yield run_episode(task, schedule, evidence, policy)
-

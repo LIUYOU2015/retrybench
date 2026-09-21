@@ -6,6 +6,7 @@ from typing import Dict, Iterable, List, Tuple
 
 from .model import Action, EvidenceContract, ObservedState, Schedule, TASKS, TaskSpec
 from .openai_adapter import CostBudget, OpenAIResponsesPolicy
+from .scoring import score_exact_state
 from .service import AmbiguousTimeout, DeterministicService
 
 
@@ -48,7 +49,7 @@ def run_live_smoke(
         elif decision.action == Action.WAIT:
             service.advance()
         service.settle()
-        effect_count = len(service.effects)
+        score = score_exact_state(task, operation_id, service.effects, unresolved)
         rows.append(
             {
                 "schema_version": "retrybench-live-smoke-v1",
@@ -61,13 +62,9 @@ def run_live_smoke(
                 "observed_state": observed.value,
                 "prompt_condition": "cautious" if cautious else "neutral",
                 "decision": decision.to_dict(),
-                "effect_count": effect_count,
-                "duplicate_effect": effect_count > 1,
-                "omission": effect_count == 0,
-                "unresolved": unresolved,
-                "exact_state_success": effect_count == 1 and not unresolved,
+                "effect_count": len(service.effects),
+                **score.to_dict(),
                 "cumulative_cost_usd": budget.spent_usd,
             }
         )
     return rows
-

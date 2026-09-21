@@ -35,11 +35,44 @@ def build_parser() -> argparse.ArgumentParser:
     smoke.add_argument("--max-episodes", type=int, default=10)
     smoke.add_argument("--max-cost-usd", type=float, default=0.25)
     smoke.add_argument("--max-output-tokens", type=int, default=256)
+    serve = subparsers.add_parser(
+        "serve", help="run the persistent local fault-injection service"
+    )
+    serve.add_argument("--database", default="results/retrybench.sqlite3")
+    serve.add_argument("--host", default="127.0.0.1")
+    serve.add_argument("--port", type=int, default=8765)
+    serve.add_argument("--late-commit-delay", type=float, default=1.0)
     return parser
 
 
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command == "serve":
+        from .http_service import RetryBenchHTTPService
+
+        service = RetryBenchHTTPService(
+            database_path=Path(args.database),
+            host=args.host,
+            port=args.port,
+            late_commit_delay=args.late_commit_delay,
+        )
+        print(
+            json.dumps(
+                {
+                    "base_url": service.base_url,
+                    "database": str(Path(args.database)),
+                    "late_commit_delay": args.late_commit_delay,
+                },
+                sort_keys=True,
+            ),
+            flush=True,
+        )
+        try:
+            service.serve_forever()
+        except KeyboardInterrupt:
+            pass
+        return 0
+
     if args.command == "openai-smoke":
         from .live import run_live_smoke, smoke_cases
         from .openai_adapter import CostBudget, OpenAIResponsesPolicy

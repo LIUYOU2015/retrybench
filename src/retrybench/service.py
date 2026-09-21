@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import List, Optional, Set
 
-from .model import EvidenceContract, ObservedState, Schedule, TaskSpec
+from .model import EffectRecord, EvidenceContract, ObservedState, Schedule, TaskSpec
 
 
 class AmbiguousTimeout(TimeoutError):
@@ -17,7 +18,7 @@ class DeterministicService:
     task: TaskSpec
     schedule: Schedule
     evidence: EvidenceContract
-    effects: List[str] = field(default_factory=list)
+    effects: List[EffectRecord] = field(default_factory=list)
     dedupe_records: Set[str] = field(default_factory=set)
     pending_original: bool = False
     original_operation_id: Optional[str] = None
@@ -76,7 +77,15 @@ class DeterministicService:
     def _commit(self, operation_id: str, deduplicate: bool) -> None:
         if deduplicate and operation_id in self.dedupe_records:
             return
-        self.effects.append(self.task.task_id)
+        self.effects.append(
+            EffectRecord(
+                operation_id=operation_id,
+                task_id=self.task.task_id,
+                tool=self.task.tool,
+                target=self.task.target,
+                payload=deepcopy(self.task.payload),
+            )
+        )
         if deduplicate:
             self.dedupe_records.add(operation_id)
 

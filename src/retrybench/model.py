@@ -51,10 +51,20 @@ class TaskSpec:
     payload: Dict[str, Any]
 
 
+@dataclass(frozen=True)
+class EffectRecord:
+    """Ground-truth record for one externally visible side effect."""
+
+    operation_id: str
+    task_id: str
+    tool: str
+    target: str
+    payload: Dict[str, Any]
+
+
 TASKS = (
     TaskSpec("issue-001", "create_issue", "repo/acme", {"title": "Fix race"}),
     TaskSpec("review-001", "post_review_comment", "repo/acme#17", {"body": "Please add a test."}),
     TaskSpec("ci-001", "trigger_ci", "repo/acme@main", {"workflow": "release"}),
     TaskSpec("release-001", "create_release", "repo/acme", {"tag": "v1.2.3"}),
 )
-
