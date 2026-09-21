@@ -68,4 +68,5 @@ ambiguity, but only while the provider's deduplication guarantee is valid.
 
 ## License and citation
 
-RetryBench is MIT licensed. Citation metadata is in `CITATION.cff`.
+RetryBench is available under the PolyForm Noncommercial License 1.0.0.
+Commercial use is not permitted. Citation metadata is in `CITATION.cff`.
