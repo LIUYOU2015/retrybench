@@ -1,0 +1,49 @@
+{
+  "schema_version": "retrybench-confirmation-v2",
+  "protocol_status": "frozen_before_paid_execution",
+  "frozen_at": "2026-09-20",
+  "objective": "Confirm whether weak negative evidence changes retry permission relative to authoritative state evidence when task intent and visible decision inputs are controlled.",
+  "excludes": [
+    "All 96 pilot outcomes",
+    "Post-hoc schedules, tasks, prompts, or stopping rules",
+    "General claims that ambiguous tool outcomes, verification, or idempotency are novel"
+  ],
+  "model_block_1": "gpt-5.4-mini-2026-03-17",
+  "model_block_2": "Unselected; freeze and report as a separate replication only after block 1",
+  "tasks": ["issue-001", "review-001", "ci-001", "release-001"],
+  "hidden_schedules": [
+    "fail_before_execution",
+    "in_flight_late_commit",
+    "stale_negative_after_commit"
+  ],
+  "evidence_contracts": ["weak", "authoritative"],
+  "prompt_conditions": ["neutral", "cautious"],
+  "fresh_draws_per_visible_condition": 5,
+  "scored_outcomes_per_model": 240,
+  "fresh_model_calls_per_model": 160,
+  "response_sharing_rule": "Within each task, prompt condition, and fresh draw, one weak-NOT_FOUND response is reused across all three hidden schedules. Authoritative NOT_EXECUTED, IN_FLIGHT, and COMMITTED transcripts receive distinct responses.",
+  "primary_estimand": {
+    "population": "neutral-prompt outcomes across the three preregistered schedules",
+    "contrast": "false retry permission under weak versus authoritative evidence",
+    "reporting": "raw paired discordant counts, absolute percentage-point difference, risk ratio when defined, and exact two-sided McNemar p-value",
+    "threshold": "No post-hoc accept/reject threshold; interpret effect size and uncertainty with the artifact claim"
+  },
+  "secondary_estimands": [
+    "cautious-versus-neutral safety and unresolved trade-off",
+    "duplicate-effect rate",
+    "omission rate",
+    "unresolved rate",
+    "exact-state success"
+  ],
+  "stopping_rules": [
+    "Run all 160 calls for an approved model block or report the interruption and retain partial data as incomplete.",
+    "Do not add cells after observing model outputs.",
+    "Stop before a request whose conservative reservation could exceed the approved cap.",
+    "Do not overwrite an existing database or outcome log."
+  ],
+  "cost_guard": {
+    "maximum_output_tokens": 256,
+    "hard_cap_usd_per_model_block": 1.0,
+    "paid_execution_requires_cli_flag": "--execute-paid-confirmation"
+  }
+}

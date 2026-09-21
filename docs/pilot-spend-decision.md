@@ -2,6 +2,10 @@
 
 Decision date: 2026-09-20
 
+> Historical decision record. The pilot has since completed; its analysis is in
+> `docs/pilot-v1-analysis.md`. The superseding targeted design is frozen in
+> `protocol/confirmation-v2.json` and does not authorize paid execution.
+
 ## Decision: GO
 
 Authorize the frozen 96-episode GPT-5.4 Mini pilot with a hard API ceiling of
@@ -68,5 +72,5 @@ After the pilot:
   baselines, if matched cells show no meaningful contrast, or if protocol
   deviations undermine the comparison.
 
-The next authorized command is the paid pilot itself; it should not be run as
-part of preflight or silently triggered by a test.
+This authorization was consumed by the completed pilot. It does not authorize
+the separately guarded confirmation-v2 command.

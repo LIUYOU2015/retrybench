@@ -66,6 +66,21 @@ ambiguity, but only while the provider's deduplication guarantee is valid.
 5. Report safety, liveness, latency, probe cost, and unresolved outcomes without
    collapsing them into one success number.
 
+## Frozen targeted confirmation
+
+The exploratory pilot motivated a smaller confirmation rather than the original
+4,800-outcome expansion. Freeze and audit it without API spend:
+
+```bash
+retrybench confirmation-preflight
+```
+
+The resulting protocol has 240 scored outcomes per model but only 160 fresh
+model calls. For weak `NOT_FOUND`, one response is replayed across three hidden
+schedules with byte-identical visible transcripts. Paid execution is separately
+guarded by an explicit flag and a one-dollar maximum cap; pilot outcomes are not
+included in the confirmatory analysis.
+
 ## License and citation
 
 RetryBench is available under the PolyForm Noncommercial License 1.0.0.

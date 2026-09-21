@@ -71,11 +71,78 @@ def build_parser() -> argparse.ArgumentParser:
         "--outcomes", default="runs/pilot-v1/sanitized-outcomes.jsonl"
     )
     analyze.add_argument("--report", default="runs/pilot-v1/analysis.json")
+    confirmation_preflight = subparsers.add_parser(
+        "confirmation-preflight", help="freeze and audit confirmation-v2 without API calls"
+    )
+    confirmation_preflight.add_argument(
+        "--manifest", default="protocol/confirmation-v2-manifest.jsonl"
+    )
+    confirmation_preflight.add_argument(
+        "--report", default="protocol/confirmation-v2-preflight.json"
+    )
+    confirmation = subparsers.add_parser(
+        "confirmation", help="execute frozen confirmation-v2 after explicit approval"
+    )
+    confirmation.add_argument(
+        "--manifest", default="protocol/confirmation-v2-manifest.jsonl"
+    )
+    confirmation.add_argument("--output", default="results/live-confirmation-v2.jsonl")
+    confirmation.add_argument("--database", default="results/live-confirmation-v2.sqlite3")
+    confirmation.add_argument("--max-cost-usd", type=float, default=1.0)
+    confirmation.add_argument("--execute-paid-confirmation", action="store_true")
     return parser
 
 
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command == "confirmation-preflight":
+        from .confirmation import (
+            build_confirmation_manifest,
+            run_confirmation_preflight,
+            write_confirmation_manifest,
+        )
+
+        rows = build_confirmation_manifest()
+        report = run_confirmation_preflight(rows)
+        write_confirmation_manifest(Path(args.manifest), rows)
+        Path(args.report).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.report).write_text(
+            json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+        print(json.dumps(report, indent=2, sort_keys=True))
+        return 0 if report["all_zero_cost_gates_passed"] else 1
+
+    if args.command == "confirmation":
+        from .confirmation import (
+            CONFIRMATION_MAX_COST_USD,
+            load_confirmation_manifest,
+            run_live_confirmation,
+        )
+        from .openai_adapter import CostBudget, OpenAIResponsesPolicy
+
+        if not args.execute_paid_confirmation:
+            raise SystemExit("paid confirmation requires --execute-paid-confirmation")
+        if not os.environ.get("OPENAI_API_KEY"):
+            raise SystemExit("OPENAI_API_KEY is not set")
+        if args.max_cost_usd <= 0 or args.max_cost_usd > CONFIRMATION_MAX_COST_USD:
+            raise SystemExit(
+                "--max-cost-usd must be greater than 0 and no more than %.2f"
+                % CONFIRMATION_MAX_COST_USD
+            )
+        rows = load_confirmation_manifest(Path(args.manifest))
+        policy = OpenAIResponsesPolicy()
+        budget = CostBudget(args.max_cost_usd)
+        results = run_live_confirmation(
+            rows, policy, budget, Path(args.database), Path(args.output)
+        )
+        print(json.dumps({
+            "scored_outcomes": len(results),
+            "api_requests": budget.requests,
+            "actual_cost_usd": budget.spent_usd,
+            "output": args.output,
+        }, indent=2, sort_keys=True))
+        return 0
+
     if args.command == "analyze-pilot":
         from .analysis import (
             analyze_pilot,
