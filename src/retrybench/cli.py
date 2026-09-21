@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 from typing import Iterable, Type, TypeVar
 
@@ -28,11 +29,51 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--policies", nargs="*", choices=[item.value for item in PolicyName])
     run.add_argument("--evidence", nargs="*", choices=[item.value for item in EvidenceContract])
     run.add_argument("--schedules", nargs="*", choices=[item.value for item in Schedule])
+    smoke = subparsers.add_parser("openai-smoke", help="run a cost-bounded live-model smoke test")
+    smoke.add_argument("--output", default="results/openai-smoke.jsonl")
+    smoke.add_argument("--model", default="gpt-5.4-mini-2026-03-17")
+    smoke.add_argument("--max-episodes", type=int, default=10)
+    smoke.add_argument("--max-cost-usd", type=float, default=0.25)
+    smoke.add_argument("--max-output-tokens", type=int, default=256)
     return parser
 
 
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command == "openai-smoke":
+        from .live import run_live_smoke, smoke_cases
+        from .openai_adapter import CostBudget, OpenAIResponsesPolicy
+
+        if not os.environ.get("OPENAI_API_KEY"):
+            raise SystemExit("OPENAI_API_KEY is not set")
+        if args.max_episodes < 1 or args.max_episodes > 10:
+            raise SystemExit("--max-episodes must be between 1 and 10 for the smoke command")
+        budget = CostBudget(args.max_cost_usd)
+        policy = OpenAIResponsesPolicy(
+            model=args.model,
+            max_output_tokens=args.max_output_tokens,
+        )
+        rows = run_live_smoke(policy, budget, smoke_cases()[: args.max_episodes])
+        output = Path(args.output)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        with output.open("w", encoding="utf-8") as handle:
+            for row in rows:
+                handle.write(json.dumps(row, sort_keys=True) + "\n")
+        print(
+            json.dumps(
+                {
+                    "smoke_only": True,
+                    "episodes": len(rows),
+                    "model": args.model,
+                    "actual_cost_usd": budget.spent_usd,
+                    "output": str(output),
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return 0
+
     if args.command != "run":  # pragma: no cover
         raise AssertionError("unreachable")
 
@@ -59,4 +100,3 @@ def main(argv=None) -> int:
 
 if __name__ == "__main__":  # pragma: no cover
     raise SystemExit(main())
-
