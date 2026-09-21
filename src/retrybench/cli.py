@@ -60,11 +60,53 @@ def build_parser() -> argparse.ArgumentParser:
     pilot.add_argument("--database", default="results/live-pilot.sqlite3")
     pilot.add_argument("--max-cost-usd", type=float, default=2.0)
     pilot.add_argument("--execute-paid-pilot", action="store_true")
+    analyze = subparsers.add_parser(
+        "analyze-pilot", help="sanitize and aggregate the completed frozen pilot"
+    )
+    analyze.add_argument("--input", default="results/live-pilot.jsonl")
+    analyze.add_argument(
+        "--preflight", default="protocol/preflight-report-v1.json"
+    )
+    analyze.add_argument(
+        "--outcomes", default="runs/pilot-v1/sanitized-outcomes.jsonl"
+    )
+    analyze.add_argument("--report", default="runs/pilot-v1/analysis.json")
     return parser
 
 
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command == "analyze-pilot":
+        from .analysis import (
+            analyze_pilot,
+            load_jsonl,
+            write_analysis,
+            write_sanitized,
+        )
+
+        rows = load_jsonl(Path(args.input))
+        preflight = json.loads(Path(args.preflight).read_text(encoding="utf-8"))
+        report = analyze_pilot(rows, preflight)
+        outcomes_hash = write_sanitized(Path(args.outcomes), rows)
+        write_analysis(Path(args.report), report, outcomes_hash)
+        print(
+            json.dumps(
+                {
+                    "decision": report["decision"],
+                    "pilot_cells": report["pilot_cells"],
+                    "actual_cost_usd": report["actual_cost_usd"],
+                    "all_empirical_novelty_gates_passed": report[
+                        "all_empirical_novelty_gates_passed"
+                    ],
+                    "outcomes": args.outcomes,
+                    "report": args.report,
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return 0 if report["all_empirical_novelty_gates_passed"] else 1
+
     if args.command == "preflight":
         from .experiment import (
             build_pilot_manifest,
