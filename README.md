@@ -116,6 +116,12 @@ schedules with byte-identical visible transcripts. Paid execution is separately
 guarded by an explicit flag and a one-dollar maximum cap; pilot outcomes are not
 included in the confirmatory analysis.
 
+Confirmation-v2 completed 160 fresh calls and 240 scored outcomes for $0.063987.
+Under neutral prompting, false retry permission was 51/60 with weak evidence and
+3/60 with authoritative evidence; weak prompting produced 34 duplicates, while
+cautious weak prompting produced zero duplicates but left all 60 outcomes
+unresolved. See the [confirmation-v2 analysis](docs/confirmation-v2-analysis.md).
+
 ## License and citation
 
 RetryBench is available under the PolyForm Noncommercial License 1.0.0.

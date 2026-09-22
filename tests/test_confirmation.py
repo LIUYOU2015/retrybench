@@ -68,7 +68,7 @@ class ConfirmationRunnerTests(unittest.TestCase):
                 budget,
                 root / "confirmation.sqlite3",
                 root / "outcomes.jsonl",
-                late_commit_delay=0.02,
+                late_commit_delay=0.1,
             )
         self.assertEqual(len(results), 240)
         self.assertEqual(budget.requests, 160)

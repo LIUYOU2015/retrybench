@@ -224,7 +224,7 @@ def run_live_confirmation(
     budget: CostBudget,
     database_path: Path,
     output_path: Path,
-    late_commit_delay: float = 0.02,
+    late_commit_delay: float = 0.1,
 ) -> List[Dict[str, object]]:
     """Run once per response group, then replay that action on every hidden schedule."""
     validate_confirmation_manifest(rows)
@@ -315,4 +315,3 @@ def run_live_confirmation(
                     output.flush()
                     results.append(result)
     return results
-
