@@ -8,8 +8,27 @@ lost its response, or is still in flight. RetryBench evaluates recovery policies
 against the hidden execution state instead of trusting the agent's completion
 claim.
 
-This repository is an early, executable research scaffold. It does not yet make
-empirical claims about production systems or language models.
+This repository is an executable research preview. It does not estimate
+production failure prevalence or rank general model capability.
+
+## Run RetryBench
+
+```bash
+python -m pip install .
+retrybench run
+```
+
+To evaluate a method implemented in any language or framework, export the 160
+public cases and score its actions against 240 hidden outcomes:
+
+```bash
+retrybench export-cases --output public-cases-v1.jsonl
+retrybench score-decisions --decisions my-decisions.jsonl
+```
+
+See [Evaluate your method](docs/evaluate-your-method.md) for the two-field JSONL
+interface and reporting checklist. Evaluated methods never receive hidden
+schedule labels.
 
 ## What is included
 
@@ -57,6 +76,22 @@ cannot still commit. Only `NOT_EXECUTED`, supplied by an authoritative contract,
 permits a non-idempotent retry. A stable idempotency key can permit retry under
 ambiguity, but only while the provider's deduplication guarantee is valid.
 
+## Deterministic reference baselines
+
+These 48-outcome-per-policy controls validate benchmark behavior; they are not
+model leaderboard results.
+
+| Policy | Exact state | Duplicates | Omissions | Unresolved |
+|---|---:|---:|---:|---:|
+| Always retry | 12/48 | 36 | 0 | 0 |
+| Always stop | 36/48 | 0 | 12 | 0 |
+| Single status | 24/48 | 24 | 0 | 0 |
+| Tri-state backoff | 28/48 | 0 | 8 | 20 |
+| Stable idempotency | 48/48 | 0 | 0 | 0 |
+
+The [benchmark card](BENCHMARK_CARD.md) defines intended use, leakage controls,
+metrics, and limitations. Frozen manifests follow the [versioning policy](VERSIONING.md).
+
 ## Research roadmap
 
 1. Reproduce the controls from the closest ambiguous-outcome work.
@@ -85,3 +120,6 @@ included in the confirmatory analysis.
 
 RetryBench is available under the PolyForm Noncommercial License 1.0.0.
 Commercial use is not permitted. Citation metadata is in `CITATION.cff`.
+The first archival release will add a DOI and preferred paper citation. Until
+then, cite the exact Git commit used. Contributions are described in
+[CONTRIBUTING.md](CONTRIBUTING.md).

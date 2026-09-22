@@ -90,11 +90,58 @@ def build_parser() -> argparse.ArgumentParser:
     confirmation.add_argument("--database", default="results/live-confirmation-v2.sqlite3")
     confirmation.add_argument("--max-cost-usd", type=float, default=1.0)
     confirmation.add_argument("--execute-paid-confirmation", action="store_true")
+    export_cases = subparsers.add_parser(
+        "export-cases", help="export model-facing confirmation cases without hidden schedules"
+    )
+    export_cases.add_argument(
+        "--manifest", default="protocol/confirmation-v2-manifest.jsonl"
+    )
+    export_cases.add_argument("--output", default="results/public-cases-v1.jsonl")
+    score_decisions = subparsers.add_parser(
+        "score-decisions", help="score external actions against frozen hidden schedules"
+    )
+    score_decisions.add_argument(
+        "--manifest", default="protocol/confirmation-v2-manifest.jsonl"
+    )
+    score_decisions.add_argument("--decisions", required=True)
+    score_decisions.add_argument("--output", default="results/external-scores-v1.jsonl")
+    score_decisions.add_argument("--summary", default="results/external-summary-v1.json")
     return parser
 
 
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command == "export-cases":
+        from .confirmation import load_confirmation_manifest
+        from .external import export_public_cases, write_jsonl
+
+        cases = export_public_cases(load_confirmation_manifest(Path(args.manifest)))
+        write_jsonl(Path(args.output), cases)
+        print(json.dumps({"cases": len(cases), "output": args.output}, indent=2))
+        return 0
+
+    if args.command == "score-decisions":
+        from .confirmation import load_confirmation_manifest
+        from .external import (
+            load_external_decisions,
+            score_external_decisions,
+            summarize_external,
+            write_jsonl,
+        )
+
+        rows = load_confirmation_manifest(Path(args.manifest))
+        decisions = load_external_decisions(Path(args.decisions))
+        results = score_external_decisions(rows, decisions)
+        summary = summarize_external(results)
+        write_jsonl(Path(args.output), results)
+        summary_path = Path(args.summary)
+        summary_path.parent.mkdir(parents=True, exist_ok=True)
+        summary_path.write_text(
+            json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+        print(json.dumps(summary, indent=2, sort_keys=True))
+        return 0
+
     if args.command == "confirmation-preflight":
         from .confirmation import (
             build_confirmation_manifest,
