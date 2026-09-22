@@ -67,8 +67,10 @@ def _response_group_id(
     observed: ObservedState,
     prompt_condition: str,
     repetition: int,
+    prefix: str = "confirm-rg",
 ) -> str:
-    return "confirm-rg:%s:%s:%s:%s:%02d" % (
+    return "%s:%s:%s:%s:%s:%02d" % (
+        prefix,
         task_id,
         evidence.value,
         observed.value,
@@ -77,7 +79,11 @@ def _response_group_id(
     )
 
 
-def build_confirmation_manifest() -> List[ConfirmationCell]:
+def build_confirmation_manifest(
+    model: str = CONFIRMATION_MODEL,
+    cell_prefix: str = "confirm",
+    response_group_prefix: str = "confirm-rg",
+) -> List[ConfirmationCell]:
     """Return the preregistered 240 outcomes and 160 response groups."""
     rows = []
     number = 0
@@ -96,20 +102,21 @@ def build_confirmation_manifest() -> List[ConfirmationCell]:
                         )
                         rows.append(
                             ConfirmationCell(
-                                cell_id="confirm-%03d" % number,
+                                cell_id="%s-%03d" % (cell_prefix, number),
                                 response_group_id=_response_group_id(
                                     task.task_id,
                                     evidence,
                                     observed,
                                     prompt_condition,
                                     repetition,
+                                    response_group_prefix,
                                 ),
                                 task_id=task.task_id,
                                 schedule=schedule.value,
                                 evidence=evidence.value,
                                 prompt_condition=prompt_condition,
                                 repetition=repetition,
-                                model=CONFIRMATION_MODEL,
+                                model=model,
                                 expected_observed_state=observed.value,
                                 instructions=instructions,
                                 prompt=prompt,
@@ -117,7 +124,7 @@ def build_confirmation_manifest() -> List[ConfirmationCell]:
                                     {"instructions": instructions, "prompt": prompt}
                                 ),
                                 maximum_reserved_cost_usd=maximum_decision_cost(
-                                    CONFIRMATION_MODEL,
+                                    model,
                                     instructions,
                                     prompt,
                                     CONFIRMATION_MAX_OUTPUT_TOKENS,
@@ -145,9 +152,15 @@ def load_confirmation_manifest(path: Path) -> List[ConfirmationCell]:
     return rows
 
 
-def validate_confirmation_manifest(rows: List[ConfirmationCell]) -> None:
+def validate_confirmation_manifest(
+    rows: List[ConfirmationCell],
+    model: str = CONFIRMATION_MODEL,
+    cell_prefix: str = "confirm",
+    response_group_prefix: str = "confirm-rg",
+) -> None:
     if [row.to_dict() for row in rows] != [
-        row.to_dict() for row in build_confirmation_manifest()
+        row.to_dict()
+        for row in build_confirmation_manifest(model, cell_prefix, response_group_prefix)
     ]:
         raise ValueError("confirmation manifest differs from frozen protocol")
 
@@ -163,9 +176,16 @@ def _group_rows(rows: List[ConfirmationCell]) -> List[List[ConfirmationCell]]:
     return [grouped[group_id] for group_id in order]
 
 
-def run_confirmation_preflight(rows: List[ConfirmationCell]) -> Dict[str, object]:
+def run_confirmation_preflight(
+    rows: List[ConfirmationCell],
+    model: str = CONFIRMATION_MODEL,
+    maximum_cost_usd: float = CONFIRMATION_MAX_COST_USD,
+    cell_prefix: str = "confirm",
+    response_group_prefix: str = "confirm-rg",
+    schema_version: str = "retrybench-confirmation-preflight-v2",
+) -> Dict[str, object]:
     """Validate the frozen denominator, response sharing, and cost without API calls."""
-    validate_confirmation_manifest(rows)
+    validate_confirmation_manifest(rows, model, cell_prefix, response_group_prefix)
     groups = _group_rows(rows)
     group_integrity = all(
         len({(row.transcript_sha256, row.task_id, row.evidence,
@@ -201,17 +221,17 @@ def run_confirmation_preflight(rows: List[ConfirmationCell]) -> Dict[str, object
         "hidden_schedule_absent_from_model_input": no_hidden_leak,
         "pilot_outcomes_excluded": all(row.repetition in range(1, 6) for row in rows),
         "maximum_reserved_cost_within_cap": unique_reserved_cost
-        <= CONFIRMATION_MAX_COST_USD,
+        <= maximum_cost_usd,
     }
     return {
-        "schema_version": "retrybench-confirmation-preflight-v2",
+        "schema_version": schema_version,
         "api_requests_made": 0,
         "scored_outcomes": len(rows),
         "fresh_model_calls": len(groups),
-        "model": CONFIRMATION_MODEL,
+        "model": model,
         "maximum_output_tokens": CONFIRMATION_MAX_OUTPUT_TOKENS,
         "maximum_reserved_cost_usd": unique_reserved_cost,
-        "cost_cap_usd": CONFIRMATION_MAX_COST_USD,
+        "cost_cap_usd": maximum_cost_usd,
         "gates": gates,
         "all_zero_cost_gates_passed": all(gates.values()),
         "spend_decision": "READY_FOR_SEPARATE_APPROVAL" if all(gates.values()) else "NO_GO",
@@ -225,13 +245,19 @@ def run_live_confirmation(
     database_path: Path,
     output_path: Path,
     late_commit_delay: float = 0.1,
+    expected_model: str = CONFIRMATION_MODEL,
+    maximum_cost_usd: float = CONFIRMATION_MAX_COST_USD,
+    cell_prefix: str = "confirm",
+    response_group_prefix: str = "confirm-rg",
+    operation_prefix: str = "confirmation",
+    schema_version: str = "retrybench-live-confirmation-v2",
 ) -> List[Dict[str, object]]:
     """Run once per response group, then replay that action on every hidden schedule."""
-    validate_confirmation_manifest(rows)
-    if policy.model != CONFIRMATION_MODEL:
-        raise ValueError("confirmation model must be %s" % CONFIRMATION_MODEL)
-    if budget.max_cost_usd > CONFIRMATION_MAX_COST_USD:
-        raise ValueError("confirmation budget may not exceed $%.2f" % CONFIRMATION_MAX_COST_USD)
+    validate_confirmation_manifest(rows, expected_model, cell_prefix, response_group_prefix)
+    if policy.model != expected_model:
+        raise ValueError("confirmation model must be %s" % expected_model)
+    if budget.max_cost_usd > maximum_cost_usd:
+        raise ValueError("confirmation budget may not exceed $%.2f" % maximum_cost_usd)
     if database_path.exists() or output_path.exists():
         raise FileExistsError("confirmation outputs must not already exist")
 
@@ -249,7 +275,7 @@ def run_live_confirmation(
                     task = task_by_id[row.task_id]
                     schedule = Schedule(row.schedule)
                     evidence = EvidenceContract(row.evidence)
-                    operation_id = "confirmation:%s" % row.cell_id
+                    operation_id = "%s:%s" % (operation_prefix, row.cell_id)
                     status, timeout_body = client.start(operation_id, task, schedule)
                     observed = client.status(operation_id, evidence)
                     instructions, prompt = build_decision_input(
@@ -289,7 +315,7 @@ def run_live_confirmation(
                         and observed == ObservedState.NOT_EXECUTED
                     )
                     result = {
-                        "schema_version": "retrybench-live-confirmation-v2",
+                        "schema_version": schema_version,
                         "cell_id": row.cell_id,
                         "response_group_id": row.response_group_id,
                         "shared_group_size": len(group),

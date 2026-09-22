@@ -1,0 +1,37 @@
+{
+  "schema_version": "retrybench-gpt54-replication-protocol-v1",
+  "status": "frozen_before_inference",
+  "frozen_on": "2026-09-22",
+  "purpose": "Independent-model replication of confirmation-v2; model snapshot is the only substantive experimental factor changed.",
+  "model": "gpt-5.4-2026-03-05",
+  "reasoning_effort": "none",
+  "maximum_output_tokens": 256,
+  "fresh_model_calls": 160,
+  "scored_outcomes": 240,
+  "response_sharing": "Reuse each weak-evidence response across the three hidden schedules; authoritative responses remain schedule-specific because observed state differs.",
+  "held_fixed": [
+    "four task templates",
+    "three hidden schedules",
+    "weak and authoritative evidence contracts",
+    "neutral and cautious prompts",
+    "five fresh repetitions",
+    "model-facing instructions and prompts",
+    "exact-state scoring",
+    "paired analysis and shared-response dependence note"
+  ],
+  "primary_contrast": "Neutral weak versus neutral authoritative false-retry permission.",
+  "interpretation": "Replication support requires the weak-negative safety gap to remain directionally consistent across tasks while reporting duplicates, omissions, unresolved outcomes, raw discordance, effect size, and cost. No post-hoc significance threshold or schedule change is permitted.",
+  "pricing_source": "https://developers.openai.com/api/docs/models/gpt-5.4",
+  "pricing_usd_per_million_tokens": {
+    "input": 2.5,
+    "cached_input": 0.25,
+    "output": 15.0
+  },
+  "expected_cost_from_confirmation_token_counts_usd": 0.21329,
+  "maximum_reserved_cost_usd": 0.7956,
+  "run_cost_cap_usd": 0.85,
+  "tracked_spend_before_run_usd": 0.10871025,
+  "maximum_cumulative_spend_under_caps_usd": 0.95871025,
+  "user_check_in_threshold_usd": 1.0,
+  "privacy": "Keep the GitHub repository private."
+}

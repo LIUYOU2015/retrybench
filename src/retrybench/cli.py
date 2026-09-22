@@ -90,6 +90,25 @@ def build_parser() -> argparse.ArgumentParser:
     confirmation.add_argument("--database", default="results/live-confirmation-v2.sqlite3")
     confirmation.add_argument("--max-cost-usd", type=float, default=1.0)
     confirmation.add_argument("--execute-paid-confirmation", action="store_true")
+    replication_preflight = subparsers.add_parser(
+        "replication-preflight", help="freeze and audit the GPT-5.4 replication without API calls"
+    )
+    replication_preflight.add_argument(
+        "--manifest", default="protocol/gpt54-replication-manifest-v1.jsonl"
+    )
+    replication_preflight.add_argument(
+        "--report", default="protocol/gpt54-replication-preflight-v1.json"
+    )
+    replication = subparsers.add_parser(
+        "replication", help="execute the frozen GPT-5.4 replication"
+    )
+    replication.add_argument(
+        "--manifest", default="protocol/gpt54-replication-manifest-v1.jsonl"
+    )
+    replication.add_argument("--output", default="results/live-gpt54-replication-v1.jsonl")
+    replication.add_argument("--database", default="results/live-gpt54-replication-v1.sqlite3")
+    replication.add_argument("--max-cost-usd", type=float, default=0.85)
+    replication.add_argument("--execute-paid-replication", action="store_true")
     export_cases = subparsers.add_parser(
         "export-cases", help="export model-facing confirmation cases without hidden schedules"
     )
@@ -121,6 +140,21 @@ def build_parser() -> argparse.ArgumentParser:
     analyze_confirmation.add_argument(
         "--report", default="runs/confirmation-v2/analysis.json"
     )
+    analyze_replication = subparsers.add_parser(
+        "analyze-replication", help="sanitize and analyze the GPT-5.4 replication"
+    )
+    analyze_replication.add_argument(
+        "--input", default="results/live-gpt54-replication-v1.jsonl"
+    )
+    analyze_replication.add_argument(
+        "--preflight", default="protocol/gpt54-replication-preflight-v1.json"
+    )
+    analyze_replication.add_argument(
+        "--outcomes", default="runs/gpt54-replication-v1/sanitized-outcomes.jsonl"
+    )
+    analyze_replication.add_argument(
+        "--report", default="runs/gpt54-replication-v1/analysis.json"
+    )
     langgraph_audit = subparsers.add_parser(
         "langgraph-audit", help="run the offline LangGraph retry-contract audit"
     )
@@ -150,7 +184,7 @@ def main(argv=None) -> int:
         print(json.dumps(report, indent=2, sort_keys=True))
         return 0
 
-    if args.command == "analyze-confirmation":
+    if args.command in {"analyze-confirmation", "analyze-replication"}:
         from .confirmation_analysis import (
             analyze_confirmation,
             load_jsonl,
@@ -172,6 +206,52 @@ def main(argv=None) -> int:
             "report": args.report,
         }, indent=2, sort_keys=True))
         return 0 if all(report["integrity"].values()) else 1
+
+    if args.command == "replication-preflight":
+        from .confirmation import write_confirmation_manifest
+        from .replication import build_replication_manifest, run_replication_preflight
+
+        rows = build_replication_manifest()
+        report = run_replication_preflight(rows)
+        write_confirmation_manifest(Path(args.manifest), rows)
+        Path(args.report).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.report).write_text(
+            json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+        print(json.dumps(report, indent=2, sort_keys=True))
+        return 0 if report["all_zero_cost_gates_passed"] else 1
+
+    if args.command == "replication":
+        from .confirmation import load_confirmation_manifest
+        from .openai_adapter import CostBudget, OpenAIResponsesPolicy
+        from .replication import (
+            REPLICATION_MAX_COST_USD,
+            REPLICATION_MODEL,
+            run_live_replication,
+        )
+
+        if not args.execute_paid_replication:
+            raise SystemExit("paid replication requires --execute-paid-replication")
+        if not os.environ.get("OPENAI_API_KEY"):
+            raise SystemExit("OPENAI_API_KEY is not set")
+        if args.max_cost_usd <= 0 or args.max_cost_usd > REPLICATION_MAX_COST_USD:
+            raise SystemExit(
+                "--max-cost-usd must be greater than 0 and no more than %.2f"
+                % REPLICATION_MAX_COST_USD
+            )
+        rows = load_confirmation_manifest(Path(args.manifest))
+        policy = OpenAIResponsesPolicy(model=REPLICATION_MODEL)
+        budget = CostBudget(args.max_cost_usd)
+        results = run_live_replication(
+            rows, policy, budget, Path(args.database), Path(args.output)
+        )
+        print(json.dumps({
+            "scored_outcomes": len(results),
+            "api_requests": budget.requests,
+            "actual_cost_usd": budget.spent_usd,
+            "output": args.output,
+        }, indent=2, sort_keys=True))
+        return 0
 
     if args.command == "export-cases":
         from .confirmation import load_confirmation_manifest

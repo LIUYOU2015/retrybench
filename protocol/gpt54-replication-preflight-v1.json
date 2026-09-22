@@ -1,0 +1,21 @@
+{
+  "all_zero_cost_gates_passed": true,
+  "api_requests_made": 0,
+  "cost_cap_usd": 0.85,
+  "fresh_model_calls": 160,
+  "gates": {
+    "exactly_160_fresh_response_groups": true,
+    "frozen_240_outcomes": true,
+    "hidden_schedule_absent_from_model_input": true,
+    "maximum_reserved_cost_within_cap": true,
+    "pilot_outcomes_excluded": true,
+    "shared_response_group_integrity": true,
+    "weak_three_way_sharing_and_authoritative_singletons": true
+  },
+  "maximum_output_tokens": 256,
+  "maximum_reserved_cost_usd": 0.7956,
+  "model": "gpt-5.4-2026-03-05",
+  "schema_version": "retrybench-gpt54-replication-preflight-v1",
+  "scored_outcomes": 240,
+  "spend_decision": "READY_FOR_SEPARATE_APPROVAL"
+}
