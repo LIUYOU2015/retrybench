@@ -106,11 +106,49 @@ def build_parser() -> argparse.ArgumentParser:
     score_decisions.add_argument("--decisions", required=True)
     score_decisions.add_argument("--output", default="results/external-scores-v1.jsonl")
     score_decisions.add_argument("--summary", default="results/external-summary-v1.json")
+    analyze_confirmation = subparsers.add_parser(
+        "analyze-confirmation", help="sanitize and analyze the completed confirmation-v2 block"
+    )
+    analyze_confirmation.add_argument(
+        "--input", default="results/live-confirmation-v2.jsonl"
+    )
+    analyze_confirmation.add_argument(
+        "--preflight", default="protocol/confirmation-v2-preflight.json"
+    )
+    analyze_confirmation.add_argument(
+        "--outcomes", default="runs/confirmation-v2/sanitized-outcomes.jsonl"
+    )
+    analyze_confirmation.add_argument(
+        "--report", default="runs/confirmation-v2/analysis.json"
+    )
     return parser
 
 
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command == "analyze-confirmation":
+        from .confirmation_analysis import (
+            analyze_confirmation,
+            load_jsonl,
+            write_analysis,
+            write_sanitized,
+        )
+
+        rows = load_jsonl(Path(args.input))
+        preflight = json.loads(Path(args.preflight).read_text(encoding="utf-8"))
+        report = analyze_confirmation(rows, preflight)
+        outcomes_hash = write_sanitized(Path(args.outcomes), rows)
+        write_analysis(Path(args.report), report, outcomes_hash)
+        print(json.dumps({
+            "scored_outcomes": report["scored_outcomes"],
+            "fresh_model_calls": report["fresh_model_calls"],
+            "actual_cost_usd": report["actual_cost_usd"],
+            "integrity": report["integrity"],
+            "outcomes": args.outcomes,
+            "report": args.report,
+        }, indent=2, sort_keys=True))
+        return 0 if all(report["integrity"].values()) else 1
+
     if args.command == "export-cases":
         from .confirmation import load_confirmation_manifest
         from .external import export_public_cases, write_jsonl
