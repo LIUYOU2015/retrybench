@@ -176,6 +176,54 @@ def _group_rows(rows: List[ConfirmationCell]) -> List[List[ConfirmationCell]]:
     return [grouped[group_id] for group_id in order]
 
 
+def load_resume_state(
+    output_path: Path,
+    rows: List[ConfirmationCell],
+    expected_model: str,
+    schema_version: str,
+) -> tuple:
+    """Validate completed groups and recover their calls and spend."""
+    with output_path.open(encoding="utf-8") as handle:
+        existing = [json.loads(line) for line in handle if line.strip()]
+    expected_groups = {
+        group[0].response_group_id: group for group in _group_rows(rows)
+    }
+    actual_groups: Dict[str, List[Dict[str, object]]] = {}
+    seen_cells = set()
+    for result in existing:
+        group_id = str(result.get("response_group_id", ""))
+        cell_id = str(result.get("cell_id", ""))
+        if group_id not in expected_groups or cell_id in seen_cells:
+            raise ValueError("resume output contains an unknown or duplicate coordinate")
+        seen_cells.add(cell_id)
+        actual_groups.setdefault(group_id, []).append(result)
+    for group_id, completed in actual_groups.items():
+        expected = expected_groups[group_id]
+        if {str(item["cell_id"]) for item in completed} != {
+            item.cell_id for item in expected
+        }:
+            raise ValueError("resume output contains an incomplete response group")
+        if any(
+            item.get("schema_version") != schema_version
+            or item.get("model") != expected_model
+            for item in completed
+        ):
+            raise ValueError("resume output does not match the frozen run")
+        first = completed[0]
+        if any(
+            item["decision"]["response_id"] != first["decision"]["response_id"]
+            or item["decision"]["action"] != first["decision"]["action"]
+            or item["transcript_sha256"] != first["transcript_sha256"]
+            for item in completed
+        ):
+            raise ValueError("resume output violates response sharing")
+    spent = sum(
+        float(group[0]["decision"]["cost_usd"])
+        for group in actual_groups.values()
+    )
+    return existing, set(actual_groups), spent, len(actual_groups)
+
+
 def run_confirmation_preflight(
     rows: List[ConfirmationCell],
     model: str = CONFIRMATION_MODEL,
@@ -251,6 +299,7 @@ def run_live_confirmation(
     response_group_prefix: str = "confirm-rg",
     operation_prefix: str = "confirmation",
     schema_version: str = "retrybench-live-confirmation-v2",
+    resume: bool = False,
 ) -> List[Dict[str, object]]:
     """Run once per response group, then replay that action on every hidden schedule."""
     validate_confirmation_manifest(rows, expected_model, cell_prefix, response_group_prefix)
@@ -258,18 +307,36 @@ def run_live_confirmation(
         raise ValueError("confirmation model must be %s" % expected_model)
     if budget.max_cost_usd > maximum_cost_usd:
         raise ValueError("confirmation budget may not exceed $%.2f" % maximum_cost_usd)
-    if database_path.exists() or output_path.exists():
-        raise FileExistsError("confirmation outputs must not already exist")
+    if database_path.exists():
+        raise FileExistsError("confirmation database must not already exist")
+    if resume:
+        if not output_path.exists():
+            raise FileNotFoundError("resume output does not exist")
+        results, completed_groups, recovered_spend, recovered_requests = load_resume_state(
+            output_path, rows, expected_model, schema_version
+        )
+        budget.spent_usd = recovered_spend
+        budget.requests = recovered_requests
+        if budget.spent_usd > budget.max_cost_usd:
+            raise ValueError("resume output already exceeds the configured budget")
+        output_mode = "a"
+    else:
+        if output_path.exists():
+            raise FileExistsError("confirmation output must not already exist")
+        results = []
+        completed_groups = set()
+        output_mode = "x"
 
     task_by_id = {task.task_id: task for task in TASKS}
-    results = []
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("x", encoding="utf-8") as output:
+    with output_path.open(output_mode, encoding="utf-8") as output:
         with RetryBenchHTTPService(
             database_path, late_commit_delay=late_commit_delay
         ) as service:
             client = HTTPExperimentClient(service.base_url)
             for group in _group_rows(rows):
+                if group[0].response_group_id in completed_groups:
+                    continue
                 prepared = []
                 for row in group:
                     task = task_by_id[row.task_id]

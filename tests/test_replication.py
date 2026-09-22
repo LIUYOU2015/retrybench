@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from retrybench.openai_adapter import CostBudget, OpenAIResponsesPolicy
+from retrybench.confirmation import load_resume_state
 from retrybench.replication import (
     REPLICATION_MAX_COST_USD,
     REPLICATION_MODEL,
@@ -60,6 +61,23 @@ class ReplicationTests(unittest.TestCase):
             )
         self.assertEqual(len(results), 240)
         self.assertEqual(budget.requests, 160)
+        with tempfile.TemporaryDirectory() as directory:
+            partial = Path(directory) / "partial.jsonl"
+            first_group = results[:3]
+            partial.write_text(
+                "".join(json.dumps(row, sort_keys=True) + "\n" for row in first_group),
+                encoding="utf-8",
+            )
+            recovered, groups, spent, requests = load_resume_state(
+                partial,
+                build_replication_manifest(),
+                REPLICATION_MODEL,
+                "retrybench-live-gpt54-replication-v1",
+            )
+        self.assertEqual(len(recovered), 3)
+        self.assertEqual(len(groups), 1)
+        self.assertEqual(requests, 1)
+        self.assertAlmostEqual(spent, first_group[0]["decision"]["cost_usd"])
 
 
 if __name__ == "__main__":

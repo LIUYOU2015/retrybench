@@ -109,6 +109,7 @@ def build_parser() -> argparse.ArgumentParser:
     replication.add_argument("--database", default="results/live-gpt54-replication-v1.sqlite3")
     replication.add_argument("--max-cost-usd", type=float, default=0.85)
     replication.add_argument("--execute-paid-replication", action="store_true")
+    replication.add_argument("--resume", action="store_true")
     export_cases = subparsers.add_parser(
         "export-cases", help="export model-facing confirmation cases without hidden schedules"
     )
@@ -243,7 +244,12 @@ def main(argv=None) -> int:
         policy = OpenAIResponsesPolicy(model=REPLICATION_MODEL)
         budget = CostBudget(args.max_cost_usd)
         results = run_live_replication(
-            rows, policy, budget, Path(args.database), Path(args.output)
+            rows,
+            policy,
+            budget,
+            Path(args.database),
+            Path(args.output),
+            resume=args.resume,
         )
         print(json.dumps({
             "scored_outcomes": len(results),

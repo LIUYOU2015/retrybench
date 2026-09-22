@@ -50,6 +50,7 @@ def run_live_replication(
     database_path: Path,
     output_path: Path,
     late_commit_delay: float = 0.1,
+    resume: bool = False,
 ) -> List[Dict[str, object]]:
     return run_live_confirmation(
         rows,
@@ -64,4 +65,5 @@ def run_live_replication(
         response_group_prefix=REPLICATION_GROUP_PREFIX,
         operation_prefix="gpt54-replication",
         schema_version="retrybench-live-gpt54-replication-v1",
+        resume=resume,
     )
