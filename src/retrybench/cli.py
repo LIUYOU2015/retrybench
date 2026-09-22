@@ -121,11 +121,35 @@ def build_parser() -> argparse.ArgumentParser:
     analyze_confirmation.add_argument(
         "--report", default="runs/confirmation-v2/analysis.json"
     )
+    langgraph_audit = subparsers.add_parser(
+        "langgraph-audit", help="run the offline LangGraph retry-contract audit"
+    )
+    langgraph_audit.add_argument(
+        "--outcomes", default="runs/langgraph-v1/outcomes.jsonl"
+    )
+    langgraph_audit.add_argument(
+        "--report", default="runs/langgraph-v1/summary.json"
+    )
     return parser
 
 
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command == "langgraph-audit":
+        from .external import write_jsonl
+        from .langgraph_adapter import run_langgraph_audit, summarize_langgraph_audit
+
+        rows = run_langgraph_audit()
+        report = summarize_langgraph_audit(rows)
+        write_jsonl(Path(args.outcomes), (row.to_dict() for row in rows))
+        report_path = Path(args.report)
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.write_text(
+            json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+        print(json.dumps(report, indent=2, sort_keys=True))
+        return 0
+
     if args.command == "analyze-confirmation":
         from .confirmation_analysis import (
             analyze_confirmation,

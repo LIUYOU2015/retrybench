@@ -122,6 +122,23 @@ Under neutral prompting, false retry permission was 51/60 with weak evidence and
 cautious weak prompting produced zero duplicates but left all 60 outcomes
 unresolved. See the [confirmation-v2 analysis](docs/confirmation-v2-analysis.md).
 
+## Framework audit
+
+The optional LangGraph adapter tests an actual graph-node retry boundary without
+model calls:
+
+```bash
+python -m pip install -e '.[langgraph]'
+retrybench langgraph-audit
+```
+
+With `langgraph==0.6.11`, an opt-in `RetryPolicy` using the framework's default
+exception predicate retried ambiguous `ConnectionError` outcomes and produced
+duplicates in 12/16 side-effecting episodes. No-retry produced zero duplicates
+but left 16/16 unresolved; stable-idempotency replay reached exact state in
+16/16. This is a configured contract boundary, not a framework-defect claim.
+See the [LangGraph audit](docs/langgraph-v1-audit.md).
+
 ## License and citation
 
 RetryBench is available under the PolyForm Noncommercial License 1.0.0.

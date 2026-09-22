@@ -17,6 +17,9 @@ classifiers = [
 [project.scripts]
 retrybench = "retrybench.cli:main"
 
+[project.optional-dependencies]
+langgraph = ["langgraph==0.6.11"]
+
 [tool.setuptools.packages.find]
 where = ["src"]
 

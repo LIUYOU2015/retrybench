@@ -1,0 +1,39 @@
+{
+  "by_policy": {
+    "langgraph_default_retry_policy": {
+      "duplicates": 12,
+      "episodes": 16,
+      "exact_state_success": 0,
+      "false_retry_permissions": 16,
+      "graph_completed": 0,
+      "omissions": 0,
+      "retries": 16,
+      "unresolved": 16
+    },
+    "no_retry": {
+      "duplicates": 0,
+      "episodes": 16,
+      "exact_state_success": 0,
+      "false_retry_permissions": 0,
+      "graph_completed": 0,
+      "omissions": 4,
+      "retries": 0,
+      "unresolved": 16
+    },
+    "stable_idempotency_retry": {
+      "duplicates": 0,
+      "episodes": 16,
+      "exact_state_success": 16,
+      "false_retry_permissions": 0,
+      "graph_completed": 16,
+      "omissions": 0,
+      "retries": 16,
+      "unresolved": 0
+    }
+  },
+  "episodes": 48,
+  "framework": "langgraph",
+  "framework_version": "0.6.11",
+  "interpretation": "LangGraph's retry mechanism behaves as configured; the audit tests whether exception-based retry is admissible for an external side effect.",
+  "schema_version": "retrybench-langgraph-audit-v1"
+}
