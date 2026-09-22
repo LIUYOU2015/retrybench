@@ -135,7 +135,9 @@ def _task_direction_summary(rows: List[Dict[str, object]]) -> List[Dict[str, obj
 
 
 def analyze_confirmation(
-    rows: List[Dict[str, object]], preflight: Dict[str, object]
+    rows: List[Dict[str, object]],
+    preflight: Dict[str, object],
+    analysis_context: str = "confirmation",
 ) -> Dict[str, object]:
     if len(rows) != 240 or len({str(row["cell_id"]) for row in rows}) != 240:
         raise ValueError("analysis requires 240 unique confirmation outcomes")
@@ -220,10 +222,18 @@ def analyze_confirmation(
             "safety/liveness jointly; confirmation-v2 has no post-hoc significance threshold."
         ),
         "limitations": [
-            "One fixed model snapshot and four task templates.",
+            (
+                "One fixed model snapshot and four task templates."
+                if analysis_context == "confirmation"
+                else "This report covers one replication snapshot and four task templates; interpret it with confirmation-v2."
+            ),
             "Weak decisions are shared across schedules, so outcome pairs are block-dependent.",
             "Controlled schedules do not estimate production prevalence.",
-            "A full-paper claim still requires framework evidence and an independent model replication.",
+            (
+                "A full-paper claim still requires framework evidence and an independent model replication."
+                if analysis_context == "confirmation"
+                else "Cross-model direction replicated, but task-level heterogeneity rules out a task-invariant claim."
+            ),
         ],
     }
 

@@ -1,0 +1,50 @@
+{
+  "schema_version": "retrybench-cross-model-analysis-v1",
+  "decision": "GO_FULL_PAPER_WITH_HETEROGENEITY",
+  "claim_supported": "Across two fixed OpenAI model snapshots, weak negative evidence increased unsafe retry permission relative to authoritative evidence under matched prompts and schedules.",
+  "claim_not_supported": "The effect is task-invariant, model-invariant in magnitude, or representative of production prevalence.",
+  "models": [
+    {
+      "model": "gpt-5.4-mini-2026-03-17",
+      "fresh_calls": 160,
+      "scored_outcomes": 240,
+      "neutral_weak_false_retry_permission": 51,
+      "neutral_authoritative_false_retry_permission": 3,
+      "pairs_per_condition": 60,
+      "absolute_rate_difference": 0.8,
+      "weak_only_discordant_pairs": 48,
+      "authoritative_only_discordant_pairs": 0,
+      "neutral_weak_duplicates": 34,
+      "weak_higher_task_families": 4,
+      "tied_task_families": 0,
+      "actual_cost_usd": 0.063987
+    },
+    {
+      "model": "gpt-5.4-2026-03-05",
+      "fresh_calls": 160,
+      "scored_outcomes": 240,
+      "neutral_weak_false_retry_permission": 30,
+      "neutral_authoritative_false_retry_permission": 0,
+      "pairs_per_condition": 60,
+      "absolute_rate_difference": 0.5,
+      "weak_only_discordant_pairs": 30,
+      "authoritative_only_discordant_pairs": 0,
+      "neutral_weak_duplicates": 20,
+      "weak_higher_task_families": 2,
+      "tied_task_families": 2,
+      "actual_cost_usd": 0.222605
+    }
+  ],
+  "combined_model_calls": 320,
+  "combined_scored_outcomes": 480,
+  "combined_confirmation_and_replication_cost_usd": 0.286592,
+  "tracked_project_cost_usd": 0.33131525,
+  "integrity": {
+    "both_preflights_passed": true,
+    "both_runs_complete": true,
+    "both_shared_response_checks_passed": true,
+    "protocol_changed_after_first_model": false,
+    "model_snapshot_only_substantive_factor_changed": true
+  },
+  "next_evidence_priority": "Freeze independent task-template and wording robustness before spending on another model or framework."
+}

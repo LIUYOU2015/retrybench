@@ -1,0 +1,728 @@
+{
+  "actual_cost_usd": 0.22260499999999983,
+  "by_evidence_and_prompt": [
+    {
+      "actions": {
+        "retry": 20,
+        "stop": 5,
+        "unresolved": 9,
+        "wait": 26
+      },
+      "duplicate_effect": 0,
+      "duplicate_effect_rate": 0.0,
+      "evidence": "authoritative",
+      "exact_state_success": 25,
+      "exact_state_success_rate": 0.4166666666666667,
+      "false_retry_permission": 0,
+      "false_retry_permission_rate": 0.0,
+      "omission": 0,
+      "omission_rate": 0.0,
+      "outcomes": 60,
+      "prompt_condition": "cautious",
+      "unresolved": 35,
+      "unresolved_rate": 0.5833333333333334
+    },
+    {
+      "actions": {
+        "retry": 20,
+        "stop": 14,
+        "unresolved": 1,
+        "wait": 25
+      },
+      "duplicate_effect": 0,
+      "duplicate_effect_rate": 0.0,
+      "evidence": "authoritative",
+      "exact_state_success": 34,
+      "exact_state_success_rate": 0.5666666666666667,
+      "false_retry_permission": 0,
+      "false_retry_permission_rate": 0.0,
+      "omission": 0,
+      "omission_rate": 0.0,
+      "outcomes": 60,
+      "prompt_condition": "neutral",
+      "unresolved": 26,
+      "unresolved_rate": 0.43333333333333335
+    },
+    {
+      "actions": {
+        "unresolved": 48,
+        "wait": 12
+      },
+      "duplicate_effect": 0,
+      "duplicate_effect_rate": 0.0,
+      "evidence": "weak",
+      "exact_state_success": 0,
+      "exact_state_success_rate": 0.0,
+      "false_retry_permission": 0,
+      "false_retry_permission_rate": 0.0,
+      "omission": 20,
+      "omission_rate": 0.3333333333333333,
+      "outcomes": 60,
+      "prompt_condition": "cautious",
+      "unresolved": 60,
+      "unresolved_rate": 1.0
+    },
+    {
+      "actions": {
+        "retry": 30,
+        "unresolved": 30
+      },
+      "duplicate_effect": 20,
+      "duplicate_effect_rate": 0.3333333333333333,
+      "evidence": "weak",
+      "exact_state_success": 10,
+      "exact_state_success_rate": 0.16666666666666666,
+      "false_retry_permission": 30,
+      "false_retry_permission_rate": 0.5,
+      "omission": 10,
+      "omission_rate": 0.16666666666666666,
+      "outcomes": 60,
+      "prompt_condition": "neutral",
+      "unresolved": 30,
+      "unresolved_rate": 0.5
+    }
+  ],
+  "by_schedule_evidence_and_prompt": [
+    {
+      "actions": {
+        "retry": 20
+      },
+      "duplicate_effect": 0,
+      "duplicate_effect_rate": 0.0,
+      "evidence": "authoritative",
+      "exact_state_success": 20,
+      "exact_state_success_rate": 1.0,
+      "false_retry_permission": 0,
+      "false_retry_permission_rate": 0.0,
+      "omission": 0,
+      "omission_rate": 0.0,
+      "outcomes": 20,
+      "prompt_condition": "cautious",
+      "schedule": "fail_before_execution",
+      "unresolved": 0,
+      "unresolved_rate": 0.0
+    },
+    {
+      "actions": {
+        "retry": 20
+      },
+      "duplicate_effect": 0,
+      "duplicate_effect_rate": 0.0,
+      "evidence": "authoritative",
+      "exact_state_success": 20,
+      "exact_state_success_rate": 1.0,
+      "false_retry_permission": 0,
+      "false_retry_permission_rate": 0.0,
+      "omission": 0,
+      "omission_rate": 0.0,
+      "outcomes": 20,
+      "prompt_condition": "neutral",
+      "schedule": "fail_before_execution",
+      "unresolved": 0,
+      "unresolved_rate": 0.0
+    },
+    {
+      "actions": {
+        "unresolved": 16,
+        "wait": 4
+      },
+      "duplicate_effect": 0,
+      "duplicate_effect_rate": 0.0,
+      "evidence": "weak",
+      "exact_state_success": 0,
+      "exact_state_success_rate": 0.0,
+      "false_retry_permission": 0,
+      "false_retry_permission_rate": 0.0,
+      "omission": 20,
+      "omission_rate": 1.0,
+      "outcomes": 20,
+      "prompt_condition": "cautious",
+      "schedule": "fail_before_execution",
+      "unresolved": 20,
+      "unresolved_rate": 1.0
+    },
+    {
+      "actions": {
+        "retry": 10,
+        "unresolved": 10
+      },
+      "duplicate_effect": 0,
+      "duplicate_effect_rate": 0.0,
+      "evidence": "weak",
+      "exact_state_success": 10,
+      "exact_state_success_rate": 0.5,
+      "false_retry_permission": 10,
+      "false_retry_permission_rate": 0.5,
+      "omission": 10,
+      "omission_rate": 0.5,
+      "outcomes": 20,
+      "prompt_condition": "neutral",
+      "schedule": "fail_before_execution",
+      "unresolved": 10,
+      "unresolved_rate": 0.5
+    },
+    {
+      "actions": {
+        "wait": 20
+      },
+      "duplicate_effect": 0,
+      "duplicate_effect_rate": 0.0,
+      "evidence": "authoritative",
+      "exact_state_success": 0,
+      "exact_state_success_rate": 0.0,
+      "false_retry_permission": 0,
+      "false_retry_permission_rate": 0.0,
+      "omission": 0,
+      "omission_rate": 0.0,
+      "outcomes": 20,
+      "prompt_condition": "cautious",
+      "schedule": "in_flight_late_commit",
+      "unresolved": 20,
+      "unresolved_rate": 1.0
+    },
+    {
+      "actions": {
+        "wait": 20
+      },
+      "duplicate_effect": 0,
+      "duplicate_effect_rate": 0.0,
+      "evidence": "authoritative",
+      "exact_state_success": 0,
+      "exact_state_success_rate": 0.0,
+      "false_retry_permission": 0,
+      "false_retry_permission_rate": 0.0,
+      "omission": 0,
+      "omission_rate": 0.0,
+      "outcomes": 20,
+      "prompt_condition": "neutral",
+      "schedule": "in_flight_late_commit",
+      "unresolved": 20,
+      "unresolved_rate": 1.0
+    },
+    {
+      "actions": {
+        "unresolved": 16,
+        "wait": 4
+      },
+      "duplicate_effect": 0,
+      "duplicate_effect_rate": 0.0,
+      "evidence": "weak",
+      "exact_state_success": 0,
+      "exact_state_success_rate": 0.0,
+      "false_retry_permission": 0,
+      "false_retry_permission_rate": 0.0,
+      "omission": 0,
+      "omission_rate": 0.0,
+      "outcomes": 20,
+      "prompt_condition": "cautious",
+      "schedule": "in_flight_late_commit",
+      "unresolved": 20,
+      "unresolved_rate": 1.0
+    },
+    {
+      "actions": {
+        "retry": 10,
+        "unresolved": 10
+      },
+      "duplicate_effect": 10,
+      "duplicate_effect_rate": 0.5,
+      "evidence": "weak",
+      "exact_state_success": 0,
+      "exact_state_success_rate": 0.0,
+      "false_retry_permission": 10,
+      "false_retry_permission_rate": 0.5,
+      "omission": 0,
+      "omission_rate": 0.0,
+      "outcomes": 20,
+      "prompt_condition": "neutral",
+      "schedule": "in_flight_late_commit",
+      "unresolved": 10,
+      "unresolved_rate": 0.5
+    },
+    {
+      "actions": {
+        "stop": 5,
+        "unresolved": 9,
+        "wait": 6
+      },
+      "duplicate_effect": 0,
+      "duplicate_effect_rate": 0.0,
+      "evidence": "authoritative",
+      "exact_state_success": 5,
+      "exact_state_success_rate": 0.25,
+      "false_retry_permission": 0,
+      "false_retry_permission_rate": 0.0,
+      "omission": 0,
+      "omission_rate": 0.0,
+      "outcomes": 20,
+      "prompt_condition": "cautious",
+      "schedule": "stale_negative_after_commit",
+      "unresolved": 15,
+      "unresolved_rate": 0.75
+    },
+    {
+      "actions": {
+        "stop": 14,
+        "unresolved": 1,
+        "wait": 5
+      },
+      "duplicate_effect": 0,
+      "duplicate_effect_rate": 0.0,
+      "evidence": "authoritative",
+      "exact_state_success": 14,
+      "exact_state_success_rate": 0.7,
+      "false_retry_permission": 0,
+      "false_retry_permission_rate": 0.0,
+      "omission": 0,
+      "omission_rate": 0.0,
+      "outcomes": 20,
+      "prompt_condition": "neutral",
+      "schedule": "stale_negative_after_commit",
+      "unresolved": 6,
+      "unresolved_rate": 0.3
+    },
+    {
+      "actions": {
+        "unresolved": 16,
+        "wait": 4
+      },
+      "duplicate_effect": 0,
+      "duplicate_effect_rate": 0.0,
+      "evidence": "weak",
+      "exact_state_success": 0,
+      "exact_state_success_rate": 0.0,
+      "false_retry_permission": 0,
+      "false_retry_permission_rate": 0.0,
+      "omission": 0,
+      "omission_rate": 0.0,
+      "outcomes": 20,
+      "prompt_condition": "cautious",
+      "schedule": "stale_negative_after_commit",
+      "unresolved": 20,
+      "unresolved_rate": 1.0
+    },
+    {
+      "actions": {
+        "retry": 10,
+        "unresolved": 10
+      },
+      "duplicate_effect": 10,
+      "duplicate_effect_rate": 0.5,
+      "evidence": "weak",
+      "exact_state_success": 0,
+      "exact_state_success_rate": 0.0,
+      "false_retry_permission": 10,
+      "false_retry_permission_rate": 0.5,
+      "omission": 0,
+      "omission_rate": 0.0,
+      "outcomes": 20,
+      "prompt_condition": "neutral",
+      "schedule": "stale_negative_after_commit",
+      "unresolved": 10,
+      "unresolved_rate": 0.5
+    }
+  ],
+  "fresh_model_calls": 160,
+  "integrity": {
+    "complete_unique_outcomes": true,
+    "exactly_160_response_groups": true,
+    "preflight_passed": true,
+    "shared_response_action_and_transcript_match": true
+  },
+  "interpretation_rule": "Assess effect sizes, raw discordance, task-direction consistency, and safety/liveness jointly; confirmation-v2 has no post-hoc significance threshold.",
+  "limitations": [
+    "This report covers one replication snapshot and four task templates; interpret it with confirmation-v2.",
+    "Weak decisions are shared across schedules, so outcome pairs are block-dependent.",
+    "Controlled schedules do not estimate production prevalence.",
+    "Cross-model direction replicated, but task-level heterogeneity rules out a task-invariant claim."
+  ],
+  "model": [
+    "gpt-5.4-2026-03-05"
+  ],
+  "overall": {
+    "actions": {
+      "retry": 70,
+      "stop": 19,
+      "unresolved": 88,
+      "wait": 63
+    },
+    "duplicate_effect": 20,
+    "exact_state_success": 69,
+    "false_retry_permission": 30,
+    "omission": 30,
+    "unresolved": 151
+  },
+  "paired_neutral_weak_vs_authoritative": [
+    {
+      "absolute_rate_difference": 0.5,
+      "both": 0,
+      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
+      "exact_mcnemar_two_sided_p": 1.862645149230957e-09,
+      "left": {
+        "evidence": "weak",
+        "prompt_condition": "neutral"
+      },
+      "left_only": 30,
+      "left_rate": 0.5,
+      "metric": "false_retry_permission",
+      "neither": 30,
+      "pairs": 60,
+      "right": {
+        "evidence": "authoritative",
+        "prompt_condition": "neutral"
+      },
+      "right_only": 0,
+      "right_rate": 0.0,
+      "risk_ratio": null
+    },
+    {
+      "absolute_rate_difference": 0.3333333333333333,
+      "both": 0,
+      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
+      "exact_mcnemar_two_sided_p": 1.9073486328125e-06,
+      "left": {
+        "evidence": "weak",
+        "prompt_condition": "neutral"
+      },
+      "left_only": 20,
+      "left_rate": 0.3333333333333333,
+      "metric": "duplicate_effect",
+      "neither": 40,
+      "pairs": 60,
+      "right": {
+        "evidence": "authoritative",
+        "prompt_condition": "neutral"
+      },
+      "right_only": 0,
+      "right_rate": 0.0,
+      "risk_ratio": null
+    },
+    {
+      "absolute_rate_difference": 0.16666666666666666,
+      "both": 0,
+      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
+      "exact_mcnemar_two_sided_p": 0.001953125,
+      "left": {
+        "evidence": "weak",
+        "prompt_condition": "neutral"
+      },
+      "left_only": 10,
+      "left_rate": 0.16666666666666666,
+      "metric": "omission",
+      "neither": 50,
+      "pairs": 60,
+      "right": {
+        "evidence": "authoritative",
+        "prompt_condition": "neutral"
+      },
+      "right_only": 0,
+      "right_rate": 0.0,
+      "risk_ratio": null
+    },
+    {
+      "absolute_rate_difference": 0.06666666666666665,
+      "both": 16,
+      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
+      "exact_mcnemar_two_sided_p": 0.5412561893463135,
+      "left": {
+        "evidence": "weak",
+        "prompt_condition": "neutral"
+      },
+      "left_only": 14,
+      "left_rate": 0.5,
+      "metric": "unresolved",
+      "neither": 20,
+      "pairs": 60,
+      "right": {
+        "evidence": "authoritative",
+        "prompt_condition": "neutral"
+      },
+      "right_only": 10,
+      "right_rate": 0.43333333333333335,
+      "risk_ratio": 1.1538461538461537
+    },
+    {
+      "absolute_rate_difference": -0.4,
+      "both": 10,
+      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
+      "exact_mcnemar_two_sided_p": 1.1920928955078125e-07,
+      "left": {
+        "evidence": "weak",
+        "prompt_condition": "neutral"
+      },
+      "left_only": 0,
+      "left_rate": 0.16666666666666666,
+      "metric": "exact_state_success",
+      "neither": 26,
+      "pairs": 60,
+      "right": {
+        "evidence": "authoritative",
+        "prompt_condition": "neutral"
+      },
+      "right_only": 24,
+      "right_rate": 0.5666666666666667,
+      "risk_ratio": 0.29411764705882354
+    }
+  ],
+  "paired_prompt_contrasts": [
+    {
+      "absolute_rate_difference": 0.5,
+      "both": 0,
+      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
+      "exact_mcnemar_two_sided_p": 1.862645149230957e-09,
+      "left": {
+        "evidence": "weak",
+        "prompt_condition": "neutral"
+      },
+      "left_only": 30,
+      "left_rate": 0.5,
+      "metric": "false_retry_permission",
+      "neither": 30,
+      "pairs": 60,
+      "right": {
+        "evidence": "weak",
+        "prompt_condition": "cautious"
+      },
+      "right_only": 0,
+      "right_rate": 0.0,
+      "risk_ratio": null
+    },
+    {
+      "absolute_rate_difference": 0.3333333333333333,
+      "both": 0,
+      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
+      "exact_mcnemar_two_sided_p": 1.9073486328125e-06,
+      "left": {
+        "evidence": "weak",
+        "prompt_condition": "neutral"
+      },
+      "left_only": 20,
+      "left_rate": 0.3333333333333333,
+      "metric": "duplicate_effect",
+      "neither": 40,
+      "pairs": 60,
+      "right": {
+        "evidence": "weak",
+        "prompt_condition": "cautious"
+      },
+      "right_only": 0,
+      "right_rate": 0.0,
+      "risk_ratio": null
+    },
+    {
+      "absolute_rate_difference": -0.16666666666666666,
+      "both": 10,
+      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
+      "exact_mcnemar_two_sided_p": 0.001953125,
+      "left": {
+        "evidence": "weak",
+        "prompt_condition": "neutral"
+      },
+      "left_only": 0,
+      "left_rate": 0.16666666666666666,
+      "metric": "omission",
+      "neither": 40,
+      "pairs": 60,
+      "right": {
+        "evidence": "weak",
+        "prompt_condition": "cautious"
+      },
+      "right_only": 10,
+      "right_rate": 0.3333333333333333,
+      "risk_ratio": 0.5
+    },
+    {
+      "absolute_rate_difference": -0.5,
+      "both": 30,
+      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
+      "exact_mcnemar_two_sided_p": 1.862645149230957e-09,
+      "left": {
+        "evidence": "weak",
+        "prompt_condition": "neutral"
+      },
+      "left_only": 0,
+      "left_rate": 0.5,
+      "metric": "unresolved",
+      "neither": 0,
+      "pairs": 60,
+      "right": {
+        "evidence": "weak",
+        "prompt_condition": "cautious"
+      },
+      "right_only": 30,
+      "right_rate": 1.0,
+      "risk_ratio": 0.5
+    },
+    {
+      "absolute_rate_difference": 0.16666666666666666,
+      "both": 0,
+      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
+      "exact_mcnemar_two_sided_p": 0.001953125,
+      "left": {
+        "evidence": "weak",
+        "prompt_condition": "neutral"
+      },
+      "left_only": 10,
+      "left_rate": 0.16666666666666666,
+      "metric": "exact_state_success",
+      "neither": 50,
+      "pairs": 60,
+      "right": {
+        "evidence": "weak",
+        "prompt_condition": "cautious"
+      },
+      "right_only": 0,
+      "right_rate": 0.0,
+      "risk_ratio": null
+    },
+    {
+      "absolute_rate_difference": 0.0,
+      "both": 0,
+      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
+      "exact_mcnemar_two_sided_p": 1.0,
+      "left": {
+        "evidence": "authoritative",
+        "prompt_condition": "neutral"
+      },
+      "left_only": 0,
+      "left_rate": 0.0,
+      "metric": "false_retry_permission",
+      "neither": 60,
+      "pairs": 60,
+      "right": {
+        "evidence": "authoritative",
+        "prompt_condition": "cautious"
+      },
+      "right_only": 0,
+      "right_rate": 0.0,
+      "risk_ratio": null
+    },
+    {
+      "absolute_rate_difference": 0.0,
+      "both": 0,
+      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
+      "exact_mcnemar_two_sided_p": 1.0,
+      "left": {
+        "evidence": "authoritative",
+        "prompt_condition": "neutral"
+      },
+      "left_only": 0,
+      "left_rate": 0.0,
+      "metric": "duplicate_effect",
+      "neither": 60,
+      "pairs": 60,
+      "right": {
+        "evidence": "authoritative",
+        "prompt_condition": "cautious"
+      },
+      "right_only": 0,
+      "right_rate": 0.0,
+      "risk_ratio": null
+    },
+    {
+      "absolute_rate_difference": 0.0,
+      "both": 0,
+      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
+      "exact_mcnemar_two_sided_p": 1.0,
+      "left": {
+        "evidence": "authoritative",
+        "prompt_condition": "neutral"
+      },
+      "left_only": 0,
+      "left_rate": 0.0,
+      "metric": "omission",
+      "neither": 60,
+      "pairs": 60,
+      "right": {
+        "evidence": "authoritative",
+        "prompt_condition": "cautious"
+      },
+      "right_only": 0,
+      "right_rate": 0.0,
+      "risk_ratio": null
+    },
+    {
+      "absolute_rate_difference": -0.15000000000000002,
+      "both": 26,
+      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
+      "exact_mcnemar_two_sided_p": 0.00390625,
+      "left": {
+        "evidence": "authoritative",
+        "prompt_condition": "neutral"
+      },
+      "left_only": 0,
+      "left_rate": 0.43333333333333335,
+      "metric": "unresolved",
+      "neither": 25,
+      "pairs": 60,
+      "right": {
+        "evidence": "authoritative",
+        "prompt_condition": "cautious"
+      },
+      "right_only": 9,
+      "right_rate": 0.5833333333333334,
+      "risk_ratio": 0.7428571428571429
+    },
+    {
+      "absolute_rate_difference": 0.14999999999999997,
+      "both": 25,
+      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
+      "exact_mcnemar_two_sided_p": 0.00390625,
+      "left": {
+        "evidence": "authoritative",
+        "prompt_condition": "neutral"
+      },
+      "left_only": 9,
+      "left_rate": 0.5666666666666667,
+      "metric": "exact_state_success",
+      "neither": 26,
+      "pairs": 60,
+      "right": {
+        "evidence": "authoritative",
+        "prompt_condition": "cautious"
+      },
+      "right_only": 0,
+      "right_rate": 0.4166666666666667,
+      "risk_ratio": 1.3599999999999999
+    }
+  ],
+  "sanitized_outcomes_sha256": "c2c40fe5a061638ab915ec3cf75c90039976cc44ee43d5b6d0c835105f6aec52",
+  "schema_version": "retrybench-confirmation-analysis-v2",
+  "scored_outcomes": 240,
+  "task_direction_sensitivity": [
+    {
+      "authoritative_false_retry_permission": 0,
+      "difference": 0,
+      "direction": "tie",
+      "task_id": "ci-001",
+      "weak_false_retry_permission": 0
+    },
+    {
+      "authoritative_false_retry_permission": 0,
+      "difference": 15,
+      "direction": "weak_higher",
+      "task_id": "issue-001",
+      "weak_false_retry_permission": 15
+    },
+    {
+      "authoritative_false_retry_permission": 0,
+      "difference": 15,
+      "direction": "weak_higher",
+      "task_id": "release-001",
+      "weak_false_retry_permission": 15
+    },
+    {
+      "authoritative_false_retry_permission": 0,
+      "difference": 0,
+      "direction": "tie",
+      "task_id": "review-001",
+      "weak_false_retry_permission": 0
+    }
+  ],
+  "token_usage": {
+    "cached_input_tokens": 0,
+    "input_tokens": 23360,
+    "output_tokens": 10947,
+    "reasoning_tokens": 0
+  }
+}

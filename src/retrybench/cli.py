@@ -195,7 +195,13 @@ def main(argv=None) -> int:
 
         rows = load_jsonl(Path(args.input))
         preflight = json.loads(Path(args.preflight).read_text(encoding="utf-8"))
-        report = analyze_confirmation(rows, preflight)
+        report = analyze_confirmation(
+            rows,
+            preflight,
+            analysis_context=(
+                "replication" if args.command == "analyze-replication" else "confirmation"
+            ),
+        )
         outcomes_hash = write_sanitized(Path(args.outcomes), rows)
         write_analysis(Path(args.report), report, outcomes_hash)
         print(json.dumps({
