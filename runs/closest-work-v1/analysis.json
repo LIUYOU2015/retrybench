@@ -1,0 +1,178 @@
+{
+  "all_frozen_checks_passed": true,
+  "api_calls": 0,
+  "api_cost_usd": 0.0,
+  "checks": {
+    "authoritative_status_is_one_in_every_family": true,
+    "no_affordance_best_is_half_in_every_family": true,
+    "stable_idempotency_is_one_in_every_family": true,
+    "stable_idempotency_safe_everywhere": true,
+    "terminal_aware_status_safe_everywhere": true,
+    "weak_negative_failures_only_in_added_schedules": true
+  },
+  "conclusion": "The source artifact's structural status and idempotency controls reproduce on its author-selected slice. After adding in-flight and stale-negative worlds, a negative lookup is not sufficient retry permission; the status benefit is conditional on authoritative, terminal-aware evidence. Stable idempotency remains safe.",
+  "outcomes_sha256": "40581d270e0d4e39fd12d9987ce89706bd3308f69ca516f3cb0604c574df148b",
+  "retrybench_extension": {
+    "by_policy": {
+      "negative_status_as_retry_permission": {
+        "episodes": 24,
+        "exact_state_rate": 0.5,
+        "exact_state_successes": 12
+      },
+      "stable_idempotency_retry": {
+        "episodes": 24,
+        "exact_state_rate": 1.0,
+        "exact_state_successes": 24
+      },
+      "terminal_aware_status_reconcile": {
+        "episodes": 24,
+        "exact_state_rate": 1.0,
+        "exact_state_successes": 24
+      }
+    },
+    "episodes": 72,
+    "weak_negative_failures_by_schedule": {
+      "executed_response_lost": 0,
+      "in_flight_late_commit": 6,
+      "not_executed": 0,
+      "stale_negative_after_commit": 6
+    }
+  },
+  "schema_version": "retrybench-closest-work-analysis-v1",
+  "scope": "This deterministic slice validates a construct boundary and does not reproduce the upstream paper's model-dependent aggregate rates.",
+  "slice": {
+    "families": [
+      "create_once",
+      "ordered_transition",
+      "reserve_then_link"
+    ],
+    "ids": [
+      "confirm_se01_github_issue_create_once",
+      "confirm_se05_github_deployment_create_once",
+      "confirm_se25_incident_response_ordered_transition",
+      "confirm_se22_terraform_run_ordered_transition",
+      "confirm_se25_incident_response_reserve_then_link",
+      "confirm_se13_kubernetes_job_reserve_then_link"
+    ],
+    "templates": 6
+  },
+  "source_faithful": {
+    "by_control": {
+      "authoritative_status_reconcile": {
+        "episodes": 12,
+        "exact_state_rate": 1.0,
+        "exact_state_successes": 12
+      },
+      "prompt_only_retry": {
+        "episodes": 12,
+        "exact_state_rate": 0.5,
+        "exact_state_successes": 6
+      },
+      "prompt_only_stop": {
+        "episodes": 12,
+        "exact_state_rate": 0.3333333333333333,
+        "exact_state_successes": 4
+      },
+      "stable_idempotency_retry": {
+        "episodes": 12,
+        "exact_state_rate": 1.0,
+        "exact_state_successes": 12
+      }
+    },
+    "by_family": {
+      "create_once": {
+        "by_control": {
+          "authoritative_status_reconcile": {
+            "episodes": 4,
+            "exact_state_rate": 1.0,
+            "exact_state_successes": 4
+          },
+          "prompt_only_retry": {
+            "episodes": 4,
+            "exact_state_rate": 0.5,
+            "exact_state_successes": 2
+          },
+          "prompt_only_stop": {
+            "episodes": 4,
+            "exact_state_rate": 0.5,
+            "exact_state_successes": 2
+          },
+          "stable_idempotency_retry": {
+            "episodes": 4,
+            "exact_state_rate": 1.0,
+            "exact_state_successes": 4
+          }
+        },
+        "no_affordance_best_exact_state_rate": 0.5
+      },
+      "ordered_transition": {
+        "by_control": {
+          "authoritative_status_reconcile": {
+            "episodes": 4,
+            "exact_state_rate": 1.0,
+            "exact_state_successes": 4
+          },
+          "prompt_only_retry": {
+            "episodes": 4,
+            "exact_state_rate": 0.5,
+            "exact_state_successes": 2
+          },
+          "prompt_only_stop": {
+            "episodes": 4,
+            "exact_state_rate": 0.5,
+            "exact_state_successes": 2
+          },
+          "stable_idempotency_retry": {
+            "episodes": 4,
+            "exact_state_rate": 1.0,
+            "exact_state_successes": 4
+          }
+        },
+        "no_affordance_best_exact_state_rate": 0.5
+      },
+      "reserve_then_link": {
+        "by_control": {
+          "authoritative_status_reconcile": {
+            "episodes": 4,
+            "exact_state_rate": 1.0,
+            "exact_state_successes": 4
+          },
+          "prompt_only_retry": {
+            "episodes": 4,
+            "exact_state_rate": 0.5,
+            "exact_state_successes": 2
+          },
+          "prompt_only_stop": {
+            "episodes": 4,
+            "exact_state_rate": 0.0,
+            "exact_state_successes": 0
+          },
+          "stable_idempotency_retry": {
+            "episodes": 4,
+            "exact_state_rate": 1.0,
+            "exact_state_successes": 4
+          }
+        },
+        "no_affordance_best_exact_state_rate": 0.5
+      }
+    },
+    "episodes": 48,
+    "post_freeze_correction": {
+      "corrected_check": "Use the upstream artifact's own pre-existing gate: max(stop, retry)=0.5 separately in every structural family. Preserve and report both raw stop and retry rates.",
+      "observed_source_behavior": "The upstream reserve_then_link simulator requires the downstream link, so stopping after an executed-but-response-lost reservation is not exact-state success. Aggregate stop is therefore 4/12, not 6/12.",
+      "original_incorrect_check": "The first frozen draft expected aggregate prompt_only_stop_exact_state_rate=0.5.",
+      "recorded_on": "2026-09-22",
+      "scope": "This corrects a deterministic source-control transcription error. It does not change the author-selected slice, extension schedules, policies, primary estimand, outcomes, or interpretation rule."
+    }
+  },
+  "source_provenance": {
+    "commit": "4b626e7cde61ec9275a30e23982d146ee6f4e65d",
+    "file_sha256": {
+      "LICENSE": "53e1db9f4e3627de4e3e9eaa0bf861e596e72e9d50747ef9d812d8d0602c6503",
+      "LICENSE-DATA.md": "540a532270ef23a3b2c21fef66fb38afe419f41087518a5d9829532957d498ba",
+      "data/public/ambiguous_outcomes_se_v1_4/catalog.jsonl": "87e60c6a6ce1ede2a3354c15955e6bd529f96eb834edca25792ac6113871d6b0",
+      "protocol/frozen_manifest_sqj_v1_4.json": "f5c28bde58a3e7e7efd4ff035b4c4fe788787c771a6bba105ec59d9ec27ef4f1"
+    },
+    "slice_sha256": "27e90eeebfcbb4e56e0b022bad6975970b9981c4785a1e5ac8bab9e5df1bd4ca"
+  }
+}

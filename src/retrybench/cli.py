@@ -205,11 +205,37 @@ def build_parser() -> argparse.ArgumentParser:
     langgraph_audit.add_argument(
         "--report", default="runs/langgraph-v1/summary.json"
     )
+    closest_work = subparsers.add_parser(
+        "closest-work-audit",
+        help="run the frozen zero-cost closest-work reproduction and extension",
+    )
+    closest_work.add_argument("--source-checkout", required=True)
+    closest_work.add_argument(
+        "--protocol", default="protocol/closest-work-v1.json"
+    )
+    closest_work.add_argument(
+        "--slice", default="protocol/closest-work-v1-slice.jsonl"
+    )
+    closest_work.add_argument(
+        "--output-dir", default="runs/closest-work-v1"
+    )
     return parser
 
 
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command == "closest-work-audit":
+        from .closest_work import run_closest_work, write_closest_work_outputs
+
+        report, rows = run_closest_work(
+            Path(args.source_checkout),
+            Path(args.protocol),
+            Path(args.slice),
+        )
+        write_closest_work_outputs(report, rows, Path(args.output_dir))
+        print(json.dumps(report, indent=2, sort_keys=True))
+        return 0 if report["all_frozen_checks_passed"] else 1
+
     if args.command == "analyze-robustness":
         from collections import defaultdict
 

@@ -1,0 +1,87 @@
+{
+  "schema_version": "retrybench-closest-work-protocol-v1",
+  "status": "frozen_with_noninferential_source-control_correction",
+  "frozen_on": "2026-09-22",
+  "purpose": "Reproduce the closest artifact's deterministic recovery controls on its author-selected replication subset, then isolate which conclusion changes when nonterminal and stale-negative schedules are added.",
+  "source": {
+    "title": "Did It Happen? Benchmarking LLM Agents on Ambiguous Tool Outcomes in Software Engineering",
+    "repository": "https://github.com/shushuyang231/ambiguous-tool-outcomes-benchmark",
+    "commit": "4b626e7cde61ec9275a30e23982d146ee6f4e65d",
+    "release_doi": "10.5281/zenodo.21888869",
+    "protocol_id": "ambiguous-se-outcomes-v1.4",
+    "software_license": "MIT",
+    "data_documentation_license": "CC BY 4.0",
+    "creator": "Shengyao Sun",
+    "frozen_file_sha256": {
+      "LICENSE": "53e1db9f4e3627de4e3e9eaa0bf861e596e72e9d50747ef9d812d8d0602c6503",
+      "LICENSE-DATA.md": "540a532270ef23a3b2c21fef66fb38afe419f41087518a5d9829532957d498ba",
+      "protocol/frozen_manifest_sqj_v1_4.json": "f5c28bde58a3e7e7efd4ff035b4c4fe788787c771a6bba105ec59d9ec27ef4f1",
+      "data/public/ambiguous_outcomes_se_v1_4/catalog.jsonl": "87e60c6a6ce1ede2a3354c15955e6bd529f96eb834edca25792ac6113871d6b0"
+    }
+  },
+  "slice_selection": {
+    "rule": "Use all six template ids selected by the source authors in frozen_manifest_sqj_v1_4.json:replication_subset_ids; do not substitute tasks after observing results.",
+    "templates": 6,
+    "families": 3,
+    "templates_per_family": 2,
+    "ids": [
+      "confirm_se01_github_issue_create_once",
+      "confirm_se05_github_deployment_create_once",
+      "confirm_se25_incident_response_ordered_transition",
+      "confirm_se22_terraform_run_ordered_transition",
+      "confirm_se25_incident_response_reserve_then_link",
+      "confirm_se13_kubernetes_job_reserve_then_link"
+    ]
+  },
+  "source_faithful_block": {
+    "hidden_worlds": [
+      "not_executed",
+      "executed_response_lost"
+    ],
+    "controls": [
+      "prompt_only_stop",
+      "prompt_only_retry",
+      "authoritative_status_reconcile",
+      "stable_idempotency_retry"
+    ],
+    "primary_reproduction_checks": {
+      "no_affordance_best_exact_state_rate_in_every_family": 0.5,
+      "authoritative_status_reconcile_exact_state_rate_in_every_family": 1.0,
+      "stable_idempotency_retry_exact_state_rate_in_every_family": 1.0
+    },
+    "post_freeze_correction": {
+      "recorded_on": "2026-09-22",
+      "original_incorrect_check": "The first frozen draft expected aggregate prompt_only_stop_exact_state_rate=0.5.",
+      "observed_source_behavior": "The upstream reserve_then_link simulator requires the downstream link, so stopping after an executed-but-response-lost reservation is not exact-state success. Aggregate stop is therefore 4/12, not 6/12.",
+      "corrected_check": "Use the upstream artifact's own pre-existing gate: max(stop, retry)=0.5 separately in every structural family. Preserve and report both raw stop and retry rates.",
+      "scope": "This corrects a deterministic source-control transcription error. It does not change the author-selected slice, extension schedules, policies, primary estimand, outcomes, or interpretation rule."
+    }
+  },
+  "retrybench_extension_block": {
+    "schedules": [
+      "not_executed",
+      "executed_response_lost",
+      "in_flight_late_commit",
+      "stale_negative_after_commit"
+    ],
+    "policies": [
+      "negative_status_as_retry_permission",
+      "terminal_aware_status_reconcile",
+      "stable_idempotency_retry"
+    ],
+    "negative_status_contract": "A negative lookup reports only that no completed effect is currently visible. It does not prove terminal non-execution and may be stale.",
+    "terminal_status_contract": "Status distinguishes terminal non-execution, committed execution, and nonterminal in-flight execution; the recovery policy waits for in-flight work and retries only terminal non-execution.",
+    "settlement_rule": "Every in-flight original operation settles before exact-state scoring.",
+    "primary_estimand": "Equal-template exact-state success-rate change for status reconciliation when a negative observation is incorrectly treated as retry permission over the four-world extension, compared with authoritative status reconciliation over the source two-world design.",
+    "invariant_check": "Stable idempotency must remain exactly-once safe in every template and schedule.",
+    "interpretation_rule": "If authoritative source status and stable idempotency reproduce at 100%, but weak-negative retry loses exact-state safety only in the added schedules, conclude that the source status benefit is conditional on evidence authority/terminality; do not claim the source result is false."
+  },
+  "execution": {
+    "api_calls": 0,
+    "api_cost_usd": 0.0,
+    "source_checkout_required": true,
+    "source_code_execution": "Run the source artifact's own TaskFamilySimulator and run_family_episode for the source-faithful block after commit and file-hash validation.",
+    "output": "runs/closest-work-v1/analysis.json"
+  },
+  "privacy": "Keep the GitHub repository private."
+}
