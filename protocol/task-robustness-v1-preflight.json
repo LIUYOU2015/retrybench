@@ -1,0 +1,24 @@
+{
+  "all_zero_cost_gates_passed": true,
+  "api_requests_made": 0,
+  "cost_cap_usd": 0.6,
+  "fresh_model_calls": 128,
+  "gates": {
+    "authoritative_schedule_specific_responses": true,
+    "eight_independent_task_families": true,
+    "exactly_128_fresh_response_groups": true,
+    "frozen_192_unique_outcomes": true,
+    "hidden_schedule_absent_from_model_input": true,
+    "maximum_reserved_cost_within_cap": true,
+    "two_semantically_matched_lexical_frames_per_family": true,
+    "weak_three_schedule_response_sharing": true
+  },
+  "lexical_frames_per_family": 2,
+  "maximum_output_tokens": 160,
+  "maximum_reserved_cost_usd": 0.43164,
+  "model": "gpt-5.4-2026-03-05",
+  "repetitions_per_frame": 2,
+  "schema_version": "retrybench-task-robustness-preflight-v1",
+  "scored_outcomes": 192,
+  "task_families": 8
+}

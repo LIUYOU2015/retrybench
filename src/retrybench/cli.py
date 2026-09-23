@@ -110,6 +110,16 @@ def build_parser() -> argparse.ArgumentParser:
     replication.add_argument("--max-cost-usd", type=float, default=0.85)
     replication.add_argument("--execute-paid-replication", action="store_true")
     replication.add_argument("--resume", action="store_true")
+    robustness_preflight = subparsers.add_parser(
+        "robustness-preflight",
+        help="freeze and audit independent-task robustness without API calls",
+    )
+    robustness_preflight.add_argument(
+        "--manifest", default="protocol/task-robustness-v1-manifest.jsonl"
+    )
+    robustness_preflight.add_argument(
+        "--report", default="protocol/task-robustness-v1-preflight.json"
+    )
     export_cases = subparsers.add_parser(
         "export-cases", help="export model-facing confirmation cases without hidden schedules"
     )
@@ -170,6 +180,24 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command == "robustness-preflight":
+        from .task_robustness import (
+            build_robustness_manifest,
+            run_robustness_preflight,
+            write_robustness_manifest,
+        )
+
+        rows = build_robustness_manifest()
+        report = run_robustness_preflight(rows)
+        write_robustness_manifest(Path(args.manifest), rows)
+        report_path = Path(args.report)
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.write_text(
+            json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+        print(json.dumps(report, indent=2, sort_keys=True))
+        return 0 if report["all_zero_cost_gates_passed"] else 1
+
     if args.command == "langgraph-audit":
         from .external import write_jsonl
         from .langgraph_adapter import run_langgraph_audit, summarize_langgraph_audit

@@ -1,0 +1,44 @@
+{
+  "schema_version": "retrybench-task-robustness-protocol-v1",
+  "status": "frozen_before_inference",
+  "frozen_on": "2026-09-22",
+  "purpose": "Determine whether the GPT-5.4 weak-negative effect generalizes across independent software-engineering task families or is concentrated in particular task wording.",
+  "model": "gpt-5.4-2026-03-05",
+  "reasoning_effort": "none",
+  "maximum_output_tokens": 160,
+  "task_families": 8,
+  "lexical_frames_per_family": 2,
+  "repetitions_per_frame": 2,
+  "schedules": [
+    "fail_before_execution",
+    "in_flight_late_commit",
+    "stale_negative_after_commit"
+  ],
+  "evidence_contracts": ["weak", "authoritative"],
+  "prompt_condition": "neutral",
+  "fresh_model_calls": 128,
+  "scored_outcomes": 192,
+  "response_sharing": "Each weak response is replayed across all three hidden schedules; authoritative responses remain schedule-specific because the observed state differs.",
+  "semantic_equivalence_rule": "Within each family, create and noncreate variants have identical targets and payloads and differ in tool-name lexical framing. All task ids, tools, targets, and payloads are disjoint from the original four tasks.",
+  "top_level_generalization_unit": "task_family",
+  "primary_estimand": "Equal-family mean difference in neutral false-retry-permission rate: weak minus authoritative.",
+  "lexical_estimand": "Equal-family mean weak-evidence rate difference: create frame minus noncreate frame.",
+  "decision_rule": {
+    "stronger_empirical_paper_path": "At least 6 of 8 families are weak-higher and the task-cluster 95% t interval lower bound is above zero.",
+    "directional_artifact_first_path": "At least 5 of 8 families are weak-higher and the equal-family mean is positive, but the strong criterion is not met.",
+    "no_task_generality_support": "All other outcomes."
+  },
+  "analysis_constraints": [
+    "Schedule outcomes are not independent task samples.",
+    "Lexical variants are paired within semantic family.",
+    "Report all eight family effects, the task-cluster interval, and the lexical paired effects.",
+    "Do not replace the predeclared rule after observing results."
+  ],
+  "expected_cost_from_prior_gpt54_run_usd": 0.178084,
+  "maximum_reserved_cost_usd": 0.43164,
+  "run_cost_cap_usd": 0.6,
+  "tracked_spend_before_run_usd": 0.33131525,
+  "maximum_cumulative_spend_under_caps_usd": 0.93131525,
+  "user_check_in_threshold_usd": 1.0,
+  "privacy": "Keep the GitHub repository private."
+}
