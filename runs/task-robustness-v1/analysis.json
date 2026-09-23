@@ -1,0 +1,131 @@
+{
+  "actual_cost_usd": 0.16456999999999997,
+  "decision": "STRONGER_EMPIRICAL_PAPER_PATH",
+  "equal_family_mean_rate_difference": 0.625,
+  "fresh_model_calls": 128,
+  "interpretation": "Task family is the top-level generalization unit; schedule outcomes and lexical variants are not independent task samples.",
+  "lexical_counterbalance": {
+    "equal_family_mean_create_minus_noncreate": 0.5,
+    "family_effects": [
+      {
+        "create_minus_noncreate": 0.0,
+        "create_rate": 1.0,
+        "family_id": "artifact",
+        "noncreate_rate": 1.0
+      },
+      {
+        "create_minus_noncreate": 0.5,
+        "create_rate": 0.5,
+        "family_id": "change-record",
+        "noncreate_rate": 0.0
+      },
+      {
+        "create_minus_noncreate": 1.0,
+        "create_rate": 1.0,
+        "family_id": "deployment",
+        "noncreate_rate": 0.0
+      },
+      {
+        "create_minus_noncreate": 1.0,
+        "create_rate": 1.0,
+        "family_id": "maintenance-job",
+        "noncreate_rate": 0.0
+      },
+      {
+        "create_minus_noncreate": 0.0,
+        "create_rate": 1.0,
+        "family_id": "package-version",
+        "noncreate_rate": 1.0
+      },
+      {
+        "create_minus_noncreate": 0.0,
+        "create_rate": 0.5,
+        "family_id": "review-request",
+        "noncreate_rate": 0.5
+      },
+      {
+        "create_minus_noncreate": 0.5,
+        "create_rate": 1.0,
+        "family_id": "security-finding",
+        "noncreate_rate": 0.5
+      },
+      {
+        "create_minus_noncreate": 1.0,
+        "create_rate": 1.0,
+        "family_id": "webhook-event",
+        "noncreate_rate": 0.0
+      }
+    ]
+  },
+  "predeclared_decision_rule": {
+    "directional_artifact_first_path": "at least 5/8 weak-higher families and positive mean, but strong criterion not met",
+    "no_task_generality_support": "all other outcomes",
+    "stronger_empirical_paper_path": "at least 6/8 weak-higher families and task-cluster interval lower bound above zero"
+  },
+  "sanitized_outcomes_sha256": "88ec70509513828849ac72c68235f46e0b196664c4f160880168a6fc6e299359",
+  "schema_version": "retrybench-task-robustness-analysis-v1",
+  "scored_outcomes": 192,
+  "task_cluster_standard_error": 0.0944911182523068,
+  "task_cluster_t_95_interval_bounded": [
+    0.4015640101819955,
+    0.8484359898180045
+  ],
+  "task_families": 8,
+  "task_family_effects": [
+    {
+      "authoritative_rate": 0.0,
+      "family_id": "artifact",
+      "rate_difference": 1.0,
+      "weak_rate": 1.0
+    },
+    {
+      "authoritative_rate": 0.0,
+      "family_id": "change-record",
+      "rate_difference": 0.25,
+      "weak_rate": 0.25
+    },
+    {
+      "authoritative_rate": 0.0,
+      "family_id": "deployment",
+      "rate_difference": 0.5,
+      "weak_rate": 0.5
+    },
+    {
+      "authoritative_rate": 0.0,
+      "family_id": "maintenance-job",
+      "rate_difference": 0.5,
+      "weak_rate": 0.5
+    },
+    {
+      "authoritative_rate": 0.0,
+      "family_id": "package-version",
+      "rate_difference": 1.0,
+      "weak_rate": 1.0
+    },
+    {
+      "authoritative_rate": 0.0,
+      "family_id": "review-request",
+      "rate_difference": 0.5,
+      "weak_rate": 0.5
+    },
+    {
+      "authoritative_rate": 0.0,
+      "family_id": "security-finding",
+      "rate_difference": 0.75,
+      "weak_rate": 0.75
+    },
+    {
+      "authoritative_rate": 0.0,
+      "family_id": "webhook-event",
+      "rate_difference": 0.5,
+      "weak_rate": 0.5
+    }
+  ],
+  "token_usage": {
+    "cached_input_tokens": 0,
+    "input_tokens": 17192,
+    "output_tokens": 8106,
+    "reasoning_tokens": 0
+  },
+  "weak_higher_families": 8
+}

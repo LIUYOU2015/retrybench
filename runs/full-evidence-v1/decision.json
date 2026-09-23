@@ -1,0 +1,39 @@
+{
+  "schema_version": "retrybench-full-evidence-decision-v1",
+  "decision": "STRONGER_EMPIRICAL_PAPER_PATH_SUPPORTED",
+  "bounded_claim": "Weak negative evidence increases false retry permission across all eight independent task families in the frozen GPT-5.4 robustness block, while matched lexical framing materially moderates the magnitude.",
+  "task_robustness": {
+    "model": "gpt-5.4-2026-03-05",
+    "fresh_calls": 128,
+    "scored_outcomes": 192,
+    "weak_higher_families": 8,
+    "task_families": 8,
+    "equal_family_mean_rate_difference": 0.625,
+    "task_cluster_standard_error": 0.0944911182523068,
+    "task_cluster_t_95_interval_bounded": [
+      0.4015640101819955,
+      0.8484359898180045
+    ],
+    "equal_family_mean_create_minus_noncreate": 0.5,
+    "actual_cost_usd": 0.16457,
+    "sanitized_outcomes_sha256": "88ec70509513828849ac72c68235f46e0b196664c4f160880168a6fc6e299359"
+  },
+  "cumulative_evidence": {
+    "pilot_calls": 96,
+    "confirmation_and_replication_calls": 320,
+    "task_robustness_calls": 128,
+    "langgraph_offline_episodes": 48,
+    "tracked_api_cost_usd": 0.49588525
+  },
+  "remaining_prerequisites": [
+    "Frozen direct reproduction slice against the actual Did It Happen? artifact.",
+    "One additional framework or genuinely distinct integration/configuration.",
+    "Policy-dependent public release trigger while preserving current private visibility."
+  ],
+  "claim_limits": [
+    "The robustness block uses one model snapshot.",
+    "The eight semantic families and lexical pairs are designed benchmark tasks, not a random production sample.",
+    "The result does not estimate production fault prevalence.",
+    "The lexical contrast is explanatory and not the preregistered venue decision threshold."
+  ]
+}
