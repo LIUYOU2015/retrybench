@@ -205,6 +205,15 @@ def build_parser() -> argparse.ArgumentParser:
     langgraph_audit.add_argument(
         "--report", default="runs/langgraph-v1/summary.json"
     )
+    langchain_audit = subparsers.add_parser(
+        "langchain-audit", help="run the offline LangChain retry-contract audit"
+    )
+    langchain_audit.add_argument(
+        "--outcomes", default="runs/langchain-v1/outcomes.jsonl"
+    )
+    langchain_audit.add_argument(
+        "--report", default="runs/langchain-v1/summary.json"
+    )
     closest_work = subparsers.add_parser(
         "closest-work-audit",
         help="run the frozen zero-cost closest-work reproduction and extension",
@@ -235,6 +244,22 @@ def main(argv=None) -> int:
         write_closest_work_outputs(report, rows, Path(args.output_dir))
         print(json.dumps(report, indent=2, sort_keys=True))
         return 0 if report["all_frozen_checks_passed"] else 1
+
+    if args.command == "langchain-audit":
+        from .external import write_jsonl
+        from .langchain_adapter import run_langchain_audit, summarize_langchain_audit
+
+        rows = run_langchain_audit()
+        report = summarize_langchain_audit(rows)
+        write_jsonl(Path(args.outcomes), (row.to_dict() for row in rows))
+        report_path = Path(args.report)
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.write_text(
+            json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+        print(json.dumps(report, indent=2, sort_keys=True))
+        return 0
+
 
     if args.command == "analyze-robustness":
         from collections import defaultdict

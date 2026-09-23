@@ -19,6 +19,7 @@ retrybench = "retrybench.cli:main"
 
 [project.optional-dependencies]
 langgraph = ["langgraph==0.6.11"]
+langchain = ["langchain-core==0.3.86"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

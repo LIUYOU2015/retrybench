@@ -1,0 +1,48 @@
+{
+  "api_calls": 0,
+  "api_cost_usd": 0.0,
+  "by_policy": {
+    "langchain_exception_retry": {
+      "duplicates": 12,
+      "episodes": 16,
+      "exact_state_success": 4,
+      "false_retry_permissions": 16,
+      "omissions": 0,
+      "retries": 16,
+      "runnable_completed": 16,
+      "unresolved": 0
+    },
+    "no_retry": {
+      "duplicates": 0,
+      "episodes": 16,
+      "exact_state_success": 0,
+      "false_retry_permissions": 0,
+      "omissions": 4,
+      "retries": 0,
+      "runnable_completed": 0,
+      "unresolved": 16
+    },
+    "stable_idempotency_retry": {
+      "duplicates": 0,
+      "episodes": 16,
+      "exact_state_success": 16,
+      "false_retry_permissions": 0,
+      "omissions": 0,
+      "retries": 16,
+      "runnable_completed": 16,
+      "unresolved": 0
+    }
+  },
+  "configuration": {
+    "max_attempts": 2,
+    "retry_exception_types": [
+      "Exception"
+    ],
+    "wait_exponential_jitter": false
+  },
+  "episodes": 48,
+  "framework": "langchain-core",
+  "framework_version": "0.3.86",
+  "interpretation": "LangChain's retry wrapper behaves as configured; the audit tests whether exception eligibility establishes that replaying an external side effect is admissible.",
+  "schema_version": "retrybench-langchain-audit-v1"
+}
