@@ -92,10 +92,125 @@ def paired_contrast(
         "right_rate": right_rate,
         "absolute_rate_difference": left_rate - right_rate,
         "risk_ratio": left_rate / right_rate if right_rate else None,
-        "exact_mcnemar_two_sided_p": exact_mcnemar_p(left_only, right_only),
+        "outcome_level_exact_mcnemar_two_sided_p_descriptive_only": exact_mcnemar_p(
+            left_only, right_only
+        ),
         "dependence_note": (
-            "The exact McNemar calculation is descriptive because weak actions are "
-            "shared across three schedules within task/prompt/repetition blocks."
+            "Do not use the outcome-level exact McNemar value as inferential evidence: "
+            "weak actions are shared across three schedules within task/prompt/repetition "
+            "blocks, so the 60 outcome pairs are not independent."
+        ),
+    }
+
+
+def _clustered_primary_analysis(rows: List[Dict[str, object]]) -> Dict[str, object]:
+    """Analyze the primary contrast at response-block and task-family levels."""
+    selected = [row for row in rows if row["prompt_condition"] == "neutral"]
+    blocks = defaultdict(list)
+    for row in selected:
+        blocks[(str(row["task_id"]), int(row["repetition"]))].append(row)
+    if len(blocks) != 20 or any(len(block) != 6 for block in blocks.values()):
+        raise ValueError("primary clustered analysis requires 20 complete six-outcome blocks")
+
+    block_pairs = []
+    block_differences = []
+    for block in blocks.values():
+        weak = [row for row in block if row["evidence"] == "weak"]
+        authoritative = [row for row in block if row["evidence"] == "authoritative"]
+        if len(weak) != 3 or len(authoritative) != 3:
+            raise ValueError("each primary block requires three outcomes per evidence contract")
+        weak_count = sum(bool(row["false_retry_permission"]) for row in weak)
+        authoritative_count = sum(
+            bool(row["false_retry_permission"]) for row in authoritative
+        )
+        block_pairs.append((weak_count > 0, authoritative_count > 0))
+        block_differences.append((weak_count - authoritative_count) / 3.0)
+
+    block_counts = Counter(block_pairs)
+    weak_only = block_counts[(True, False)]
+    authoritative_only = block_counts[(False, True)]
+
+    task_effects = []
+    for task_id in sorted({str(row["task_id"]) for row in selected}):
+        task_rows = [row for row in selected if row["task_id"] == task_id]
+        weak_rows = [row for row in task_rows if row["evidence"] == "weak"]
+        authoritative_rows = [
+            row for row in task_rows if row["evidence"] == "authoritative"
+        ]
+        weak_rate = sum(bool(row["false_retry_permission"]) for row in weak_rows) / len(
+            weak_rows
+        )
+        authoritative_rate = sum(
+            bool(row["false_retry_permission"]) for row in authoritative_rows
+        ) / len(authoritative_rows)
+        task_effects.append(
+            {
+                "task_id": task_id,
+                "weak_outcomes": len(weak_rows),
+                "authoritative_outcomes": len(authoritative_rows),
+                "weak_rate": weak_rate,
+                "authoritative_rate": authoritative_rate,
+                "rate_difference": weak_rate - authoritative_rate,
+            }
+        )
+
+    differences = [float(item["rate_difference"]) for item in task_effects]
+    task_count = len(differences)
+    mean_difference = sum(differences) / task_count
+    sample_variance = (
+        sum((value - mean_difference) ** 2 for value in differences)
+        / (task_count - 1)
+        if task_count > 1
+        else 0.0
+    )
+    standard_error = (sample_variance / task_count) ** 0.5
+    # Four preregistered task families imply df=3 for this task-clustered interval.
+    t_critical_95_df3 = 3.182446305
+    lower = mean_difference - t_critical_95_df3 * standard_error
+    upper = mean_difference + t_critical_95_df3 * standard_error
+
+    return {
+        "estimand": "neutral weak minus neutral authoritative false-retry-permission rate",
+        "response_block_level": {
+            "blocks": len(blocks),
+            "block_definition": "task_id x repetition; each block contains three schedules per evidence contract",
+            "weak_any_false_retry": sum(left for left, _ in block_pairs),
+            "authoritative_any_false_retry": sum(right for _, right in block_pairs),
+            "weak_only": weak_only,
+            "authoritative_only": authoritative_only,
+            "both": block_counts[(True, True)],
+            "neither": block_counts[(False, False)],
+            "mean_within_block_schedule_rate_difference": sum(block_differences)
+            / len(block_differences),
+            "exact_mcnemar_two_sided_p_descriptive_only": exact_mcnemar_p(
+                weak_only, authoritative_only
+            ),
+            "inference_note": (
+                "This removes three-schedule pseudoreplication, but the 20 blocks remain "
+                "nested within only four task families; do not use this p-value for "
+                "task-population generalization."
+            ),
+        },
+        "task_family_level": {
+            "task_families": task_count,
+            "effects": task_effects,
+            "equal_task_weight_mean_rate_difference": mean_difference,
+            "task_cluster_standard_error": standard_error,
+            "task_cluster_t_95_interval_unbounded": [lower, upper],
+            "task_cluster_t_95_interval_bounded_to_rate_difference": [
+                max(-1.0, lower),
+                min(1.0, upper),
+            ],
+            "degrees_of_freedom": task_count - 1,
+            "inference_note": (
+                "The t interval treats the four task families as the top-level sampling "
+                "units. With only four clusters it is unstable and low-powered; report "
+                "the task-specific effects and interval, not a task-general p-value."
+            ),
+        },
+        "headline_rule": (
+            "Lead with effect sizes, raw block discordance, task-specific effects, and "
+            "the task-clustered interval. Outcome-level McNemar values are descriptive only."
         ),
     }
 
@@ -187,7 +302,7 @@ def analyze_confirmation(
         for metric in METRICS
     ]
     return {
-        "schema_version": "retrybench-confirmation-analysis-v2",
+        "schema_version": "retrybench-confirmation-analysis-v3",
         "scored_outcomes": len(rows),
         "fresh_model_calls": len(group_ids),
         "model": sorted({str(row["model"]) for row in rows}),
@@ -215,6 +330,7 @@ def analyze_confirmation(
             rows, ("schedule", "evidence", "prompt_condition")
         ),
         "paired_neutral_weak_vs_authoritative": neutral_contrasts,
+        "clustered_primary_false_retry_analysis": _clustered_primary_analysis(rows),
         "paired_prompt_contrasts": prompt_contrasts,
         "task_direction_sensitivity": _task_direction_summary(rows),
         "interpretation_rule": (

@@ -21,9 +21,11 @@ Under neutral prompting, weak evidence produced 51/60 false retry permissions (8
 - absolute difference: **+80 percentage points**;
 - risk ratio: **17.0**;
 - raw paired discordance: 48 weak-only, 0 authoritative-only, 3 both, 9 neither;
-- descriptive exact McNemar two-sided p = `7.1054e-15`.
+- outcome-level exact McNemar diagnostic = `7.1054e-15` (**descriptive only; not valid headline inference**).
 
-The outcome-level McNemar value is descriptive because the same weak response is reused across three schedules. As a transparent post-analysis dependence sensitivity, collapse each task × fresh-draw block to whether any of its three schedules has a false retry permission. Weak evidence fails in 17/20 blocks and authoritative evidence in 3/20: 14 weak-only, 0 authoritative-only, 3 both, and 3 neither. This block result is not a replacement preregistered test; it shows that the direction does not come from counting the shared weak response three times.
+The outcome-level McNemar value is not inferential evidence because the same weak response is reused across three schedules. Collapsing each task × fresh-draw block to whether any schedule has a false retry permission gives 17/20 weak blocks and 3/20 authoritative blocks: 14 weak-only, 0 authoritative-only, 3 both, and 3 neither. The block-level exact diagnostic is `0.000122`, but the 20 blocks remain nested in only four task families.
+
+With task family as the top-level sampling unit, the equal-task rate difference is +0.80, the task-cluster standard error is `0.1414`, and the four-cluster t interval is approximately `[+0.35, +1.00]` after bounding to the rate-difference scale. With only four clusters this interval is unstable; the task-specific effects and raw block discordance are primary, and no task-population p-value is claimed.
 
 All four task templates have higher neutral false-retry counts under weak evidence. Differences are +12 for CI, +15 for issue creation, +15 for release creation, and +6 for review comments.
 
@@ -42,7 +44,7 @@ Authoritative state substantially improves the frontier but does not guarantee m
 
 ## Full-paper decision
 
-**GO to the next full-paper gate.** Confirmation-v2 turns the pilot observation into a repeated, shared-response result with a large effect, consistent direction across four task templates, and an explicit safety/liveness boundary. It supports the claim that evidence semantics determine retry admissibility and that prompt advice alone does not implement a safe recovery policy.
+**Historical decision: GO to the next full-paper gate.** Confirmation-v2 turns the pilot observation into a repeated, shared-response result with a large effect, consistent direction across four task templates, and an explicit safety/liveness boundary. It supports the claim that evidence semantics determine retry admissibility and that prompt advice alone does not implement a safe recovery policy. After the second-model block, the current overall decision is a conditional full-paper gate pending independent task robustness.
 
 It does not yet complete a full research paper. The next required evidence is:
 
@@ -66,4 +68,4 @@ If the framework integration reveals no real contract problem, reposition the wo
 - Five serving draws are not five independent tasks.
 - Shared responses induce within-block dependence by design.
 - Controlled schedules do not estimate production frequency or name a provider with weak semantics.
-- Framework behavior and cross-model replication remain untested.
+- At this confirmation-only stage, framework behavior and cross-model replication were untested; both were added later, while independent task robustness remains open.

@@ -1,8 +1,8 @@
 {
-  "schema_version": "retrybench-cross-model-analysis-v1",
-  "decision": "GO_FULL_PAPER_WITH_HETEROGENEITY",
-  "claim_supported": "Across two fixed OpenAI model snapshots, weak negative evidence increased unsafe retry permission relative to authoritative evidence under matched prompts and schedules.",
-  "claim_not_supported": "The effect is task-invariant, model-invariant in magnitude, or representative of production prevalence.",
+  "schema_version": "retrybench-cross-model-analysis-v2",
+  "decision": "CONDITIONAL_FULL_PAPER_GATE",
+  "claim_supported": "Within the four studied task families, both fixed model snapshots showed more unsafe retry permission under weak negative evidence than under authoritative evidence when schedules were aggregated with equal task weight.",
+  "claim_not_supported": "The effect generalizes to a population of task families, is task-invariant, is model-invariant in magnitude, or represents production prevalence.",
   "models": [
     {
       "model": "gpt-5.4-mini-2026-03-17",
@@ -17,6 +17,14 @@
       "neutral_weak_duplicates": 34,
       "weak_higher_task_families": 4,
       "tied_task_families": 0,
+      "response_blocks": 20,
+      "weak_any_false_retry_blocks": 17,
+      "authoritative_any_false_retry_blocks": 3,
+      "weak_only_blocks": 14,
+      "authoritative_only_blocks": 0,
+      "response_block_mcnemar_p_descriptive_only": 0.0001220703125,
+      "task_cluster_standard_error": 0.1414213562373095,
+      "task_cluster_t_95_interval_bounded": [0.3499341273944856, 1.0],
       "actual_cost_usd": 0.063987
     },
     {
@@ -32,6 +40,14 @@
       "neutral_weak_duplicates": 20,
       "weak_higher_task_families": 2,
       "tied_task_families": 2,
+      "response_blocks": 20,
+      "weak_any_false_retry_blocks": 10,
+      "authoritative_any_false_retry_blocks": 0,
+      "weak_only_blocks": 10,
+      "authoritative_only_blocks": 0,
+      "response_block_mcnemar_p_descriptive_only": 0.001953125,
+      "task_cluster_standard_error": 0.28867513459481287,
+      "task_cluster_t_95_interval_bounded": [-0.4186931154366399, 1.0],
       "actual_cost_usd": 0.222605
     }
   ],
@@ -44,7 +60,10 @@
     "both_runs_complete": true,
     "both_shared_response_checks_passed": true,
     "protocol_changed_after_first_model": false,
-    "model_snapshot_only_substantive_factor_changed": true
+    "model_snapshot_only_substantive_factor_changed": true,
+    "outcome_level_mcnemar_removed_from_headline_inference": true,
+    "task_family_is_top_level_generalization_unit": true
   },
+  "statistical_interpretation": "Response-block analysis removes the three-schedule pseudoreplication but remains nested within four task families. The four-cluster t intervals are unstable; GPT-5.4 includes zero. Report task-specific effects and do not make a task-population claim.",
   "next_evidence_priority": "Freeze independent task-template and wording robustness before spending on another model or framework."
 }

@@ -320,6 +320,72 @@
       "unresolved_rate": 0.15
     }
   ],
+  "clustered_primary_false_retry_analysis": {
+    "estimand": "neutral weak minus neutral authoritative false-retry-permission rate",
+    "headline_rule": "Lead with effect sizes, raw block discordance, task-specific effects, and the task-clustered interval. Outcome-level McNemar values are descriptive only.",
+    "response_block_level": {
+      "authoritative_any_false_retry": 3,
+      "authoritative_only": 0,
+      "block_definition": "task_id x repetition; each block contains three schedules per evidence contract",
+      "blocks": 20,
+      "both": 3,
+      "exact_mcnemar_two_sided_p_descriptive_only": 0.0001220703125,
+      "inference_note": "This removes three-schedule pseudoreplication, but the 20 blocks remain nested within only four task families; do not use this p-value for task-population generalization.",
+      "mean_within_block_schedule_rate_difference": 0.8,
+      "neither": 3,
+      "weak_any_false_retry": 17,
+      "weak_only": 14
+    },
+    "task_family_level": {
+      "degrees_of_freedom": 3,
+      "effects": [
+        {
+          "authoritative_outcomes": 15,
+          "authoritative_rate": 0.2,
+          "rate_difference": 0.8,
+          "task_id": "ci-001",
+          "weak_outcomes": 15,
+          "weak_rate": 1.0
+        },
+        {
+          "authoritative_outcomes": 15,
+          "authoritative_rate": 0.0,
+          "rate_difference": 1.0,
+          "task_id": "issue-001",
+          "weak_outcomes": 15,
+          "weak_rate": 1.0
+        },
+        {
+          "authoritative_outcomes": 15,
+          "authoritative_rate": 0.0,
+          "rate_difference": 1.0,
+          "task_id": "release-001",
+          "weak_outcomes": 15,
+          "weak_rate": 1.0
+        },
+        {
+          "authoritative_outcomes": 15,
+          "authoritative_rate": 0.0,
+          "rate_difference": 0.4,
+          "task_id": "review-001",
+          "weak_outcomes": 15,
+          "weak_rate": 0.4
+        }
+      ],
+      "equal_task_weight_mean_rate_difference": 0.7999999999999999,
+      "inference_note": "The t interval treats the four task families as the top-level sampling units. With only four clusters it is unstable and low-powered; report the task-specific effects and interval, not a task-general p-value.",
+      "task_cluster_standard_error": 0.1414213562373095,
+      "task_cluster_t_95_interval_bounded_to_rate_difference": [
+        0.3499341273944856,
+        1.0
+      ],
+      "task_cluster_t_95_interval_unbounded": [
+        0.3499341273944856,
+        1.2500658726055143
+      ],
+      "task_families": 4
+    }
+  },
   "fresh_model_calls": 160,
   "integrity": {
     "complete_unique_outcomes": true,
@@ -354,8 +420,7 @@
     {
       "absolute_rate_difference": 0.7999999999999999,
       "both": 3,
-      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
-      "exact_mcnemar_two_sided_p": 7.105427357601002e-15,
+      "dependence_note": "Do not use the outcome-level exact McNemar value as inferential evidence: weak actions are shared across three schedules within task/prompt/repetition blocks, so the 60 outcome pairs are not independent.",
       "left": {
         "evidence": "weak",
         "prompt_condition": "neutral"
@@ -364,6 +429,7 @@
       "left_rate": 0.85,
       "metric": "false_retry_permission",
       "neither": 9,
+      "outcome_level_exact_mcnemar_two_sided_p_descriptive_only": 7.105427357601002e-15,
       "pairs": 60,
       "right": {
         "evidence": "authoritative",
@@ -376,8 +442,7 @@
     {
       "absolute_rate_difference": 0.5166666666666666,
       "both": 3,
-      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
-      "exact_mcnemar_two_sided_p": 9.313225746154785e-10,
+      "dependence_note": "Do not use the outcome-level exact McNemar value as inferential evidence: weak actions are shared across three schedules within task/prompt/repetition blocks, so the 60 outcome pairs are not independent.",
       "left": {
         "evidence": "weak",
         "prompt_condition": "neutral"
@@ -386,6 +451,7 @@
       "left_rate": 0.5666666666666667,
       "metric": "duplicate_effect",
       "neither": 26,
+      "outcome_level_exact_mcnemar_two_sided_p_descriptive_only": 9.313225746154785e-10,
       "pairs": 60,
       "right": {
         "evidence": "authoritative",
@@ -398,8 +464,7 @@
     {
       "absolute_rate_difference": 0.05,
       "both": 0,
-      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
-      "exact_mcnemar_two_sided_p": 0.25,
+      "dependence_note": "Do not use the outcome-level exact McNemar value as inferential evidence: weak actions are shared across three schedules within task/prompt/repetition blocks, so the 60 outcome pairs are not independent.",
       "left": {
         "evidence": "weak",
         "prompt_condition": "neutral"
@@ -408,6 +473,7 @@
       "left_rate": 0.05,
       "metric": "omission",
       "neither": 57,
+      "outcome_level_exact_mcnemar_two_sided_p_descriptive_only": 0.25,
       "pairs": 60,
       "right": {
         "evidence": "authoritative",
@@ -420,8 +486,7 @@
     {
       "absolute_rate_difference": -0.19999999999999998,
       "both": 3,
-      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
-      "exact_mcnemar_two_sided_p": 0.022655844688415527,
+      "dependence_note": "Do not use the outcome-level exact McNemar value as inferential evidence: weak actions are shared across three schedules within task/prompt/repetition blocks, so the 60 outcome pairs are not independent.",
       "left": {
         "evidence": "weak",
         "prompt_condition": "neutral"
@@ -430,6 +495,7 @@
       "left_rate": 0.15,
       "metric": "unresolved",
       "neither": 33,
+      "outcome_level_exact_mcnemar_two_sided_p_descriptive_only": 0.022655844688415527,
       "pairs": 60,
       "right": {
         "evidence": "authoritative",
@@ -442,8 +508,7 @@
     {
       "absolute_rate_difference": -0.31666666666666665,
       "both": 17,
-      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
-      "exact_mcnemar_two_sided_p": 3.814697265625e-06,
+      "dependence_note": "Do not use the outcome-level exact McNemar value as inferential evidence: weak actions are shared across three schedules within task/prompt/repetition blocks, so the 60 outcome pairs are not independent.",
       "left": {
         "evidence": "weak",
         "prompt_condition": "neutral"
@@ -452,6 +517,7 @@
       "left_rate": 0.2833333333333333,
       "metric": "exact_state_success",
       "neither": 24,
+      "outcome_level_exact_mcnemar_two_sided_p_descriptive_only": 3.814697265625e-06,
       "pairs": 60,
       "right": {
         "evidence": "authoritative",
@@ -466,8 +532,7 @@
     {
       "absolute_rate_difference": 0.85,
       "both": 0,
-      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
-      "exact_mcnemar_two_sided_p": 8.881784197001252e-16,
+      "dependence_note": "Do not use the outcome-level exact McNemar value as inferential evidence: weak actions are shared across three schedules within task/prompt/repetition blocks, so the 60 outcome pairs are not independent.",
       "left": {
         "evidence": "weak",
         "prompt_condition": "neutral"
@@ -476,6 +541,7 @@
       "left_rate": 0.85,
       "metric": "false_retry_permission",
       "neither": 9,
+      "outcome_level_exact_mcnemar_two_sided_p_descriptive_only": 8.881784197001252e-16,
       "pairs": 60,
       "right": {
         "evidence": "weak",
@@ -488,8 +554,7 @@
     {
       "absolute_rate_difference": 0.5666666666666667,
       "both": 0,
-      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
-      "exact_mcnemar_two_sided_p": 1.1641532182693481e-10,
+      "dependence_note": "Do not use the outcome-level exact McNemar value as inferential evidence: weak actions are shared across three schedules within task/prompt/repetition blocks, so the 60 outcome pairs are not independent.",
       "left": {
         "evidence": "weak",
         "prompt_condition": "neutral"
@@ -498,6 +563,7 @@
       "left_rate": 0.5666666666666667,
       "metric": "duplicate_effect",
       "neither": 26,
+      "outcome_level_exact_mcnemar_two_sided_p_descriptive_only": 1.1641532182693481e-10,
       "pairs": 60,
       "right": {
         "evidence": "weak",
@@ -510,8 +576,7 @@
     {
       "absolute_rate_difference": -0.2833333333333333,
       "both": 3,
-      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
-      "exact_mcnemar_two_sided_p": 1.52587890625e-05,
+      "dependence_note": "Do not use the outcome-level exact McNemar value as inferential evidence: weak actions are shared across three schedules within task/prompt/repetition blocks, so the 60 outcome pairs are not independent.",
       "left": {
         "evidence": "weak",
         "prompt_condition": "neutral"
@@ -520,6 +585,7 @@
       "left_rate": 0.05,
       "metric": "omission",
       "neither": 40,
+      "outcome_level_exact_mcnemar_two_sided_p_descriptive_only": 1.52587890625e-05,
       "pairs": 60,
       "right": {
         "evidence": "weak",
@@ -532,8 +598,7 @@
     {
       "absolute_rate_difference": -0.85,
       "both": 9,
-      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
-      "exact_mcnemar_two_sided_p": 8.881784197001252e-16,
+      "dependence_note": "Do not use the outcome-level exact McNemar value as inferential evidence: weak actions are shared across three schedules within task/prompt/repetition blocks, so the 60 outcome pairs are not independent.",
       "left": {
         "evidence": "weak",
         "prompt_condition": "neutral"
@@ -542,6 +607,7 @@
       "left_rate": 0.15,
       "metric": "unresolved",
       "neither": 0,
+      "outcome_level_exact_mcnemar_two_sided_p_descriptive_only": 8.881784197001252e-16,
       "pairs": 60,
       "right": {
         "evidence": "weak",
@@ -554,8 +620,7 @@
     {
       "absolute_rate_difference": 0.2833333333333333,
       "both": 0,
-      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
-      "exact_mcnemar_two_sided_p": 1.52587890625e-05,
+      "dependence_note": "Do not use the outcome-level exact McNemar value as inferential evidence: weak actions are shared across three schedules within task/prompt/repetition blocks, so the 60 outcome pairs are not independent.",
       "left": {
         "evidence": "weak",
         "prompt_condition": "neutral"
@@ -564,6 +629,7 @@
       "left_rate": 0.2833333333333333,
       "metric": "exact_state_success",
       "neither": 43,
+      "outcome_level_exact_mcnemar_two_sided_p_descriptive_only": 1.52587890625e-05,
       "pairs": 60,
       "right": {
         "evidence": "weak",
@@ -576,8 +642,7 @@
     {
       "absolute_rate_difference": -0.016666666666666663,
       "both": 2,
-      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
-      "exact_mcnemar_two_sided_p": 1.0,
+      "dependence_note": "Do not use the outcome-level exact McNemar value as inferential evidence: weak actions are shared across three schedules within task/prompt/repetition blocks, so the 60 outcome pairs are not independent.",
       "left": {
         "evidence": "authoritative",
         "prompt_condition": "neutral"
@@ -586,6 +651,7 @@
       "left_rate": 0.05,
       "metric": "false_retry_permission",
       "neither": 55,
+      "outcome_level_exact_mcnemar_two_sided_p_descriptive_only": 1.0,
       "pairs": 60,
       "right": {
         "evidence": "authoritative",
@@ -598,8 +664,7 @@
     {
       "absolute_rate_difference": -0.016666666666666663,
       "both": 2,
-      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
-      "exact_mcnemar_two_sided_p": 1.0,
+      "dependence_note": "Do not use the outcome-level exact McNemar value as inferential evidence: weak actions are shared across three schedules within task/prompt/repetition blocks, so the 60 outcome pairs are not independent.",
       "left": {
         "evidence": "authoritative",
         "prompt_condition": "neutral"
@@ -608,6 +673,7 @@
       "left_rate": 0.05,
       "metric": "duplicate_effect",
       "neither": 55,
+      "outcome_level_exact_mcnemar_two_sided_p_descriptive_only": 1.0,
       "pairs": 60,
       "right": {
         "evidence": "authoritative",
@@ -620,8 +686,7 @@
     {
       "absolute_rate_difference": 0.0,
       "both": 0,
-      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
-      "exact_mcnemar_two_sided_p": 1.0,
+      "dependence_note": "Do not use the outcome-level exact McNemar value as inferential evidence: weak actions are shared across three schedules within task/prompt/repetition blocks, so the 60 outcome pairs are not independent.",
       "left": {
         "evidence": "authoritative",
         "prompt_condition": "neutral"
@@ -630,6 +695,7 @@
       "left_rate": 0.0,
       "metric": "omission",
       "neither": 60,
+      "outcome_level_exact_mcnemar_two_sided_p_descriptive_only": 1.0,
       "pairs": 60,
       "right": {
         "evidence": "authoritative",
@@ -642,8 +708,7 @@
     {
       "absolute_rate_difference": 0.0,
       "both": 20,
-      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
-      "exact_mcnemar_two_sided_p": 1.0,
+      "dependence_note": "Do not use the outcome-level exact McNemar value as inferential evidence: weak actions are shared across three schedules within task/prompt/repetition blocks, so the 60 outcome pairs are not independent.",
       "left": {
         "evidence": "authoritative",
         "prompt_condition": "neutral"
@@ -652,6 +717,7 @@
       "left_rate": 0.35,
       "metric": "unresolved",
       "neither": 38,
+      "outcome_level_exact_mcnemar_two_sided_p_descriptive_only": 1.0,
       "pairs": 60,
       "right": {
         "evidence": "authoritative",
@@ -664,8 +730,7 @@
     {
       "absolute_rate_difference": 0.016666666666666607,
       "both": 35,
-      "dependence_note": "The exact McNemar calculation is descriptive because weak actions are shared across three schedules within task/prompt/repetition blocks.",
-      "exact_mcnemar_two_sided_p": 1.0,
+      "dependence_note": "Do not use the outcome-level exact McNemar value as inferential evidence: weak actions are shared across three schedules within task/prompt/repetition blocks, so the 60 outcome pairs are not independent.",
       "left": {
         "evidence": "authoritative",
         "prompt_condition": "neutral"
@@ -674,6 +739,7 @@
       "left_rate": 0.6,
       "metric": "exact_state_success",
       "neither": 24,
+      "outcome_level_exact_mcnemar_two_sided_p_descriptive_only": 1.0,
       "pairs": 60,
       "right": {
         "evidence": "authoritative",
@@ -685,7 +751,7 @@
     }
   ],
   "sanitized_outcomes_sha256": "4383572b216d9f94065ab364b8c46c2734bc15f70f868cdf88cff5be6cf87127",
-  "schema_version": "retrybench-confirmation-analysis-v2",
+  "schema_version": "retrybench-confirmation-analysis-v3",
   "scored_outcomes": 240,
   "task_direction_sensitivity": [
     {

@@ -58,6 +58,25 @@ class ConfirmationAnalysisTests(unittest.TestCase):
         self.assertEqual(primary["pairs"], 60)
         self.assertEqual(primary["left_only"], 60)
         self.assertEqual(primary["right_only"], 0)
+        self.assertNotIn("exact_mcnemar_two_sided_p", primary)
+        clustered = report["clustered_primary_false_retry_analysis"]
+        self.assertEqual(clustered["response_block_level"]["blocks"], 20)
+        self.assertEqual(
+            clustered["response_block_level"]["weak_only"], 20
+        )
+        self.assertEqual(
+            clustered["response_block_level"]["authoritative_only"], 0
+        )
+        self.assertEqual(
+            clustered["task_family_level"]["equal_task_weight_mean_rate_difference"],
+            1.0,
+        )
+        self.assertEqual(
+            clustered["task_family_level"][
+                "task_cluster_t_95_interval_bounded_to_rate_difference"
+            ],
+            [1.0, 1.0],
+        )
         self.assertTrue(all(report["integrity"].values()))
 
 
