@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="650" viewBox="0 0 1120 650">
+<rect x="0" y="0" width="1120" height="650" fill="white"/>
+<style>text{font-family:Arial,Helvetica,sans-serif;fill:#17212b}.title{font-size:22px;font-weight:700}.panel{font-size:17px;font-weight:700}.label{font-size:14px}.tick{font-size:12px;fill:#4b5563}.axis{stroke:#9ca3af;stroke-width:1}.grid{stroke:#e5e7eb;stroke-width:1}.effect{fill:#2563eb}.mean{fill:#dc2626}.create{fill:#7c3aed}.noncreate{fill:#059669}.pair{stroke:#94a3b8;stroke-width:2}</style>
+<text x="40" y="38" class="title">Task-family robustness and lexical moderation</text>
+<text x="40" y="72" class="panel">A  Weak − authoritative false-retry-permission rate</text>
+<text x="590" y="72" class="panel">B  Matched weak-evidence rates by tool-name frame</text>
+<line x1="180.0" y1="92" x2="180.0" y2="555" class="grid"/>
+<text x="180.0" y="580" text-anchor="middle" class="tick">0</text>
+<line x1="265.0" y1="92" x2="265.0" y2="555" class="grid"/>
+<text x="265.0" y="580" text-anchor="middle" class="tick">0.25</text>
+<line x1="350.0" y1="92" x2="350.0" y2="555" class="grid"/>
+<text x="350.0" y="580" text-anchor="middle" class="tick">0.5</text>
+<line x1="435.0" y1="92" x2="435.0" y2="555" class="grid"/>
+<text x="435.0" y="580" text-anchor="middle" class="tick">0.75</text>
+<line x1="520.0" y1="92" x2="520.0" y2="555" class="grid"/>
+<text x="520.0" y="580" text-anchor="middle" class="tick">1</text>
+<line x1="180.0" y1="555" x2="520.0" y2="555" class="axis"/>
+<line x1="730.0" y1="92" x2="730.0" y2="555" class="grid"/>
+<text x="730.0" y="580" text-anchor="middle" class="tick">0</text>
+<line x1="815.0" y1="92" x2="815.0" y2="555" class="grid"/>
+<text x="815.0" y="580" text-anchor="middle" class="tick">0.25</text>
+<line x1="900.0" y1="92" x2="900.0" y2="555" class="grid"/>
+<text x="900.0" y="580" text-anchor="middle" class="tick">0.5</text>
+<line x1="985.0" y1="92" x2="985.0" y2="555" class="grid"/>
+<text x="985.0" y="580" text-anchor="middle" class="tick">0.75</text>
+<line x1="1070.0" y1="92" x2="1070.0" y2="555" class="grid"/>
+<text x="1070.0" y="580" text-anchor="middle" class="tick">1</text>
+<line x1="730.0" y1="555" x2="1070.0" y2="555" class="axis"/>
+<text x="168" y="125.0" text-anchor="end" class="label">artifact</text>
+<circle cx="520.0" cy="120.0" r="6" class="effect"/>
+<line x1="1070.0" y1="120.0" x2="1070.0" y2="120.0" class="pair"/>
+<circle cx="1070.0" cy="120.0" r="6" class="noncreate"/>
+<circle cx="1070.0" cy="120.0" r="6" class="create"/>
+<text x="168" y="177.0" text-anchor="end" class="label">change-record</text>
+<circle cx="265.0" cy="172.0" r="6" class="effect"/>
+<line x1="730.0" y1="172.0" x2="900.0" y2="172.0" class="pair"/>
+<circle cx="730.0" cy="172.0" r="6" class="noncreate"/>
+<circle cx="900.0" cy="172.0" r="6" class="create"/>
+<text x="168" y="229.0" text-anchor="end" class="label">deployment</text>
+<circle cx="350.0" cy="224.0" r="6" class="effect"/>
+<line x1="730.0" y1="224.0" x2="1070.0" y2="224.0" class="pair"/>
+<circle cx="730.0" cy="224.0" r="6" class="noncreate"/>
+<circle cx="1070.0" cy="224.0" r="6" class="create"/>
+<text x="168" y="281.0" text-anchor="end" class="label">maintenance-job</text>
+<circle cx="350.0" cy="276.0" r="6" class="effect"/>
+<line x1="730.0" y1="276.0" x2="1070.0" y2="276.0" class="pair"/>
+<circle cx="730.0" cy="276.0" r="6" class="noncreate"/>
+<circle cx="1070.0" cy="276.0" r="6" class="create"/>
+<text x="168" y="333.0" text-anchor="end" class="label">package-version</text>
+<circle cx="520.0" cy="328.0" r="6" class="effect"/>
+<line x1="1070.0" y1="328.0" x2="1070.0" y2="328.0" class="pair"/>
+<circle cx="1070.0" cy="328.0" r="6" class="noncreate"/>
+<circle cx="1070.0" cy="328.0" r="6" class="create"/>
+<text x="168" y="385.0" text-anchor="end" class="label">review-request</text>
+<circle cx="350.0" cy="380.0" r="6" class="effect"/>
+<line x1="900.0" y1="380.0" x2="900.0" y2="380.0" class="pair"/>
+<circle cx="900.0" cy="380.0" r="6" class="noncreate"/>
+<circle cx="900.0" cy="380.0" r="6" class="create"/>
+<text x="168" y="437.0" text-anchor="end" class="label">security-finding</text>
+<circle cx="435.0" cy="432.0" r="6" class="effect"/>
+<line x1="900.0" y1="432.0" x2="1070.0" y2="432.0" class="pair"/>
+<circle cx="900.0" cy="432.0" r="6" class="noncreate"/>
+<circle cx="1070.0" cy="432.0" r="6" class="create"/>
+<text x="168" y="489.0" text-anchor="end" class="label">webhook-event</text>
+<circle cx="350.0" cy="484.0" r="6" class="effect"/>
+<line x1="730.0" y1="484.0" x2="1070.0" y2="484.0" class="pair"/>
+<circle cx="730.0" cy="484.0" r="6" class="noncreate"/>
+<circle cx="1070.0" cy="484.0" r="6" class="create"/>
+<line x1="316.5" y1="532.0" x2="468.5" y2="532.0" stroke="#dc2626" stroke-width="4"/>
+<polygon points="392.5,523.0 401.5,532.0 392.5,541.0 383.5,532.0" class="mean"/>
+<text x="168" y="537" text-anchor="end" class="label">Mean (95% t CI)</text>
+<circle cx="735" cy="615" r="6" class="noncreate"/><text x="748" y="620" class="label">non-create frame</text>
+<circle cx="900" cy="615" r="6" class="create"/><text x="913" y="620" class="label">create frame</text>
+</svg>

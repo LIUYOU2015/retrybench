@@ -1,0 +1,13 @@
+\begin{tabular}{llrrrrr}
+\toprule
+Framework & Policy & Completed & Retries & Duplicates & Unresolved & Exact state \\
+\midrule
+LangGraph & Exception retry & 0/16 & 16 & 12 & 16 & 0/16 \\
+LangGraph & No retry & 0/16 & 0 & 0 & 16 & 0/16 \\
+LangGraph & Stable idempotency & 16/16 & 16 & 0 & 0 & 16/16 \\
+\addlinespace
+LangChain Core & Exception retry & 16/16 & 16 & 12 & 0 & 4/16 \\
+LangChain Core & No retry & 0/16 & 0 & 0 & 16 & 0/16 \\
+LangChain Core & Stable idempotency & 16/16 & 16 & 0 & 0 & 16/16 \\
+\bottomrule
+\end{tabular}

@@ -1,0 +1,13 @@
+\begin{tabular}{llrr}
+\toprule
+World set & Recovery contract & Exact state & Rate \\
+\midrule
+Source & Prompt-only stop & 4/12 & 33.3\% \\
+Source & Prompt-only retry & 6/12 & 50.0\% \\
+Source & Authoritative status & 12/12 & 100.0\% \\
+Source & Stable idempotency & 12/12 & 100.0\% \\
+Extended & Negative status as permission & 12/24 & 50.0\% \\
+Extended & Terminal-aware status & 24/24 & 100.0\% \\
+Extended & Stable idempotency & 24/24 & 100.0\% \\
+\bottomrule
+\end{tabular}

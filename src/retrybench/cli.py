@@ -228,6 +228,11 @@ def build_parser() -> argparse.ArgumentParser:
     closest_work.add_argument(
         "--output-dir", default="runs/closest-work-v1"
     )
+    paper_assets = subparsers.add_parser(
+        "paper-assets", help="generate paper tables and figures from checked-in evidence"
+    )
+    paper_assets.add_argument("--repo-root", default=".")
+    paper_assets.add_argument("--output-dir", default="paper/generated")
     return parser
 
 
@@ -259,6 +264,16 @@ def main(argv=None) -> int:
         )
         print(json.dumps(report, indent=2, sort_keys=True))
         return 0
+
+    if args.command == "paper-assets":
+        from .paper_assets import generate_paper_assets
+
+        paths = generate_paper_assets(
+            Path(args.repo_root).resolve(), Path(args.output_dir)
+        )
+        print(json.dumps({"generated": [str(path) for path in paths]}, indent=2))
+        return 0
+
 
 
     if args.command == "analyze-robustness":
