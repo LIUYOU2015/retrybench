@@ -120,6 +120,36 @@ def build_parser() -> argparse.ArgumentParser:
     robustness_preflight.add_argument(
         "--report", default="protocol/task-robustness-v1-preflight.json"
     )
+    robustness = subparsers.add_parser(
+        "robustness", help="execute the frozen independent-task robustness block"
+    )
+    robustness.add_argument(
+        "--manifest", default="protocol/task-robustness-v1-manifest.jsonl"
+    )
+    robustness.add_argument(
+        "--output", default="results/live-task-robustness-v1.jsonl"
+    )
+    robustness.add_argument(
+        "--database", default="results/live-task-robustness-v1.sqlite3"
+    )
+    robustness.add_argument("--max-cost-usd", type=float, default=0.60)
+    robustness.add_argument("--execute-paid-robustness", action="store_true")
+    robustness.add_argument("--resume", action="store_true")
+    analyze_robustness = subparsers.add_parser(
+        "analyze-robustness", help="sanitize and analyze task robustness"
+    )
+    analyze_robustness.add_argument(
+        "--input", default="results/live-task-robustness-v1.jsonl"
+    )
+    analyze_robustness.add_argument(
+        "--preflight", default="protocol/task-robustness-v1-preflight.json"
+    )
+    analyze_robustness.add_argument(
+        "--outcomes", default="runs/task-robustness-v1/sanitized-outcomes.jsonl"
+    )
+    analyze_robustness.add_argument(
+        "--report", default="runs/task-robustness-v1/analysis.json"
+    )
     export_cases = subparsers.add_parser(
         "export-cases", help="export model-facing confirmation cases without hidden schedules"
     )
@@ -180,6 +210,101 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command == "analyze-robustness":
+        from collections import defaultdict
+
+        from .confirmation_analysis import load_jsonl, write_sanitized
+        from .task_robustness import analyze_task_robustness
+
+        rows = load_jsonl(Path(args.input))
+        preflight = json.loads(Path(args.preflight).read_text(encoding="utf-8"))
+        if not preflight["all_zero_cost_gates_passed"]:
+            raise SystemExit("task-robustness preflight did not pass")
+        grouped = defaultdict(list)
+        for row in rows:
+            grouped[str(row["response_group_id"])].append(row)
+        if len(grouped) != 128 or any(
+            len(group) != (3 if group[0]["evidence"] == "weak" else 1)
+            for group in grouped.values()
+        ):
+            raise SystemExit("task-robustness response groups are incomplete")
+        report = analyze_task_robustness(rows)
+        report["fresh_model_calls"] = len(grouped)
+        report["scored_outcomes"] = len(rows)
+        report["actual_cost_usd"] = sum(
+            float(group[0]["decision"]["cost_usd"])
+            for group in grouped.values()
+        )
+        report["token_usage"] = {
+            field: sum(
+                int(group[0]["decision"]["usage"][field])
+                for group in grouped.values()
+            )
+            for field in (
+                "input_tokens",
+                "cached_input_tokens",
+                "output_tokens",
+                "reasoning_tokens",
+            )
+        }
+        outcomes_hash = write_sanitized(Path(args.outcomes), rows)
+        report["sanitized_outcomes_sha256"] = outcomes_hash
+        report_path = Path(args.report)
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.write_text(
+            json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+        print(json.dumps({
+            "decision": report["decision"],
+            "task_families": report["task_families"],
+            "fresh_model_calls": report["fresh_model_calls"],
+            "scored_outcomes": report["scored_outcomes"],
+            "actual_cost_usd": report["actual_cost_usd"],
+            "report": args.report,
+        }, indent=2, sort_keys=True))
+        return 0
+
+    if args.command == "robustness":
+        from .openai_adapter import CostBudget, OpenAIResponsesPolicy
+        from .task_robustness import (
+            ROBUSTNESS_MAX_COST_USD,
+            ROBUSTNESS_MAX_OUTPUT_TOKENS,
+            ROBUSTNESS_MODEL,
+            load_robustness_manifest,
+            run_live_task_robustness,
+        )
+
+        if not args.execute_paid_robustness:
+            raise SystemExit("paid robustness run requires --execute-paid-robustness")
+        if not os.environ.get("OPENAI_API_KEY"):
+            raise SystemExit("OPENAI_API_KEY is not set")
+        if args.max_cost_usd <= 0 or args.max_cost_usd > ROBUSTNESS_MAX_COST_USD:
+            raise SystemExit(
+                "--max-cost-usd must be greater than 0 and no more than %.2f"
+                % ROBUSTNESS_MAX_COST_USD
+            )
+        rows = load_robustness_manifest(Path(args.manifest))
+        policy = OpenAIResponsesPolicy(
+            model=ROBUSTNESS_MODEL,
+            max_output_tokens=ROBUSTNESS_MAX_OUTPUT_TOKENS,
+        )
+        budget = CostBudget(args.max_cost_usd)
+        results = run_live_task_robustness(
+            rows,
+            policy,
+            budget,
+            Path(args.database),
+            Path(args.output),
+            resume=args.resume,
+        )
+        print(json.dumps({
+            "scored_outcomes": len(results),
+            "api_requests": budget.requests,
+            "actual_cost_usd": budget.spent_usd,
+            "output": args.output,
+        }, indent=2, sort_keys=True))
+        return 0
+
     if args.command == "robustness-preflight":
         from .task_robustness import (
             build_robustness_manifest,

@@ -5,14 +5,23 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import time
 from collections import Counter, defaultdict
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Dict, Iterable, List
 
-from .experiment import expected_observed_state
-from .model import EvidenceContract, Schedule, TASKS, TaskSpec
-from .openai_adapter import build_decision_input, maximum_decision_cost
+from .confirmation import load_resume_state
+from .experiment import HTTPExperimentClient, expected_observed_state
+from .http_service import RetryBenchHTTPService
+from .model import Action, EvidenceContract, ObservedState, Schedule, TASKS, TaskSpec
+from .openai_adapter import (
+    CostBudget,
+    OpenAIResponsesPolicy,
+    build_decision_input,
+    maximum_decision_cost,
+)
+from .scoring import score_exact_state
 
 
 ROBUSTNESS_MODEL = "gpt-5.4-2026-03-05"
@@ -238,6 +247,132 @@ def run_robustness_preflight(rows: List[RobustnessCell]) -> Dict[str, object]:
         "gates": gates,
         "all_zero_cost_gates_passed": all(gates.values()),
     }
+
+
+def run_live_task_robustness(
+    rows: List[RobustnessCell],
+    policy: OpenAIResponsesPolicy,
+    budget: CostBudget,
+    database_path: Path,
+    output_path: Path,
+    late_commit_delay: float = 0.1,
+    resume: bool = False,
+) -> List[Dict[str, object]]:
+    """Execute one response per frozen group and replay weak actions by schedule."""
+    run_robustness_preflight(rows)
+    if policy.model != ROBUSTNESS_MODEL:
+        raise ValueError("task-robustness model must be %s" % ROBUSTNESS_MODEL)
+    if policy.max_output_tokens != ROBUSTNESS_MAX_OUTPUT_TOKENS:
+        raise ValueError(
+            "task-robustness max output tokens must be %d"
+            % ROBUSTNESS_MAX_OUTPUT_TOKENS
+        )
+    if budget.max_cost_usd > ROBUSTNESS_MAX_COST_USD:
+        raise ValueError(
+            "task-robustness budget may not exceed $%.2f"
+            % ROBUSTNESS_MAX_COST_USD
+        )
+    if database_path.exists():
+        raise FileExistsError("task-robustness database must not already exist")
+
+    schema_version = "retrybench-live-task-robustness-v1"
+    if resume:
+        if not output_path.exists():
+            raise FileNotFoundError("resume output does not exist")
+        results, completed_groups, recovered_spend, recovered_requests = load_resume_state(
+            output_path, rows, ROBUSTNESS_MODEL, schema_version
+        )
+        budget.spent_usd = recovered_spend
+        budget.requests = recovered_requests
+        if budget.spent_usd > budget.max_cost_usd:
+            raise ValueError("resume output already exceeds the configured budget")
+        output_mode = "a"
+    else:
+        if output_path.exists():
+            raise FileExistsError("task-robustness output must not already exist")
+        results = []
+        completed_groups = set()
+        output_mode = "x"
+
+    task_by_id = {task.task.task_id: task for task in ROBUSTNESS_TASKS}
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open(output_mode, encoding="utf-8") as output:
+        with RetryBenchHTTPService(
+            database_path, late_commit_delay=late_commit_delay
+        ) as service:
+            client = HTTPExperimentClient(service.base_url)
+            for group in _group_rows(rows).values():
+                if group[0].response_group_id in completed_groups:
+                    continue
+                prepared = []
+                for row in group:
+                    robustness_task = task_by_id[row.task_id]
+                    task = robustness_task.task
+                    schedule = Schedule(row.schedule)
+                    evidence = EvidenceContract(row.evidence)
+                    operation_id = "task-robustness:%s" % row.cell_id
+                    status, timeout_body = client.start(operation_id, task, schedule)
+                    observed = client.status(operation_id, evidence)
+                    instructions, prompt = build_decision_input(
+                        task, evidence, observed, cautious_prompt=False
+                    )
+                    actual_hash = _canonical_hash(
+                        {"instructions": instructions, "prompt": prompt}
+                    )
+                    if not (
+                        status == 504
+                        and timeout_body == {"error": "tool call timed out"}
+                        and observed.value == row.expected_observed_state
+                        and actual_hash == row.transcript_sha256
+                    ):
+                        raise RuntimeError("observation diverged before %s" % row.cell_id)
+                    prepared.append((row, task, schedule, evidence, observed, operation_id))
+
+                first = prepared[0]
+                decision = policy.decide(
+                    first[1], first[3], first[4], False, budget
+                )
+                for row, task, schedule, evidence, observed, operation_id in prepared:
+                    if decision.action == Action.RETRY:
+                        client.retry(operation_id, stable_idempotency=False)
+                    if schedule == Schedule.IN_FLIGHT_LATE_COMMIT:
+                        time.sleep(late_commit_delay + 0.01)
+                    unresolved = decision.action in {Action.WAIT, Action.UNRESOLVED}
+                    effects = client.effects(operation_id)
+                    score = score_exact_state(task, operation_id, effects, unresolved)
+                    retry_permitted = (
+                        schedule == Schedule.FAIL_BEFORE_EXECUTION
+                        and evidence == EvidenceContract.AUTHORITATIVE
+                        and observed == ObservedState.NOT_EXECUTED
+                    )
+                    result = {
+                        "schema_version": schema_version,
+                        "cell_id": row.cell_id,
+                        "response_group_id": row.response_group_id,
+                        "shared_group_size": len(group),
+                        "family_id": row.family_id,
+                        "lexical_frame": row.lexical_frame,
+                        "task_id": row.task_id,
+                        "schedule": row.schedule,
+                        "evidence": row.evidence,
+                        "repetition": row.repetition,
+                        "model": decision.model,
+                        "operation_id": operation_id,
+                        "observed_state": observed.value,
+                        "transcript_sha256": row.transcript_sha256,
+                        "decision": decision.to_dict(),
+                        "retry_permitted": retry_permitted,
+                        "false_retry_permission": (
+                            decision.action == Action.RETRY and not retry_permitted
+                        ),
+                        "effect_count": len(effects),
+                        **score.to_dict(),
+                        "cumulative_cost_usd": budget.spent_usd,
+                    }
+                    output.write(json.dumps(result, sort_keys=True) + "\n")
+                    output.flush()
+                    results.append(result)
+    return results
 
 
 def _t_critical_95(task_families: int) -> float:

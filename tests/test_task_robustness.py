@@ -1,10 +1,35 @@
+import json
+import tempfile
 import unittest
+from pathlib import Path
 
+from retrybench.openai_adapter import CostBudget, OpenAIResponsesPolicy
 from retrybench.task_robustness import (
+    ROBUSTNESS_MAX_COST_USD,
+    ROBUSTNESS_MAX_OUTPUT_TOKENS,
+    ROBUSTNESS_MODEL,
     analyze_task_robustness,
     build_robustness_manifest,
+    run_live_task_robustness,
     run_robustness_preflight,
 )
+
+
+def fake_unresolved_response(api_key, payload):
+    return {
+        "id": "fake-robustness-response",
+        "model": ROBUSTNESS_MODEL,
+        "output": [{"type": "message", "content": [{
+            "type": "output_text",
+            "text": json.dumps({"action": "unresolved", "rationale": "test"}),
+        }]}],
+        "usage": {
+            "input_tokens": 100,
+            "input_tokens_details": {"cached_tokens": 0},
+            "output_tokens": 20,
+            "output_tokens_details": {"reasoning_tokens": 0},
+        },
+    }
 
 
 class TaskRobustnessTests(unittest.TestCase):
@@ -34,6 +59,27 @@ class TaskRobustnessTests(unittest.TestCase):
             ],
             0.0,
         )
+
+    def test_guarded_runner_makes_128_calls_for_192_outcomes(self):
+        policy = OpenAIResponsesPolicy(
+            model=ROBUSTNESS_MODEL,
+            max_output_tokens=ROBUSTNESS_MAX_OUTPUT_TOKENS,
+            api_key="fake",
+            transport=fake_unresolved_response,
+        )
+        budget = CostBudget(ROBUSTNESS_MAX_COST_USD)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            results = run_live_task_robustness(
+                build_robustness_manifest(),
+                policy,
+                budget,
+                root / "robustness.sqlite3",
+                root / "outcomes.jsonl",
+                late_commit_delay=0.01,
+            )
+        self.assertEqual(len(results), 192)
+        self.assertEqual(budget.requests, 128)
 
 
 if __name__ == "__main__":
