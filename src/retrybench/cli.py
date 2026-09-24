@@ -233,6 +233,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     paper_assets.add_argument("--repo-root", default=".")
     paper_assets.add_argument("--output-dir", default="paper/generated")
+    archive_audit = subparsers.add_parser(
+        "audit-live-archives",
+        help="audit historical wall-clock live runs against their SQLite ledgers",
+    )
+    archive_audit.add_argument("--results-root", default="results")
+    archive_audit.add_argument(
+        "--output", default="runs/archive-integrity-v1/analysis.json"
+    )
     return parser
 
 
@@ -273,6 +281,14 @@ def main(argv=None) -> int:
         )
         print(json.dumps({"generated": [str(path) for path in paths]}, indent=2))
         return 0
+
+    if args.command == "audit-live-archives":
+        from .archive_audit import audit_default_archives, write_archive_audit
+
+        report = audit_default_archives(Path(args.results_root))
+        write_archive_audit(report, Path(args.output))
+        print(json.dumps(report, indent=2, sort_keys=True))
+        return 0 if report["all_archives_passed"] else 1
 
 
 

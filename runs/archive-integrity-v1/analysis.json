@@ -1,0 +1,147 @@
+{
+  "all_archives_passed": true,
+  "api_calls": 0,
+  "api_cost_usd": 0.0,
+  "audit_type": "read_only_posthoc_wall_clock_integrity",
+  "claim_boundary": "The audit verifies archived outcomes and rules out pre-probe settlement wherever the evidence contract makes settlement visible. It does not claim a recoverable numeric timing margin.",
+  "datasets": [
+    {
+      "archive_integrity_passed": true,
+      "checks": {
+        "all_inflight_effects_have_commit_timestamps": true,
+        "all_inflight_operations_eventually_committed": true,
+        "effect_counts_match_ledger": true,
+        "evidence_sensitive_rows_exclude_early_settlement": true,
+        "final_outcomes_are_settlement_order_invariant": true,
+        "frozen_inflight_observations_match": true,
+        "json_operations_have_ledger_rows": true,
+        "ledger_has_no_unmatched_operations": true,
+        "schedules_match_ledger": true
+      },
+      "databases": [
+        "results/live-pilot.sqlite3"
+      ],
+      "duplicate_operations_across_resume_ledgers": 0,
+      "effect_count_mismatches": 0,
+      "evidence_sensitive_in_flight_rows": 16,
+      "extra_ledger_operations": 0,
+      "in_flight_rows": 24,
+      "jsonl": "results/live-pilot.jsonl",
+      "ledger_operations": 96,
+      "missing_ledger_operations": 0,
+      "name": "pilot-v1",
+      "none_evidence_in_flight_rows": 8,
+      "observation_mismatches": 0,
+      "outcome_ordering_mismatches": 0,
+      "rows": 96,
+      "sensitive_early_settlement_contradictions": 0,
+      "timestamp_limitation": "The historical schema did not persist operation start time and cleared due_at on settlement, so an exact start-to-read margin cannot be reconstructed. Weak/authoritative observations are state-sensitive and rule out pre-probe settlement; none evidence is timing-insensitive, but its final effect count is invariant to settlement ordering.",
+      "timestamp_margin_recoverable": false
+    },
+    {
+      "archive_integrity_passed": true,
+      "checks": {
+        "all_inflight_effects_have_commit_timestamps": true,
+        "all_inflight_operations_eventually_committed": true,
+        "effect_counts_match_ledger": true,
+        "evidence_sensitive_rows_exclude_early_settlement": true,
+        "final_outcomes_are_settlement_order_invariant": true,
+        "frozen_inflight_observations_match": true,
+        "json_operations_have_ledger_rows": true,
+        "ledger_has_no_unmatched_operations": true,
+        "schedules_match_ledger": true
+      },
+      "databases": [
+        "results/live-confirmation-v2.sqlite3"
+      ],
+      "duplicate_operations_across_resume_ledgers": 0,
+      "effect_count_mismatches": 0,
+      "evidence_sensitive_in_flight_rows": 80,
+      "extra_ledger_operations": 0,
+      "in_flight_rows": 80,
+      "jsonl": "results/live-confirmation-v2.jsonl",
+      "ledger_operations": 240,
+      "missing_ledger_operations": 0,
+      "name": "confirmation-v2",
+      "none_evidence_in_flight_rows": 0,
+      "observation_mismatches": 0,
+      "outcome_ordering_mismatches": 0,
+      "rows": 240,
+      "sensitive_early_settlement_contradictions": 0,
+      "timestamp_limitation": "The historical schema did not persist operation start time and cleared due_at on settlement, so an exact start-to-read margin cannot be reconstructed. Weak/authoritative observations are state-sensitive and rule out pre-probe settlement; none evidence is timing-insensitive, but its final effect count is invariant to settlement ordering.",
+      "timestamp_margin_recoverable": false
+    },
+    {
+      "archive_integrity_passed": true,
+      "checks": {
+        "all_inflight_effects_have_commit_timestamps": true,
+        "all_inflight_operations_eventually_committed": true,
+        "effect_counts_match_ledger": true,
+        "evidence_sensitive_rows_exclude_early_settlement": true,
+        "final_outcomes_are_settlement_order_invariant": true,
+        "frozen_inflight_observations_match": true,
+        "json_operations_have_ledger_rows": true,
+        "ledger_has_no_unmatched_operations": true,
+        "schedules_match_ledger": true
+      },
+      "databases": [
+        "results/live-gpt54-replication-v1.sqlite3",
+        "results/live-gpt54-replication-resume-v1.sqlite3"
+      ],
+      "duplicate_operations_across_resume_ledgers": 1,
+      "effect_count_mismatches": 0,
+      "evidence_sensitive_in_flight_rows": 80,
+      "extra_ledger_operations": 0,
+      "in_flight_rows": 80,
+      "jsonl": "results/live-gpt54-replication-v1.jsonl",
+      "ledger_operations": 240,
+      "missing_ledger_operations": 0,
+      "name": "gpt54-replication-v1",
+      "none_evidence_in_flight_rows": 0,
+      "observation_mismatches": 0,
+      "outcome_ordering_mismatches": 0,
+      "rows": 240,
+      "sensitive_early_settlement_contradictions": 0,
+      "timestamp_limitation": "The historical schema did not persist operation start time and cleared due_at on settlement, so an exact start-to-read margin cannot be reconstructed. Weak/authoritative observations are state-sensitive and rule out pre-probe settlement; none evidence is timing-insensitive, but its final effect count is invariant to settlement ordering.",
+      "timestamp_margin_recoverable": false
+    },
+    {
+      "archive_integrity_passed": true,
+      "checks": {
+        "all_inflight_effects_have_commit_timestamps": true,
+        "all_inflight_operations_eventually_committed": true,
+        "effect_counts_match_ledger": true,
+        "evidence_sensitive_rows_exclude_early_settlement": true,
+        "final_outcomes_are_settlement_order_invariant": true,
+        "frozen_inflight_observations_match": true,
+        "json_operations_have_ledger_rows": true,
+        "ledger_has_no_unmatched_operations": true,
+        "schedules_match_ledger": true
+      },
+      "databases": [
+        "results/live-task-robustness-v1.sqlite3"
+      ],
+      "duplicate_operations_across_resume_ledgers": 0,
+      "effect_count_mismatches": 0,
+      "evidence_sensitive_in_flight_rows": 64,
+      "extra_ledger_operations": 0,
+      "in_flight_rows": 64,
+      "jsonl": "results/live-task-robustness-v1.jsonl",
+      "ledger_operations": 192,
+      "missing_ledger_operations": 0,
+      "name": "task-robustness-v1",
+      "none_evidence_in_flight_rows": 0,
+      "observation_mismatches": 0,
+      "outcome_ordering_mismatches": 0,
+      "rows": 192,
+      "sensitive_early_settlement_contradictions": 0,
+      "timestamp_limitation": "The historical schema did not persist operation start time and cleared due_at on settlement, so an exact start-to-read margin cannot be reconstructed. Weak/authoritative observations are state-sensitive and rule out pre-probe settlement; none evidence is timing-insensitive, but its final effect count is invariant to settlement ordering.",
+      "timestamp_margin_recoverable": false
+    }
+  ],
+  "schema_version": "retrybench-live-archive-integrity-v1",
+  "total_evidence_sensitive_in_flight_rows": 240,
+  "total_in_flight_rows": 248,
+  "total_none_evidence_in_flight_rows": 8,
+  "total_rows": 768
+}

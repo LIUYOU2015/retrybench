@@ -52,3 +52,35 @@ the manuscript. No OpenAI API calls were made.
 - Logical-clock and wall-clock HTTP modes each have direct integration tests.
 - Closest-work aggregate rates, paper tables, and figure values are unchanged.
 - Repository visibility was not modified.
+
+### Retrospective verification of pre-fix paid runs
+
+The already-collected pilot, confirmation-v2, GPT-5.4 replication, and
+task-robustness runs were produced with wall-clock settlement. They were not
+rerun. A read-only audit now cross-checks every archived JSONL row against its
+durable SQLite operation/effect ledger:
+
+- 768/768 output rows have a matching operation, schedule, and effect count;
+- all 248 in-flight operations eventually reached `committed` with a recorded
+  effect timestamp;
+- all 240 weak/authoritative in-flight rows retained the frozen first
+  observation (`NOT_FOUND` or `IN_FLIGHT`), with zero early-settlement
+  contradictions;
+- the remaining eight in-flight rows are pilot `none`-evidence cells. Their
+  first observation is always `UNKNOWN`, so exact decision-time ordering is
+  not retrospectively observable, but each final effect count matches the
+  ordering-invariant expectation: one original effect plus one additional
+  effect exactly when the model chose retry;
+- the interrupted GPT-5.4 run is reconciled across both SQLite ledgers. Their
+  240-operation union matches all output rows; the one overlapping operation
+  has identical schedule, terminal state, and effect count.
+
+The requested numeric start-to-effect-read margin cannot be reconstructed:
+the historical schema did not persist operation start time and cleared
+`due_at` on settlement. The audit therefore makes the narrower evidence-backed
+claim above rather than inventing a timing margin. For the confirmation,
+replication, and robustness headline conditions, the state-sensitive frozen
+observations directly rule out settlement before the first probe. The
+machine-readable report is `runs/archive-integrity-v1/analysis.json`; regenerate
+it locally with `retrybench audit-live-archives` while the ignored raw archives
+are present.
