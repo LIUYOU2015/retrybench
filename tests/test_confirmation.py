@@ -5,6 +5,7 @@ from pathlib import Path
 
 from retrybench.confirmation import (
     CONFIRMATION_MAX_COST_USD,
+    CONFIRMATION_MAX_OUTPUT_TOKENS,
     build_confirmation_manifest,
     load_confirmation_manifest,
     run_confirmation_preflight,
@@ -55,6 +56,29 @@ class ConfirmationManifestTests(unittest.TestCase):
 
 
 class ConfirmationRunnerTests(unittest.TestCase):
+    def test_runner_rejects_output_token_mismatch_before_spending(self):
+        budget = CostBudget(CONFIRMATION_MAX_COST_USD)
+        policy = OpenAIResponsesPolicy(
+            api_key="fake",
+            max_output_tokens=CONFIRMATION_MAX_OUTPUT_TOKENS + 1,
+            transport=fake_unresolved_response,
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            database = root / "confirmation.sqlite3"
+            output = root / "outcomes.jsonl"
+            with self.assertRaisesRegex(ValueError, "max output tokens"):
+                run_live_confirmation(
+                    build_confirmation_manifest(),
+                    policy,
+                    budget,
+                    database,
+                    output,
+                )
+            self.assertEqual(budget.requests, 0)
+            self.assertFalse(database.exists())
+            self.assertFalse(output.exists())
+
     def test_fake_transport_makes_160_calls_for_240_outcomes(self):
         budget = CostBudget(CONFIRMATION_MAX_COST_USD)
         policy = OpenAIResponsesPolicy(

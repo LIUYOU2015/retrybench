@@ -21,9 +21,15 @@ TIMEOUT_BODY = {"error": "tool call timed out"}
 class HTTPServiceStore:
     """Durable operation and effect ledger shared by HTTP request threads."""
 
-    def __init__(self, database_path: Path, late_commit_delay: float) -> None:
+    def __init__(
+        self,
+        database_path: Path,
+        late_commit_delay: float,
+        manual_settlement: bool = False,
+    ) -> None:
         self.database_path = Path(database_path)
         self.late_commit_delay = late_commit_delay
+        self.manual_settlement = manual_settlement
         self._write_lock = threading.Lock()
         self._initialize()
 
@@ -107,7 +113,8 @@ class HTTPServiceStore:
             state = "committed"
         elif schedule == Schedule.IN_FLIGHT_LATE_COMMIT:
             state = "in_flight"
-            due_at = time.time() + self.late_commit_delay
+            if not self.manual_settlement:
+                due_at = time.time() + self.late_commit_delay
 
         with self._write_lock, self._connect() as connection:
             connection.execute(
@@ -198,6 +205,26 @@ class HTTPServiceStore:
                 )
             return self._insert_effect(connection, operation, stable_idempotency)
 
+    def advance(self, operation_id: str) -> bool:
+        """Explicitly settle one pending operation for deterministic experiments."""
+        with self._write_lock, self._connect() as connection:
+            operation = connection.execute(
+                "SELECT * FROM operations WHERE operation_id = ?", (operation_id,)
+            ).fetchone()
+            if not operation:
+                raise KeyError(operation_id)
+            if operation["state"] != "in_flight":
+                return False
+            created = self._insert_effect(
+                connection, operation, deduplicate=bool(operation["dedupe_enabled"])
+            )
+            connection.execute(
+                "UPDATE operations SET state = 'committed', due_at = NULL "
+                "WHERE operation_id = ?",
+                (operation_id,),
+            )
+            return created
+
     def effects(self) -> list:
         with self._write_lock, self._connect() as connection:
             due = connection.execute(
@@ -232,8 +259,11 @@ class RetryBenchHTTPService:
         host: str = "127.0.0.1",
         port: int = 0,
         late_commit_delay: float = 0.05,
+        manual_settlement: bool = False,
     ) -> None:
-        self.store = HTTPServiceStore(Path(database_path), late_commit_delay)
+        self.store = HTTPServiceStore(
+            Path(database_path), late_commit_delay, manual_settlement
+        )
         self._server = ThreadingHTTPServer((host, port), self._handler_type())
         self._thread: Optional[threading.Thread] = None
 
@@ -277,6 +307,12 @@ class RetryBenchHTTPService:
                         self._write(
                             HTTPStatus.CREATED if created else HTTPStatus.OK,
                             {"effect_created": created},
+                        )
+                        return
+                    if action == "advance":
+                        created = store.advance(operation_id)
+                        self._write(
+                            HTTPStatus.OK, {"effect_created": created}
                         )
                         return
                     self._write(HTTPStatus.NOT_FOUND, {"error": "not found"})

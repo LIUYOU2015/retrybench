@@ -58,6 +58,15 @@ class ClosestWorkExtensionTests(unittest.TestCase):
             )
             self.assertEqual(row.state_outcome, expected[template.family])
 
+    def test_weak_not_executed_uses_weak_negative_label(self):
+        row = run_extension_episode(
+            TEMPLATES[0],
+            "not_executed",
+            "negative_status_as_retry_permission",
+        )
+        self.assertEqual(row.status_observation, "WEAK_NOT_FOUND")
+        self.assertTrue(row.exactly_once_success)
+
     def test_outputs_are_hash_bound(self):
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory)

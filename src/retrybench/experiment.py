@@ -5,7 +5,6 @@ from __future__ import annotations
 import hashlib
 import json
 import tempfile
-import time
 import urllib.error
 import urllib.request
 from dataclasses import asdict, dataclass
@@ -29,7 +28,7 @@ from .openai_adapter import (
     build_decision_input,
     maximum_decision_cost,
 )
-from .scoring import score_exact_state
+from .scoring import retry_is_permitted, score_exact_state
 
 
 PILOT_MODEL = "gpt-5.4-mini-2026-03-17"
@@ -116,6 +115,13 @@ class HTTPExperimentClient:
         )
         if status not in {200, 201}:
             raise RuntimeError("retry failed: %s %s" % (status, body))
+        return bool(body["effect_created"])
+
+    def advance(self, operation_id: str) -> bool:
+        path = "/operations/%s/advance" % quote(operation_id, safe="")
+        status, body = self._request(path, "POST", {})
+        if status != 200:
+            raise RuntimeError("logical advance failed: %s %s" % (status, body))
         return bool(body["effect_created"])
 
     def effects(self, operation_id: str) -> List[EffectRecord]:
@@ -227,7 +233,6 @@ def deterministic_recovery(
     operation_id: str,
     evidence: EvidenceContract,
     first_observation: ObservedState,
-    wait_seconds: float,
 ) -> Tuple[Action, int, int]:
     """Fail closed; retry only on authoritative terminal non-execution."""
     probes = 1
@@ -240,7 +245,7 @@ def deterministic_recovery(
         client.retry(operation_id, stable_idempotency=False)
         return Action.RETRY, probes, 1
 
-    time.sleep(wait_seconds)
+    client.advance(operation_id)
     second = client.status(operation_id, evidence)
     probes += 1
     if second == ObservedState.COMMITTED:
@@ -343,7 +348,9 @@ def run_zero_cost_preflight(rows: List[PilotCell]) -> Dict[str, object]:
     with tempfile.TemporaryDirectory() as directory:
         database = Path(directory) / "preflight.sqlite3"
         with RetryBenchHTTPService(
-            database, late_commit_delay=late_commit_delay
+            database,
+            late_commit_delay=late_commit_delay,
+            manual_settlement=True,
         ) as service:
             client = HTTPExperimentClient(service.base_url)
             for row in rows:
@@ -376,7 +383,6 @@ def run_zero_cost_preflight(rows: List[PilotCell]) -> Dict[str, object]:
                     operation_id,
                     evidence,
                     observed,
-                    late_commit_delay + 0.01,
                 )
                 score = score_exact_state(
                     task,
@@ -405,7 +411,7 @@ def run_zero_cost_preflight(rows: List[PilotCell]) -> Dict[str, object]:
                     operation_id = "stable:%s:%s" % (task.task_id, schedule.value)
                     client.start(operation_id, task, schedule)
                     client.retry(operation_id, stable_idempotency=True)
-                    time.sleep(late_commit_delay + 0.01)
+                    client.advance(operation_id)
                     score = score_exact_state(
                         task, operation_id, client.effects(operation_id), False
                     )
@@ -475,6 +481,10 @@ def run_live_pilot(
     validate_frozen_manifest(rows)
     if policy.model != PILOT_MODEL:
         raise ValueError("pilot model must be the frozen snapshot %s" % PILOT_MODEL)
+    if policy.max_output_tokens != PILOT_MAX_OUTPUT_TOKENS:
+        raise ValueError(
+            "pilot max output tokens must be %d" % PILOT_MAX_OUTPUT_TOKENS
+        )
     if budget.max_cost_usd > PILOT_MAX_COST_USD:
         raise ValueError("pilot budget may not exceed $%.2f" % PILOT_MAX_COST_USD)
     if database_path.exists():
@@ -487,7 +497,9 @@ def run_live_pilot(
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("x", encoding="utf-8") as output:
         with RetryBenchHTTPService(
-            database_path, late_commit_delay=late_commit_delay
+            database_path,
+            late_commit_delay=late_commit_delay,
+            manual_settlement=True,
         ) as service:
             client = HTTPExperimentClient(service.base_url)
             for row in rows:
@@ -526,7 +538,7 @@ def run_live_pilot(
                 if decision.action == Action.RETRY:
                     client.retry(operation_id, stable_idempotency=False)
                 if schedule == Schedule.IN_FLIGHT_LATE_COMMIT:
-                    time.sleep(late_commit_delay + 0.01)
+                    client.advance(operation_id)
 
                 unresolved = decision.action in {Action.WAIT, Action.UNRESOLVED}
                 effects = client.effects(operation_id)
@@ -536,11 +548,7 @@ def run_live_pilot(
                     effects,
                     unresolved,
                 )
-                retry_permitted = (
-                    evidence == EvidenceContract.AUTHORITATIVE
-                    and observed == ObservedState.NOT_EXECUTED
-                    and schedule == Schedule.FAIL_BEFORE_EXECUTION
-                )
+                retry_permitted = retry_is_permitted(schedule, evidence, observed)
                 false_retry_permission = (
                     decision.action == Action.RETRY and not retry_permitted
                 )

@@ -29,6 +29,7 @@ def build_replication_manifest() -> List[ConfirmationCell]:
         model=REPLICATION_MODEL,
         cell_prefix=REPLICATION_CELL_PREFIX,
         response_group_prefix=REPLICATION_GROUP_PREFIX,
+        max_output_tokens=REPLICATION_MAX_OUTPUT_TOKENS,
     )
 
 
@@ -40,6 +41,7 @@ def run_replication_preflight(rows: List[ConfirmationCell]) -> Dict[str, object]
         cell_prefix=REPLICATION_CELL_PREFIX,
         response_group_prefix=REPLICATION_GROUP_PREFIX,
         schema_version="retrybench-gpt54-replication-preflight-v1",
+        max_output_tokens=REPLICATION_MAX_OUTPUT_TOKENS,
     )
 
 
@@ -66,4 +68,5 @@ def run_live_replication(
         operation_prefix="gpt54-replication",
         schema_version="retrybench-live-gpt54-replication-v1",
         resume=resume,
+        expected_max_output_tokens=REPLICATION_MAX_OUTPUT_TOKENS,
     )

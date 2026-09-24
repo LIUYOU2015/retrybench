@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Dict, Iterable, List
@@ -18,7 +17,7 @@ from .openai_adapter import (
     build_decision_input,
     maximum_decision_cost,
 )
-from .scoring import score_exact_state
+from .scoring import retry_is_permitted, score_exact_state
 
 
 CONFIRMATION_MODEL = "gpt-5.4-mini-2026-03-17"
@@ -83,6 +82,7 @@ def build_confirmation_manifest(
     model: str = CONFIRMATION_MODEL,
     cell_prefix: str = "confirm",
     response_group_prefix: str = "confirm-rg",
+    max_output_tokens: int = CONFIRMATION_MAX_OUTPUT_TOKENS,
 ) -> List[ConfirmationCell]:
     """Return the preregistered 240 outcomes and 160 response groups."""
     rows = []
@@ -127,7 +127,7 @@ def build_confirmation_manifest(
                                     model,
                                     instructions,
                                     prompt,
-                                    CONFIRMATION_MAX_OUTPUT_TOKENS,
+                                    max_output_tokens,
                                 ),
                             )
                         )
@@ -157,10 +157,13 @@ def validate_confirmation_manifest(
     model: str = CONFIRMATION_MODEL,
     cell_prefix: str = "confirm",
     response_group_prefix: str = "confirm-rg",
+    max_output_tokens: int = CONFIRMATION_MAX_OUTPUT_TOKENS,
 ) -> None:
     if [row.to_dict() for row in rows] != [
         row.to_dict()
-        for row in build_confirmation_manifest(model, cell_prefix, response_group_prefix)
+        for row in build_confirmation_manifest(
+            model, cell_prefix, response_group_prefix, max_output_tokens
+        )
     ]:
         raise ValueError("confirmation manifest differs from frozen protocol")
 
@@ -231,9 +234,12 @@ def run_confirmation_preflight(
     cell_prefix: str = "confirm",
     response_group_prefix: str = "confirm-rg",
     schema_version: str = "retrybench-confirmation-preflight-v2",
+    max_output_tokens: int = CONFIRMATION_MAX_OUTPUT_TOKENS,
 ) -> Dict[str, object]:
     """Validate the frozen denominator, response sharing, and cost without API calls."""
-    validate_confirmation_manifest(rows, model, cell_prefix, response_group_prefix)
+    validate_confirmation_manifest(
+        rows, model, cell_prefix, response_group_prefix, max_output_tokens
+    )
     groups = _group_rows(rows)
     group_integrity = all(
         len({(row.transcript_sha256, row.task_id, row.evidence,
@@ -277,7 +283,7 @@ def run_confirmation_preflight(
         "scored_outcomes": len(rows),
         "fresh_model_calls": len(groups),
         "model": model,
-        "maximum_output_tokens": CONFIRMATION_MAX_OUTPUT_TOKENS,
+        "maximum_output_tokens": max_output_tokens,
         "maximum_reserved_cost_usd": unique_reserved_cost,
         "cost_cap_usd": maximum_cost_usd,
         "gates": gates,
@@ -300,11 +306,23 @@ def run_live_confirmation(
     operation_prefix: str = "confirmation",
     schema_version: str = "retrybench-live-confirmation-v2",
     resume: bool = False,
+    expected_max_output_tokens: int = CONFIRMATION_MAX_OUTPUT_TOKENS,
 ) -> List[Dict[str, object]]:
     """Run once per response group, then replay that action on every hidden schedule."""
-    validate_confirmation_manifest(rows, expected_model, cell_prefix, response_group_prefix)
+    validate_confirmation_manifest(
+        rows,
+        expected_model,
+        cell_prefix,
+        response_group_prefix,
+        expected_max_output_tokens,
+    )
     if policy.model != expected_model:
         raise ValueError("confirmation model must be %s" % expected_model)
+    if policy.max_output_tokens != expected_max_output_tokens:
+        raise ValueError(
+            "confirmation max output tokens must be %d"
+            % expected_max_output_tokens
+        )
     if budget.max_cost_usd > maximum_cost_usd:
         raise ValueError("confirmation budget may not exceed $%.2f" % maximum_cost_usd)
     if database_path.exists():
@@ -331,7 +349,9 @@ def run_live_confirmation(
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open(output_mode, encoding="utf-8") as output:
         with RetryBenchHTTPService(
-            database_path, late_commit_delay=late_commit_delay
+            database_path,
+            late_commit_delay=late_commit_delay,
+            manual_settlement=True,
         ) as service:
             client = HTTPExperimentClient(service.base_url)
             for group in _group_rows(rows):
@@ -372,14 +392,12 @@ def run_live_confirmation(
                     if decision.action == Action.RETRY:
                         client.retry(operation_id, stable_idempotency=False)
                     if schedule == Schedule.IN_FLIGHT_LATE_COMMIT:
-                        time.sleep(late_commit_delay + 0.01)
+                        client.advance(operation_id)
                     unresolved = decision.action in {Action.WAIT, Action.UNRESOLVED}
                     effects = client.effects(operation_id)
                     score = score_exact_state(task, operation_id, effects, unresolved)
-                    retry_permitted = (
-                        schedule == Schedule.FAIL_BEFORE_EXECUTION
-                        and evidence == EvidenceContract.AUTHORITATIVE
-                        and observed == ObservedState.NOT_EXECUTED
+                    retry_permitted = retry_is_permitted(
+                        schedule, evidence, observed
                     )
                     result = {
                         "schema_version": schema_version,

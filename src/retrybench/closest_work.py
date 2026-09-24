@@ -206,7 +206,11 @@ def run_extension_episode(template: Any, schedule: str, policy: str) -> Extensio
     waited = False
 
     if schedule == "not_executed":
-        status = "TERMINAL_NOT_EXECUTED"
+        status = (
+            "WEAK_NOT_FOUND"
+            if policy == "negative_status_as_retry_permission"
+            else "TERMINAL_NOT_EXECUTED"
+        )
     elif schedule == "executed_response_lost":
         status = "COMMITTED"
     elif schedule == "in_flight_late_commit":

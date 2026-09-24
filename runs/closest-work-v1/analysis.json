@@ -11,7 +11,7 @@
     "weak_negative_failures_only_in_added_schedules": true
   },
   "conclusion": "The source artifact's structural status and idempotency controls reproduce on its author-selected slice. After adding in-flight and stale-negative worlds, a negative lookup is not sufficient retry permission; the status benefit is conditional on authoritative, terminal-aware evidence. Stable idempotency remains safe.",
-  "outcomes_sha256": "40581d270e0d4e39fd12d9987ce89706bd3308f69ca516f3cb0604c574df148b",
+  "outcomes_sha256": "307b01fbd3b4bc88b134bc937e0ffe0e0cfbf2dd6b99217ccf16c8ff4c464905",
   "retrybench_extension": {
     "by_policy": {
       "negative_status_as_retry_permission": {

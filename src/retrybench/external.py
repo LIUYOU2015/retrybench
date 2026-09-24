@@ -9,7 +9,7 @@ from typing import Dict, Iterable, List
 
 from .confirmation import ConfirmationCell, validate_confirmation_manifest
 from .model import Action, EvidenceContract, Schedule, TASKS
-from .scoring import score_exact_state
+from .scoring import retry_is_permitted, score_exact_state
 from .service import AmbiguousTimeout, DeterministicService
 
 
@@ -87,10 +87,7 @@ def score_external_decisions(
         service.settle()
         unresolved = action in {Action.WAIT, Action.UNRESOLVED}
         score = score_exact_state(task, operation_id, service.effects, unresolved)
-        retry_permitted = (
-            schedule == Schedule.FAIL_BEFORE_EXECUTION
-            and evidence == EvidenceContract.AUTHORITATIVE
-        )
+        retry_permitted = retry_is_permitted(schedule, evidence, observed)
         results.append(
             {
                 "schema_version": "retrybench-external-score-v1",

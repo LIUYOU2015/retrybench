@@ -5,6 +5,7 @@ from pathlib import Path
 
 from retrybench.experiment import (
     PILOT_MAX_COST_USD,
+    PILOT_MAX_OUTPUT_TOKENS,
     build_pilot_manifest,
     load_manifest,
     run_live_pilot,
@@ -106,6 +107,27 @@ class ZeroCostPreflightTests(unittest.TestCase):
 
 
 class GuardedLivePilotTests(unittest.TestCase):
+    def test_runner_rejects_output_token_mismatch_before_spending(self):
+        policy = OpenAIResponsesPolicy(
+            api_key="fake-key",
+            max_output_tokens=PILOT_MAX_OUTPUT_TOKENS + 1,
+            transport=fake_unresolved_response,
+        )
+        budget = CostBudget(PILOT_MAX_COST_USD)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with self.assertRaisesRegex(ValueError, "max output tokens"):
+                run_live_pilot(
+                    build_pilot_manifest(),
+                    policy,
+                    budget,
+                    root / "pilot.sqlite3",
+                    root / "pilot.jsonl",
+                )
+            self.assertEqual(budget.requests, 0)
+            self.assertFalse((root / "pilot.sqlite3").exists())
+            self.assertFalse((root / "pilot.jsonl").exists())
+
     def test_full_frozen_runner_with_fake_transport(self):
         policy = OpenAIResponsesPolicy(
             api_key="fake-key", transport=fake_unresolved_response

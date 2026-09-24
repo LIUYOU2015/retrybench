@@ -81,6 +81,32 @@ class HTTPServiceTests(unittest.TestCase):
             self.assertEqual(len(ledger["effects"]), 1)
             self.assertEqual(ledger["effects"][0]["operation_id"], "op-late")
 
+    def test_manual_settlement_is_independent_of_wall_clock(self):
+        with RetryBenchHTTPService(
+            self.database_path,
+            late_commit_delay=0.0,
+            manual_settlement=True,
+        ) as service:
+            request_json(
+                service.base_url + "/operations",
+                "POST",
+                operation_body("op-manual", Schedule.IN_FLIGHT_LATE_COMMIT),
+            )
+            status_url = (
+                service.base_url
+                + "/operations/op-manual/status?evidence=authoritative"
+            )
+            self.assertEqual(
+                request_json(status_url)[1]["observed_state"], "in_flight"
+            )
+            advance = request_json(
+                service.base_url + "/operations/op-manual/advance", "POST", {}
+            )
+            self.assertEqual(advance, (200, {"effect_created": True}))
+            self.assertEqual(
+                request_json(status_url)[1]["observed_state"], "committed"
+            )
+
     def test_stale_negative_hides_existing_commit_once(self):
         with RetryBenchHTTPService(self.database_path) as service:
             request_json(

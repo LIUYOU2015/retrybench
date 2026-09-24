@@ -5,7 +5,6 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-import time
 from collections import Counter, defaultdict
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -21,7 +20,7 @@ from .openai_adapter import (
     build_decision_input,
     maximum_decision_cost,
 )
-from .scoring import score_exact_state
+from .scoring import retry_is_permitted, score_exact_state
 
 
 ROBUSTNESS_MODEL = "gpt-5.4-2026-03-05"
@@ -298,7 +297,9 @@ def run_live_task_robustness(
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open(output_mode, encoding="utf-8") as output:
         with RetryBenchHTTPService(
-            database_path, late_commit_delay=late_commit_delay
+            database_path,
+            late_commit_delay=late_commit_delay,
+            manual_settlement=True,
         ) as service:
             client = HTTPExperimentClient(service.base_url)
             for group in _group_rows(rows).values():
@@ -336,14 +337,12 @@ def run_live_task_robustness(
                     if decision.action == Action.RETRY:
                         client.retry(operation_id, stable_idempotency=False)
                     if schedule == Schedule.IN_FLIGHT_LATE_COMMIT:
-                        time.sleep(late_commit_delay + 0.01)
+                        client.advance(operation_id)
                     unresolved = decision.action in {Action.WAIT, Action.UNRESOLVED}
                     effects = client.effects(operation_id)
                     score = score_exact_state(task, operation_id, effects, unresolved)
-                    retry_permitted = (
-                        schedule == Schedule.FAIL_BEFORE_EXECUTION
-                        and evidence == EvidenceContract.AUTHORITATIVE
-                        and observed == ObservedState.NOT_EXECUTED
+                    retry_permitted = retry_is_permitted(
+                        schedule, evidence, observed
                     )
                     result = {
                         "schema_version": schema_version,

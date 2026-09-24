@@ -1,7 +1,7 @@
 import unittest
 
-from retrybench.model import EffectRecord, TASKS
-from retrybench.scoring import score_exact_state
+from retrybench.model import EvidenceContract, EffectRecord, ObservedState, Schedule, TASKS
+from retrybench.scoring import retry_is_permitted, score_exact_state
 
 
 def intended_effect():
@@ -16,6 +16,23 @@ def intended_effect():
 
 
 class ExactStateScoringTests(unittest.TestCase):
+    def test_retry_permission_requires_all_three_contract_conditions(self):
+        for schedule in Schedule:
+            for evidence in EvidenceContract:
+                for observed in ObservedState:
+                    expected = (
+                        schedule == Schedule.FAIL_BEFORE_EXECUTION
+                        and evidence == EvidenceContract.AUTHORITATIVE
+                        and observed == ObservedState.NOT_EXECUTED
+                    )
+                    with self.subTest(
+                        schedule=schedule, evidence=evidence, observed=observed
+                    ):
+                        self.assertEqual(
+                            retry_is_permitted(schedule, evidence, observed),
+                            expected,
+                        )
+
     def test_complete_intended_effect_succeeds(self):
         score = score_exact_state(
             TASKS[0], "op:issue-001", [intended_effect()], unresolved=False

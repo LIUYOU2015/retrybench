@@ -5,7 +5,20 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from typing import Dict, Iterable, List
 
-from .model import EffectRecord, TaskSpec
+from .model import EvidenceContract, EffectRecord, ObservedState, Schedule, TaskSpec
+
+
+def retry_is_permitted(
+    schedule: Schedule,
+    evidence: EvidenceContract,
+    observed: ObservedState,
+) -> bool:
+    """Return whether evidence proves the prior attempt terminal and effect-free."""
+    return (
+        schedule == Schedule.FAIL_BEFORE_EXECUTION
+        and evidence == EvidenceContract.AUTHORITATIVE
+        and observed == ObservedState.NOT_EXECUTED
+    )
 
 
 @dataclass(frozen=True)
