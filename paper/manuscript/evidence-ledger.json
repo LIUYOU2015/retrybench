@@ -1,0 +1,174 @@
+{
+  "schema_version": "retrybench-manuscript-evidence-v1",
+  "instructions": "Methods and Results cite these claim IDs. Every assertion is checked against a committed JSON artifact by tests/test_manuscript_evidence.py.",
+  "claims": [
+    {
+      "id": "M1",
+      "description": "Pilot frozen design",
+      "source": "protocol/retrybench-v1.json",
+      "assertions": [
+        {"pointer": "/pilot/task_instances", "expected": 4},
+        {"pointer": "/pilot/schedule_count", "expected": 4},
+        {"pointer": "/pilot/evidence_contract_count", "expected": 3},
+        {"pointer": "/pilot/prompt_condition_count", "expected": 2},
+        {"pointer": "/pilot/llm_episodes", "expected": 96}
+      ]
+    },
+    {
+      "id": "M2",
+      "description": "Confirmation and replication design per model",
+      "source": "protocol/confirmation-v2.json",
+      "assertions": [
+        {"pointer": "/fresh_draws_per_visible_condition", "expected": 5},
+        {"pointer": "/scored_outcomes_per_model", "expected": 240},
+        {"pointer": "/fresh_model_calls_per_model", "expected": 160},
+        {"pointer": "/cost_guard/maximum_output_tokens", "expected": 256}
+      ]
+    },
+    {
+      "id": "M3",
+      "description": "Independent-task robustness design",
+      "source": "protocol/task-robustness-v1.json",
+      "assertions": [
+        {"pointer": "/task_families", "expected": 8},
+        {"pointer": "/lexical_frames_per_family", "expected": 2},
+        {"pointer": "/repetitions_per_frame", "expected": 2},
+        {"pointer": "/fresh_model_calls", "expected": 128},
+        {"pointer": "/scored_outcomes", "expected": 192}
+      ]
+    },
+    {
+      "id": "R1",
+      "description": "Exploratory pilot outcome",
+      "source": "runs/pilot-v1/analysis.json",
+      "assertions": [
+        {"pointer": "/overall/false_retry_permission", "expected": 24},
+        {"pointer": "/overall/duplicate_effect", "expected": 18},
+        {"pointer": "/overall/omission", "expected": 10},
+        {"pointer": "/overall/unresolved", "expected": 48},
+        {"pointer": "/actual_cost_usd", "expected": 0.0401565}
+      ]
+    },
+    {
+      "id": "R2",
+      "description": "GPT-5.4 Mini neutral weak versus authoritative result",
+      "source": "runs/confirmation-v2/analysis.json",
+      "assertions": [
+        {"pointer": "/fresh_model_calls", "expected": 160},
+        {"pointer": "/scored_outcomes", "expected": 240},
+        {"pointer": "/by_evidence_and_prompt/3/false_retry_permission", "expected": 51},
+        {"pointer": "/by_evidence_and_prompt/3/outcomes", "expected": 60},
+        {"pointer": "/by_evidence_and_prompt/1/false_retry_permission", "expected": 3},
+        {"pointer": "/by_evidence_and_prompt/1/outcomes", "expected": 60},
+        {"pointer": "/clustered_primary_false_retry_analysis/response_block_level/weak_only", "expected": 14},
+        {"pointer": "/clustered_primary_false_retry_analysis/response_block_level/authoritative_only", "expected": 0},
+        {"pointer": "/clustered_primary_false_retry_analysis/task_family_level/equal_task_weight_mean_rate_difference", "expected": 0.7999999999999999},
+        {"pointer": "/clustered_primary_false_retry_analysis/task_family_level/task_cluster_t_95_interval_bounded_to_rate_difference", "expected": [0.3499341273944856, 1.0]}
+      ]
+    },
+    {
+      "id": "R3",
+      "description": "GPT-5.4 neutral weak versus authoritative result",
+      "source": "runs/gpt54-replication-v1/analysis.json",
+      "assertions": [
+        {"pointer": "/fresh_model_calls", "expected": 160},
+        {"pointer": "/scored_outcomes", "expected": 240},
+        {"pointer": "/by_evidence_and_prompt/3/false_retry_permission", "expected": 30},
+        {"pointer": "/by_evidence_and_prompt/3/outcomes", "expected": 60},
+        {"pointer": "/by_evidence_and_prompt/1/false_retry_permission", "expected": 0},
+        {"pointer": "/by_evidence_and_prompt/1/outcomes", "expected": 60},
+        {"pointer": "/clustered_primary_false_retry_analysis/response_block_level/weak_only", "expected": 10},
+        {"pointer": "/clustered_primary_false_retry_analysis/response_block_level/authoritative_only", "expected": 0},
+        {"pointer": "/clustered_primary_false_retry_analysis/task_family_level/equal_task_weight_mean_rate_difference", "expected": 0.5},
+        {"pointer": "/clustered_primary_false_retry_analysis/task_family_level/task_cluster_t_95_interval_bounded_to_rate_difference", "expected": [-0.4186931154366399, 1.0]}
+      ]
+    },
+    {
+      "id": "R4",
+      "description": "Cautious weak-evidence safety and liveness in both model blocks",
+      "source": "runs/confirmation-v2/analysis.json",
+      "assertions": [
+        {"pointer": "/by_evidence_and_prompt/2/false_retry_permission", "expected": 0},
+        {"pointer": "/by_evidence_and_prompt/2/unresolved", "expected": 60},
+        {"pointer": "/by_evidence_and_prompt/2/omission", "expected": 20}
+      ]
+    },
+    {
+      "id": "R5",
+      "description": "Cautious weak-evidence safety and liveness in GPT-5.4 replication",
+      "source": "runs/gpt54-replication-v1/analysis.json",
+      "assertions": [
+        {"pointer": "/by_evidence_and_prompt/2/false_retry_permission", "expected": 0},
+        {"pointer": "/by_evidence_and_prompt/2/unresolved", "expected": 60},
+        {"pointer": "/by_evidence_and_prompt/2/omission", "expected": 20}
+      ]
+    },
+    {
+      "id": "R6",
+      "description": "Independent-task robustness decision",
+      "source": "runs/task-robustness-v1/analysis.json",
+      "assertions": [
+        {"pointer": "/decision", "expected": "STRONGER_EMPIRICAL_PAPER_PATH"},
+        {"pointer": "/weak_higher_families", "expected": 8},
+        {"pointer": "/task_families", "expected": 8},
+        {"pointer": "/equal_family_mean_rate_difference", "expected": 0.625},
+        {"pointer": "/task_cluster_t_95_interval_bounded", "expected": [0.4015640101819955, 0.8484359898180045]},
+        {"pointer": "/lexical_counterbalance/equal_family_mean_create_minus_noncreate", "expected": 0.5}
+      ]
+    },
+    {
+      "id": "R7",
+      "description": "Closest-work source controls and four-world extension",
+      "source": "runs/closest-work-v1/analysis.json",
+      "assertions": [
+        {"pointer": "/source_faithful/episodes", "expected": 48},
+        {"pointer": "/source_faithful/by_control/authoritative_status_reconcile/exact_state_successes", "expected": 12},
+        {"pointer": "/source_faithful/by_control/stable_idempotency_retry/exact_state_successes", "expected": 12},
+        {"pointer": "/retrybench_extension/episodes", "expected": 72},
+        {"pointer": "/retrybench_extension/by_policy/negative_status_as_retry_permission/exact_state_successes", "expected": 12},
+        {"pointer": "/retrybench_extension/by_policy/negative_status_as_retry_permission/episodes", "expected": 24},
+        {"pointer": "/retrybench_extension/by_policy/terminal_aware_status_reconcile/exact_state_successes", "expected": 24},
+        {"pointer": "/retrybench_extension/by_policy/stable_idempotency_retry/exact_state_successes", "expected": 24},
+        {"pointer": "/retrybench_extension/weak_negative_failures_by_schedule/in_flight_late_commit", "expected": 6},
+        {"pointer": "/retrybench_extension/weak_negative_failures_by_schedule/stale_negative_after_commit", "expected": 6}
+      ]
+    },
+    {
+      "id": "R8",
+      "description": "LangGraph retry-contract audit",
+      "source": "runs/langgraph-v1/summary.json",
+      "assertions": [
+        {"pointer": "/framework_version", "expected": "0.6.11"},
+        {"pointer": "/episodes", "expected": 48},
+        {"pointer": "/by_policy/langgraph_default_retry_policy/duplicates", "expected": 12},
+        {"pointer": "/by_policy/langgraph_default_retry_policy/episodes", "expected": 16},
+        {"pointer": "/by_policy/stable_idempotency_retry/exact_state_success", "expected": 16}
+      ]
+    },
+    {
+      "id": "R9",
+      "description": "LangChain retry-contract audit",
+      "source": "runs/langchain-v1/summary.json",
+      "assertions": [
+        {"pointer": "/framework_version", "expected": "0.3.86"},
+        {"pointer": "/episodes", "expected": 48},
+        {"pointer": "/by_policy/langchain_exception_retry/runnable_completed", "expected": 16},
+        {"pointer": "/by_policy/langchain_exception_retry/duplicates", "expected": 12},
+        {"pointer": "/by_policy/langchain_exception_retry/episodes", "expected": 16},
+        {"pointer": "/by_policy/stable_idempotency_retry/exact_state_success", "expected": 16}
+      ]
+    },
+    {
+      "id": "R10",
+      "description": "Retrospective live-archive integrity audit",
+      "source": "runs/archive-integrity-v1/analysis.json",
+      "assertions": [
+        {"pointer": "/all_archives_passed", "expected": true},
+        {"pointer": "/total_rows", "expected": 768},
+        {"pointer": "/total_in_flight_rows", "expected": 248},
+        {"pointer": "/total_evidence_sensitive_in_flight_rows", "expected": 240},
+        {"pointer": "/total_none_evidence_in_flight_rows", "expected": 8}
+      ]
+    }
+  ]
+}
