@@ -3,7 +3,7 @@
   "decision": "STRONGER_EMPIRICAL_PAPER_PATH",
   "equal_family_mean_rate_difference": 0.625,
   "fresh_model_calls": 128,
-  "interpretation": "Task family is the top-level generalization unit; schedule outcomes and lexical variants are not independent task samples.",
+  "interpretation": "Task family is the top-level analysis unit; the eight hand-designed families are not a probability sample, and schedule outcomes and lexical variants are not independent task samples.",
   "lexical_counterbalance": {
     "equal_family_mean_create_minus_noncreate": 0.5,
     "family_effects": [
@@ -56,6 +56,129 @@
         "noncreate_rate": 0.0
       }
     ]
+  },
+  "post_hoc_within_frame_evidence_contrasts": {
+    "frames": {
+      "create": {
+        "equal_family_mean_rate_difference": 0.875,
+        "family_effects": [
+          {
+            "authoritative_rate": 0.0,
+            "family_id": "artifact",
+            "rate_difference": 1.0,
+            "weak_rate": 1.0
+          },
+          {
+            "authoritative_rate": 0.0,
+            "family_id": "change-record",
+            "rate_difference": 0.5,
+            "weak_rate": 0.5
+          },
+          {
+            "authoritative_rate": 0.0,
+            "family_id": "deployment",
+            "rate_difference": 1.0,
+            "weak_rate": 1.0
+          },
+          {
+            "authoritative_rate": 0.0,
+            "family_id": "maintenance-job",
+            "rate_difference": 1.0,
+            "weak_rate": 1.0
+          },
+          {
+            "authoritative_rate": 0.0,
+            "family_id": "package-version",
+            "rate_difference": 1.0,
+            "weak_rate": 1.0
+          },
+          {
+            "authoritative_rate": 0.0,
+            "family_id": "review-request",
+            "rate_difference": 0.5,
+            "weak_rate": 0.5
+          },
+          {
+            "authoritative_rate": 0.0,
+            "family_id": "security-finding",
+            "rate_difference": 1.0,
+            "weak_rate": 1.0
+          },
+          {
+            "authoritative_rate": 0.0,
+            "family_id": "webhook-event",
+            "rate_difference": 1.0,
+            "weak_rate": 1.0
+          }
+        ],
+        "task_cluster_standard_error": 0.08183170883849714,
+        "task_cluster_t_95_interval_bounded": [
+          0.681498756697887,
+          1.0
+        ],
+        "weak_higher_families": 8
+      },
+      "noncreate": {
+        "equal_family_mean_rate_difference": 0.375,
+        "family_effects": [
+          {
+            "authoritative_rate": 0.0,
+            "family_id": "artifact",
+            "rate_difference": 1.0,
+            "weak_rate": 1.0
+          },
+          {
+            "authoritative_rate": 0.0,
+            "family_id": "change-record",
+            "rate_difference": 0.0,
+            "weak_rate": 0.0
+          },
+          {
+            "authoritative_rate": 0.0,
+            "family_id": "deployment",
+            "rate_difference": 0.0,
+            "weak_rate": 0.0
+          },
+          {
+            "authoritative_rate": 0.0,
+            "family_id": "maintenance-job",
+            "rate_difference": 0.0,
+            "weak_rate": 0.0
+          },
+          {
+            "authoritative_rate": 0.0,
+            "family_id": "package-version",
+            "rate_difference": 1.0,
+            "weak_rate": 1.0
+          },
+          {
+            "authoritative_rate": 0.0,
+            "family_id": "review-request",
+            "rate_difference": 0.5,
+            "weak_rate": 0.5
+          },
+          {
+            "authoritative_rate": 0.0,
+            "family_id": "security-finding",
+            "rate_difference": 0.5,
+            "weak_rate": 0.5
+          },
+          {
+            "authoritative_rate": 0.0,
+            "family_id": "webhook-event",
+            "rate_difference": 0.0,
+            "weak_rate": 0.0
+          }
+        ],
+        "task_cluster_standard_error": 0.15669579263200217,
+        "task_cluster_t_95_interval_bounded": [
+          0.004473328556004741,
+          0.7455266714439952
+        ],
+        "weak_higher_families": 4
+      }
+    },
+    "status": "post_hoc_construct_validity_check"
   },
   "predeclared_decision_rule": {
     "directional_artifact_first_path": "at least 5/8 weak-higher families and positive mean, but strong criterion not met",

@@ -59,6 +59,34 @@ class TaskRobustnessTests(unittest.TestCase):
             ],
             0.0,
         )
+        for frame in ("create", "noncreate"):
+            contrast = report["post_hoc_within_frame_evidence_contrasts"][
+                "frames"
+            ][frame]
+            self.assertEqual(contrast["weak_higher_families"], 8)
+            self.assertEqual(contrast["equal_family_mean_rate_difference"], 1.0)
+            self.assertEqual(
+                contrast["task_cluster_t_95_interval_bounded"], [1.0, 1.0]
+            )
+
+    def test_checked_in_post_hoc_contrasts_recompute_from_sanitized_outcomes(self):
+        root = Path(__file__).resolve().parents[1]
+        outcome_path = root / "runs/task-robustness-v1/sanitized-outcomes.jsonl"
+        rows = [
+            json.loads(line)
+            for line in outcome_path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+        recomputed = analyze_task_robustness(rows)
+        checked_in = json.loads(
+            (root / "runs/task-robustness-v1/analysis.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual(
+            recomputed["post_hoc_within_frame_evidence_contrasts"],
+            checked_in["post_hoc_within_frame_evidence_contrasts"],
+        )
 
     def test_guarded_runner_makes_128_calls_for_192_outcomes(self):
         policy = OpenAIResponsesPolicy(

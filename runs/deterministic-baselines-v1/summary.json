@@ -1,0 +1,65 @@
+{
+  "by_policy": {
+    "always_retry": {
+      "duplicates": 36,
+      "episodes": 48,
+      "exact_state_success": 12,
+      "exact_state_success_rate": 0.25,
+      "omissions": 0,
+      "probes": 0,
+      "retries": 48,
+      "unresolved": 0
+    },
+    "always_stop": {
+      "duplicates": 0,
+      "episodes": 48,
+      "exact_state_success": 36,
+      "exact_state_success_rate": 0.75,
+      "omissions": 12,
+      "probes": 0,
+      "retries": 0,
+      "unresolved": 0
+    },
+    "single_status": {
+      "duplicates": 24,
+      "episodes": 48,
+      "exact_state_success": 24,
+      "exact_state_success_rate": 0.5,
+      "omissions": 0,
+      "probes": 48,
+      "retries": 36,
+      "unresolved": 0
+    },
+    "stable_idempotency": {
+      "duplicates": 0,
+      "episodes": 48,
+      "exact_state_success": 48,
+      "exact_state_success_rate": 1.0,
+      "omissions": 0,
+      "probes": 0,
+      "retries": 48,
+      "unresolved": 0
+    },
+    "tri_state_backoff": {
+      "duplicates": 0,
+      "episodes": 48,
+      "exact_state_success": 28,
+      "exact_state_success_rate": 0.5833333333333334,
+      "omissions": 8,
+      "probes": 80,
+      "retries": 4,
+      "unresolved": 20
+    }
+  },
+  "overall": {
+    "duplicates": 60,
+    "episodes": 240,
+    "exact_state_success": 148,
+    "exact_state_success_rate": 0.6166666666666667,
+    "omissions": 20,
+    "probes": 128,
+    "retries": 136,
+    "unresolved": 20
+  },
+  "schema_version": "retrybench-summary-v1"
+}

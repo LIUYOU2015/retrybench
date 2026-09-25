@@ -389,6 +389,7 @@ def analyze_task_robustness(rows: List[Dict[str, object]]) -> Dict[str, object]:
         raise ValueError("task-robustness analysis requires eight families")
     effects = []
     lexical_effects = []
+    frame_evidence_effects = {"create": [], "noncreate": []}
     for family_id in families:
         selected = [row for row in rows if row["family_id"] == family_id]
         weak = [row for row in selected if row["evidence"] == "weak"]
@@ -416,6 +417,28 @@ def analyze_task_robustness(rows: List[Dict[str, object]]) -> Dict[str, object]:
                 / len(noncreate),
             }
         )
+        for frame in ("create", "noncreate"):
+            weak_frame = [row for row in weak if row["lexical_frame"] == frame]
+            authoritative_frame = [
+                row
+                for row in authoritative
+                if row["lexical_frame"] == frame
+            ]
+            weak_frame_rate = sum(
+                bool(row["false_retry_permission"]) for row in weak_frame
+            ) / len(weak_frame)
+            authoritative_frame_rate = sum(
+                bool(row["false_retry_permission"])
+                for row in authoritative_frame
+            ) / len(authoritative_frame)
+            frame_evidence_effects[frame].append(
+                {
+                    "family_id": family_id,
+                    "weak_rate": weak_frame_rate,
+                    "authoritative_rate": authoritative_frame_rate,
+                    "rate_difference": weak_frame_rate - authoritative_frame_rate,
+                }
+            )
     differences = [float(item["rate_difference"]) for item in effects]
     mean = sum(differences) / len(differences)
     variance = sum((value - mean) ** 2 for value in differences) / (len(differences) - 1)
@@ -431,6 +454,26 @@ def analyze_task_robustness(rows: List[Dict[str, object]]) -> Dict[str, object]:
         decision = "NO_TASK_GENERALITY_SUPPORT"
     for item in lexical_effects:
         item["create_minus_noncreate"] = item["create_rate"] - item["noncreate_rate"]
+    within_frame = {}
+    for frame, frame_effects in frame_evidence_effects.items():
+        frame_differences = [
+            float(item["rate_difference"]) for item in frame_effects
+        ]
+        frame_mean = sum(frame_differences) / len(frame_differences)
+        frame_variance = sum(
+            (value - frame_mean) ** 2 for value in frame_differences
+        ) / (len(frame_differences) - 1)
+        frame_standard_error = math.sqrt(frame_variance / len(frame_differences))
+        within_frame[frame] = {
+            "family_effects": frame_effects,
+            "weak_higher_families": sum(value > 0 for value in frame_differences),
+            "equal_family_mean_rate_difference": frame_mean,
+            "task_cluster_standard_error": frame_standard_error,
+            "task_cluster_t_95_interval_bounded": [
+                max(-1.0, frame_mean - critical * frame_standard_error),
+                min(1.0, frame_mean + critical * frame_standard_error),
+            ],
+        }
     return {
         "schema_version": "retrybench-task-robustness-analysis-v1",
         "decision": decision,
@@ -447,10 +490,14 @@ def analyze_task_robustness(rows: List[Dict[str, object]]) -> Dict[str, object]:
             )
             / len(lexical_effects),
         },
+        "post_hoc_within_frame_evidence_contrasts": {
+            "status": "post_hoc_construct_validity_check",
+            "frames": within_frame,
+        },
         "predeclared_decision_rule": {
             "stronger_empirical_paper_path": "at least 6/8 weak-higher families and task-cluster interval lower bound above zero",
             "directional_artifact_first_path": "at least 5/8 weak-higher families and positive mean, but strong criterion not met",
             "no_task_generality_support": "all other outcomes",
         },
-        "interpretation": "Task family is the top-level generalization unit; schedule outcomes and lexical variants are not independent task samples.",
+        "interpretation": "Task family is the top-level analysis unit; the eight hand-designed families are not a probability sample, and schedule outcomes and lexical variants are not independent task samples.",
     }

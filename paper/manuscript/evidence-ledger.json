@@ -33,6 +33,8 @@
         {"pointer": "/task_families", "expected": 8},
         {"pointer": "/lexical_frames_per_family", "expected": 2},
         {"pointer": "/repetitions_per_frame", "expected": 2},
+        {"pointer": "/maximum_output_tokens", "expected": 160},
+        {"pointer": "/reasoning_effort", "expected": "none"},
         {"pointer": "/fresh_model_calls", "expected": 128},
         {"pointer": "/scored_outcomes", "expected": 192}
       ]
@@ -113,7 +115,18 @@
         {"pointer": "/task_families", "expected": 8},
         {"pointer": "/equal_family_mean_rate_difference", "expected": 0.625},
         {"pointer": "/task_cluster_t_95_interval_bounded", "expected": [0.4015640101819955, 0.8484359898180045]},
-        {"pointer": "/lexical_counterbalance/equal_family_mean_create_minus_noncreate", "expected": 0.5}
+        {"pointer": "/lexical_counterbalance/equal_family_mean_create_minus_noncreate", "expected": 0.5},
+        {"pointer": "/task_family_effects/0/rate_difference", "expected": 1.0},
+        {"pointer": "/task_family_effects/1/rate_difference", "expected": 0.25},
+        {"pointer": "/lexical_counterbalance/family_effects/0/create_minus_noncreate", "expected": 0.0},
+        {"pointer": "/lexical_counterbalance/family_effects/2/create_minus_noncreate", "expected": 1.0},
+        {"pointer": "/post_hoc_within_frame_evidence_contrasts/status", "expected": "post_hoc_construct_validity_check"},
+        {"pointer": "/post_hoc_within_frame_evidence_contrasts/frames/create/equal_family_mean_rate_difference", "expected": 0.875},
+        {"pointer": "/post_hoc_within_frame_evidence_contrasts/frames/create/weak_higher_families", "expected": 8},
+        {"pointer": "/post_hoc_within_frame_evidence_contrasts/frames/create/task_cluster_t_95_interval_bounded", "expected": [0.681498756697887, 1.0]},
+        {"pointer": "/post_hoc_within_frame_evidence_contrasts/frames/noncreate/equal_family_mean_rate_difference", "expected": 0.375},
+        {"pointer": "/post_hoc_within_frame_evidence_contrasts/frames/noncreate/weak_higher_families", "expected": 4},
+        {"pointer": "/post_hoc_within_frame_evidence_contrasts/frames/noncreate/task_cluster_t_95_interval_bounded", "expected": [0.004473328556004741, 0.7455266714439952]}
       ]
     },
     {
@@ -124,6 +137,9 @@
         {"pointer": "/source_faithful/episodes", "expected": 48},
         {"pointer": "/source_faithful/by_control/authoritative_status_reconcile/exact_state_successes", "expected": 12},
         {"pointer": "/source_faithful/by_control/stable_idempotency_retry/exact_state_successes", "expected": 12},
+        {"pointer": "/source_faithful/by_family/create_once/no_affordance_best_exact_state_rate", "expected": 0.5},
+        {"pointer": "/source_faithful/by_family/ordered_transition/no_affordance_best_exact_state_rate", "expected": 0.5},
+        {"pointer": "/source_faithful/by_family/reserve_then_link/no_affordance_best_exact_state_rate", "expected": 0.5},
         {"pointer": "/retrybench_extension/episodes", "expected": 72},
         {"pointer": "/retrybench_extension/by_policy/negative_status_as_retry_permission/exact_state_successes", "expected": 12},
         {"pointer": "/retrybench_extension/by_policy/negative_status_as_retry_permission/episodes", "expected": 24},
@@ -142,6 +158,8 @@
         {"pointer": "/episodes", "expected": 48},
         {"pointer": "/by_policy/langgraph_default_retry_policy/duplicates", "expected": 12},
         {"pointer": "/by_policy/langgraph_default_retry_policy/episodes", "expected": 16},
+        {"pointer": "/by_policy/langgraph_default_retry_policy/retries", "expected": 16},
+        {"pointer": "/by_policy/langgraph_default_retry_policy/exact_state_success", "expected": 0},
         {"pointer": "/by_policy/stable_idempotency_retry/exact_state_success", "expected": 16}
       ]
     },
@@ -155,6 +173,7 @@
         {"pointer": "/by_policy/langchain_exception_retry/runnable_completed", "expected": 16},
         {"pointer": "/by_policy/langchain_exception_retry/duplicates", "expected": 12},
         {"pointer": "/by_policy/langchain_exception_retry/episodes", "expected": 16},
+        {"pointer": "/by_policy/langchain_exception_retry/exact_state_success", "expected": 4},
         {"pointer": "/by_policy/stable_idempotency_retry/exact_state_success", "expected": 16}
       ]
     },
@@ -168,6 +187,28 @@
         {"pointer": "/total_in_flight_rows", "expected": 248},
         {"pointer": "/total_evidence_sensitive_in_flight_rows", "expected": 240},
         {"pointer": "/total_none_evidence_in_flight_rows", "expected": 8}
+      ]
+    },
+    {
+      "id": "R11",
+      "description": "Deterministic reference-policy frontier",
+      "source": "runs/deterministic-baselines-v1/summary.json",
+      "assertions": [
+        {"pointer": "/by_policy/always_retry/episodes", "expected": 48},
+        {"pointer": "/by_policy/always_retry/exact_state_success", "expected": 12},
+        {"pointer": "/by_policy/always_retry/duplicates", "expected": 36},
+        {"pointer": "/by_policy/always_stop/exact_state_success", "expected": 36},
+        {"pointer": "/by_policy/always_stop/omissions", "expected": 12},
+        {"pointer": "/by_policy/single_status/exact_state_success", "expected": 24},
+        {"pointer": "/by_policy/single_status/duplicates", "expected": 24},
+        {"pointer": "/by_policy/tri_state_backoff/exact_state_success", "expected": 28},
+        {"pointer": "/by_policy/tri_state_backoff/duplicates", "expected": 0},
+        {"pointer": "/by_policy/tri_state_backoff/probes", "expected": 80},
+        {"pointer": "/by_policy/tri_state_backoff/omissions", "expected": 8},
+        {"pointer": "/by_policy/tri_state_backoff/unresolved", "expected": 20},
+        {"pointer": "/by_policy/stable_idempotency/exact_state_success", "expected": 48},
+        {"pointer": "/by_policy/stable_idempotency/duplicates", "expected": 0},
+        {"pointer": "/by_policy/stable_idempotency/omissions", "expected": 0}
       ]
     }
   ]

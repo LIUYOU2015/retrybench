@@ -20,15 +20,16 @@ test whether an observation actually permits re-execution.
 **Method.** RetryBench freezes task intent and the model-visible transcript,
 replays one recovery decision across hidden execution schedules, and scores
 false retry permission, exact final state, unresolved work, omissions, probes,
-and latency separately. It varies attempt terminality, evidence contracts, and
-stable idempotency.
+and logical recovery steps separately. It varies attempt terminality, evidence
+contracts, and stable idempotency; it does not estimate production latency.
 
 **Results.** Weak negative evidence increased false retry permission in two
 fixed model snapshots. A predeclared eight-family GPT-5.4 block found a +0.625
 equal-family difference with all eight families in the same direction, while
-matched lexical framing strongly moderated magnitude. On an author-selected
-slice of the closest artifact, authoritative status and stable idempotency
-reproduced perfectly, but weak-negative retry fell to 50% exact state after
+matched lexical framing was associated with substantially different magnitude.
+On an author-selected slice of the closest artifact, authoritative status and
+stable idempotency reproduced perfectly, but weak-negative retry fell to 50%
+exact state after
 in-flight and stale worlds were added. Actual LangGraph and LangChain Core
 retry boundaries each produced duplicates in 12/16 exception-retry episodes;
 stable-idempotency replay was exact in 16/16.
@@ -90,7 +91,9 @@ authority, original-attempt terminality, and replay protection.
 
 - False retry permission as primary safety construct.
 - Exact-state success, duplicate, omission, unresolved, wrong identity/target/
-  payload, probes, recovery steps, latency.
+  payload, probes, and logical recovery steps.
+- State explicitly that the current logical-clock study does not estimate
+  production latency distributions.
 - Safety and liveness remain separate.
 
 ## 4. RetryBench design
@@ -120,8 +123,9 @@ authority, original-attempt terminality, and replay protection.
 
 - **RQ1:** How does evidence-contract strength affect false retry permission and
   the safety/liveness trade-off?
-- **RQ2:** Does the weak-negative effect replicate across model snapshots and
-  independent task families, and how much does lexical framing moderate it?
+- **RQ2:** Does the weak-negative effect replicate across model snapshots and a
+  new disjoint task block, and how sensitive is its magnitude to lexical
+  framing?
 - **RQ3:** Which conclusion from the closest benchmark changes when in-flight
   and stale-visibility worlds are added without changing task semantics?
 - **RQ4:** Do actual framework retry boundaries enforce external-effect retry
