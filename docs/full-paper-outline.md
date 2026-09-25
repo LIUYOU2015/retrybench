@@ -239,9 +239,14 @@ authority, original-attempt terminality, and replay protection.
 
 ## Writing order
 
-1. Lock RQs, contribution wording, and Table 1 scope comparison.
-2. Generate Tables 2–4 directly from checked-in JSON.
-3. Generate the eight-family figure from the frozen robustness analysis.
-4. Draft Methods and Results before Introduction and Abstract.
-5. Run a claim audit: every number maps to an artifact; every generalization
-   has an explicit unit and limitation.
+- [x] Lock RQs, contribution wording, and Table 1 scope comparison.
+- [x] Generate Tables 2–4 directly from checked-in JSON and embed Markdown
+  versions in the complete manuscript.
+- [x] Generate the eight-family figure from the frozen robustness analysis.
+- [x] Draft Methods and Results before Introduction and Abstract.
+- [x] Run a claim audit: every number maps to an artifact; every generalization
+  has an explicit unit and limitation.
+- [x] Write Background/Related Work from primary sources, then Introduction and
+  Abstract last.
+
+Complete venue-neutral draft: [`../paper/manuscript/paper.md`](../paper/manuscript/paper.md).

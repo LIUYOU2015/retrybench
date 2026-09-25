@@ -1,13 +1,246 @@
-# Methods and Results Draft
+# When Is a Retry Safe? Benchmarking Retry Admissibility Under Ambiguous LLM Agent Tool Outcomes
 
-Working title: **When Is a Retry Safe? Benchmarking Retry Admissibility Under
-Ambiguous LLM Agent Tool Outcomes**
+Artifact: **RetryBench**
 
-This draft intentionally begins with Methods and Results. The Introduction and
-Abstract remain unwritten until the empirical narrative, claim boundary, and
-limitations have stabilized. Bracketed evidence identifiers resolve to exact
-files and JSON Pointers in [`evidence-ledger.json`](evidence-ledger.json); a
-test fails if any recorded value diverges from the committed artifact.
+Manuscript status: venue-neutral Markdown draft
+
+Evidence convention: bracketed identifiers such as [R2] resolve to exact files
+and JSON Pointers in [`evidence-ledger.json`](evidence-ledger.json). Repository
+tests fail if a recorded value diverges from its committed artifact.
+
+## Abstract
+
+A timed-out side-effecting tool call does not reveal whether the operation
+failed before execution, committed before its response was lost, remains in
+flight, or committed but is not yet visible to a status lookup. Existing agent
+evaluations and retry middleware can nevertheless treat a negative observation
+or retryable exception as permission to execute the operation again. We present
+RetryBench, an executable conformance benchmark that separates observed state
+from retry admissibility. It crosses original-attempt terminality, evidence
+authority, and replay protection; replays one model decision across matched
+hidden schedules; and scores false retry permission separately from duplicate
+effects, omissions, unresolved work, and exact final state. Under neutral
+prompting, weak negative evidence produced false retry permission in 51/60
+outcomes versus 3/60 with authoritative evidence for one fixed model snapshot,
+and 30/60 versus 0/60 for a second. In a commit-frozen block of eight new,
+disjoint GPT-5.4 task families, all eight had a positive aggregate contrast,
+although magnitude was task-dependent and lexically sensitive. A direct,
+deterministic extension of the closest public artifact reduced naive
+weak-negative retry to 12/24 exact states after adding in-flight and stale-read
+worlds, while terminal-aware and stable-idempotency policies reached 24/24.
+Configured LangGraph and LangChain retry boundaries each produced duplicates in
+12/16 ambiguous side-effect episodes; simulated stable-idempotency protection
+reached 16/16 exact states in both. The evidence supports a bounded conclusion:
+a status label or retryable exception is not retry authorization. Safe replay
+requires evidence of terminal non-execution or a valid provider-enforced replay
+guarantee.
+
+## 1. Introduction
+
+An agent asks a tool to create an issue, publish a release, post a review
+comment, or trigger a deployment. The call times out. Retrying may complete work
+that never started, or duplicate work that already committed. Waiting may avoid
+duplication, or omit a task whose first attempt definitively failed. The visible
+error alone does not determine the correct action.
+
+```mermaid
+flowchart LR
+    O[Same timeout and weak NOT_FOUND] --> N[Terminal non-execution]
+    O --> I[Original attempt still in flight]
+    O --> S[Committed effect hidden by stale read]
+    N -->|authoritative proof permits retry| E[One intended effect]
+    I -->|unsupported retry| D[Late original plus duplicate]
+    S -->|unsupported retry| D
+```
+
+**Figure 1.** The same visible timeout and weak negative observation can precede
+different external futures. The status token alone does not authorize replay.
+
+This ambiguity is familiar in distributed systems, but agent evaluation adds a
+distinct measurement problem. A benchmark may show the model a status value
+such as `NOT_FOUND` without declaring whether the lookup is authoritative,
+fresh, bound to the original logical operation, or taken while the first attempt
+can still commit. If the benchmark silently treats that value as terminal
+non-execution, it can reward a retry under an oracle-like assumption that a real
+integration does not provide. Conversely, counting only duplicates can make an
+always-stop policy appear safe while it omits work.
+
+Prior work already establishes the broader problem. *Did It Happen?* evaluates
+LLM recovery under paired executed and not-executed worlds and shows benefits
+from status reconciliation and stable idempotency on a large frozen suite
+([artifact](https://github.com/shushuyang231/ambiguous-tool-outcomes-benchmark)).
+*Verified Tool Calls* adds postcondition verification, verify-before-retry, and
+idempotency under non-atomic failures
+([preprint](https://arxiv.org/abs/2608.02645)). OpenOnce implements durable
+receipts, `UNKNOWN` reconciliation, provider capability contracts, and
+fail-closed re-arming ([repository](https://github.com/memovai/openonce)).
+IdempotencyBench measures semantic duplicate effects across retry substrates
+([repository](https://github.com/gssanjana4/idempotencybench)). RetryBench does
+not claim these mechanisms as new.
+
+Our narrower question is whether an observation actually authorizes
+re-execution. RetryBench holds task intent and model-visible input fixed while
+changing what can still happen outside the agent. It distinguishes a terminal,
+authoritative `NOT_EXECUTED` result from a weak negative read that may precede a
+late commit or hide an existing effect. The primary metric, false retry
+permission, is deliberately contractual: it asks whether the available
+evidence justified replay, while separate outcome metrics record whether harm
+actually occurred.
+
+The empirical package combines model behavior, deterministic controls, direct
+closest-work reproduction, and real framework execution. Weak negative evidence
+increased false retry permission in two fixed model snapshots. The direction
+persisted across eight new, disjoint GPT-5.4 task families, but task wording
+substantially changed magnitude and consistency. A deterministic extension of
+the closest artifact identifies exactly which status conclusion becomes
+conditional when in-flight and stale-negative worlds are added. LangGraph and
+LangChain audits show that correct exception-retry behavior can still violate
+external-effect retry admissibility.
+
+This paper makes five contributions:
+
+1. **An executable retry-admissibility construct.** RetryBench separates the
+   observed status token from attempt terminality, evidence authority and
+   freshness, and replay protection.
+2. **Counterfactual response replay.** One byte-identical model response is
+   evaluated against multiple hidden schedules, isolating interpretation from
+   model-serving variation while preserving the resulting dependence in the
+   analysis.
+3. **Bounded model evidence.** Two fixed snapshots show the same directional
+   evidence-contract effect; a new eight-family block demonstrates robustness
+   across the tested cases and exposes lexical sensitivity.
+4. **Executable systems evidence.** A source-validated closest-work extension
+   and configured LangGraph and LangChain audits locate the contract boundary
+   outside model reasoning alone.
+5. **A reusable artifact.** Frozen protocols, a fault-injection service,
+   exact-state scoring, guarded runners, external export/scoring, sanitized
+   evidence, and machine-checked claim pointers make the study auditable and
+   extensible.
+
+The strongest supported claim is intentionally bounded: weak negative evidence
+increased false retry permission in two fixed model snapshots and persisted
+across eight new, disjoint GPT-5.4 task families; magnitude depended on task and
+was sensitive to lexical framing. Deterministic reproduction and framework
+runtime audits identify the tested contract boundary: evidence must establish
+terminal non-execution, or a valid stable-idempotency guarantee must make replay
+safe.
+
+## 2. Background and Related Work
+
+### 2.1 Ambiguous outcomes and evidence contracts
+
+A response timeout is an observation about a communication path, not a complete
+execution state. After dispatch, the operation may be terminal and effect-free,
+committed with a lost response, or still running. A later state read introduces
+another contract: which identifier it queries, whether the source is
+authoritative, how fresh the read is, and whether a miss rules out a future
+commit.
+
+Production APIs make these qualifications concrete. Amazon EC2 documents that a
+newly created resource can temporarily return `NotFound` under eventual
+consistency and recommends repeated describe calls with exponential backoff
+([AWS documentation](https://docs.aws.amazon.com/ec2/latest/devguide/eventual-consistency.html)).
+Stripe documents a different protection: a client-provided idempotency key
+causes later requests with the same key to replay the stored result, but keys
+may be pruned after at least 24 hours and parameter mismatch is rejected
+([Stripe documentation](https://docs.stripe.com/api/idempotent_requests)). These
+are not interchangeable signals. A negative read is safe retry evidence only
+under a contract that excludes late commitment; an idempotency key is safe only
+inside its provider-enforced scope, retention, and parameter-binding rules.
+
+We use *logical operation identity* for the stable identity of the intended
+effect and *transport attempt* for one dispatch. Retrying with a fresh logical
+identity can duplicate an earlier effect even when each transport attempt is
+internally well formed. Conversely, repeating a transport call with the same
+valid provider idempotency key can be safe despite unresolved execution state.
+
+### 2.2 Closest empirical benchmark
+
+Sun's *Did It Happen? Counterfactual Evaluation of LLM Agent Recovery from
+Ambiguous Tool Outcomes* is the closest empirical artifact
+([software release](https://doi.org/10.5281/zenodo.21888869),
+[repository](https://github.com/shushuyang231/ambiguous-tool-outcomes-benchmark)).
+It pairs two hidden worlds—non-execution and execution with response loss—under
+the same visible timeout, evaluates 756 paired main tasks plus separately
+reported serving cells, and compares prompt-only, status-reconciliation, and
+stable-key conditions. Its primary result is that status reconciliation and
+stable idempotency improve exact final-state recovery over prompt advice alone.
+
+RetryBench treats that result as a control, not novelty to reclaim. We execute
+the authors' own six-template replication subset against their simulator and
+then preserve those task semantics while adding two worlds excluded from the
+source pair: an original attempt that is still in flight after a negative read,
+and a committed effect temporarily hidden by stale visibility. This changes the
+question from whether status helps under the source contract to when a negative
+status actually permits replay. The extension is deterministic and samples no
+fresh model decisions; it qualifies the scope of the source conclusion rather
+than reproducing the source study's model-dependent aggregate rates.
+
+### 2.3 Verification, reconciliation, and idempotency systems
+
+Mansoor, Phadke, and Rana's *Verified Tool Calls Improve LLM Agent Reliability
+Under Non-Atomic Failures* introduces a wrapper with postcondition verification,
+verify-before-retry logic, and idempotency keys, evaluated with injected
+timeouts, delayed visibility, and partial updates
+([arXiv](https://arxiv.org/abs/2608.02645)). It demonstrates that verification
+can reduce duplicates and improve task success. RetryBench adopts tri-state
+verification and backoff as reference behavior; its incremental focus is the
+factorial separation of an observed negative token from the authority and
+terminality needed to interpret it as retry permission.
+
+OpenOnce is a durable-effect library rather than a benchmark. It records
+receipts, parks ambiguous outcomes as `UNKNOWN`, reconciles them against
+provider state, and uses reviewed provider capability metadata to decide
+whether a miss can automatically re-arm execution
+([repository](https://github.com/memovai/openonce)). Its distinction between a
+young or non-authoritative miss and an authoritative mature miss closely
+motivates RetryBench's evidence contracts. RetryBench contributes a controlled
+evaluation surface for such semantics; it does not claim provider capability
+contracts or reconciliation as new mechanisms.
+
+IdempotencyBench studies duplicate side effects under transport-, agent-,
+whole-run-, and at-least-once retry modes. It uses a hidden effect ledger,
+semantic duplicate scoring, idempotency keys, and runtime receipts across 320
+deterministic tasks
+([repository](https://github.com/gssanjana4/idempotencybench)). RetryBench holds
+the retry substrate relatively narrow and instead crosses evidence authority
+with whether an earlier attempt can still commit. Exact-state and duplicate
+scoring are shared concerns, not RetryBench novelty.
+
+### 2.4 Framework retry boundaries
+
+Agent frameworks expose general retry mechanisms. LangGraph provides an
+opt-in node `RetryPolicy`
+([reference](https://langchain-ai.github.io/langgraph/reference/types/)), while
+LangChain's `Runnable.with_retry` creates a runnable that retries on configured
+exception types
+([reference](https://reference.langchain.com/python/langchain-core/runnables/base/Runnable/with_retry)).
+These APIs answer whether an exception is eligible for another execution. They
+do not, by themselves, establish whether replaying an already-dispatched
+external side effect is admissible. Our framework audits evaluate that boundary
+without treating the observed behavior as a framework defect.
+
+### 2.5 Comparison and novelty boundary
+
+Table 1 compares the artifacts only on properties documented in their cited
+primary sources. “Not reported” means that the property is not a stated factor
+of the cited artifact; it is not a claim that no version or implementation could
+support it.
+
+| Work | Primary object | Paired ambiguous worlds | In-flight-after-negative world | Stale-negative world | Evidence authority separated from status token | Exact/semantic effect scoring | Real framework boundary audit |
+|---|---|---:|---:|---:|---:|---:|---:|
+| *Did It Happen?* | Counterfactual LLM recovery benchmark | Yes | Not reported | Not reported | Not reported as a factorial contrast | Exact final state | No |
+| *Verified Tool Calls* | Verification-aware wrapper and simulation | Partial/non-atomic faults | Delayed/partial execution | Delayed visibility | Tri-state verification, not the same factorial contrast | Task success and duplicates | No |
+| OpenOnce | Durable-effect runtime library | Runtime `UNKNOWN` lifecycle | Represented by unresolved attempts | Provider-specific miss semantics | Yes, through capability contracts | Receipts and effect lifecycle | Integrations, not this audit |
+| IdempotencyBench | Retry-substrate duplicate benchmark | Timeout-after-commit ambiguity | Not reported | Not reported | Not reported as a factor | Semantic duplicates and success | No |
+| **RetryBench** | Retry-admissibility conformance benchmark | Yes | Yes | Yes | Yes | Exact final state plus permission, duplicates, omissions, unresolved | LangGraph and LangChain configurations |
+
+The novelty claim is therefore not that timeouts are ambiguous, verification is
+useful, negative reads can be stale, idempotency prevents duplicates, or retry
+middleware can rerun code. RetryBench's contribution is the matched empirical
+audit that varies evidence authority and original-attempt terminality while
+holding the visible decision fixed, then connects the result to source-level
+reproduction and configured runtime boundaries.
 
 ## 3. Method
 
@@ -88,6 +321,23 @@ prompt conditions, and five fresh draws produce 240 scored outcomes from 160
 fresh model calls [M2]. Forty weak responses generate 120 counterfactual
 outcomes; 120 authoritative responses each generate one outcome. The 96 pilot
 episodes are exploratory and excluded from confirmatory denominators.
+
+```mermaid
+flowchart LR
+    C[One model-visible case] --> M[One model decision]
+    M --> F[Fail before execution]
+    M --> I[In-flight late commit]
+    M --> S[Stale negative after commit]
+    F --> L[Ground-truth effect ledger]
+    I --> L
+    S --> L
+    L --> X[Exact-state and permission scorer]
+    X --> R[Safety and liveness metrics]
+```
+
+**Figure 2.** Counterfactual response replay. Sharing occurs only when the
+model-visible transcript is byte-identical; authoritative states receive
+separate model calls because their visible inputs differ.
 
 ### 3.5 Model conditions
 
@@ -244,8 +494,15 @@ permissions (50%), while authoritative evidence produced 0/60. Ten of 20
 response blocks were weak-only and none were authoritative-only. The equal-task
 mean was 0.50, but the four-task interval was [-0.419, 1.000], reflecting two
 positive task effects and two ties rather than contradictory directions [R3].
-Table `table-model-results.tex` reports these contrasts with the correct
-analysis units.
+
+**Table 2. Neutral-prompt false retry permission (FRP).** Hidden-schedule
+outcomes that share one response are correlated; “weak-only blocks” uses the
+task-by-draw response block, while the interval uses task family.
+
+| Fixed snapshot | Weak FRP | Authoritative FRP | Difference | Weak-only blocks | Equal-task mean | Task-family 95% t interval |
+|---|---:|---:|---:|---:|---:|---:|
+| GPT-5.4 Mini | 51/60 | 3/60 | +80 points | 14/20 | +0.80 | [0.350, 1.000] |
+| GPT-5.4 | 30/60 | 0/60 | +50 points | 10/20 | +0.50 | [-0.419, 1.000] |
 
 Safety did not imply task completion. Under cautious weak evidence, both model
 blocks made zero false retry permissions, but all 60 outcomes were unresolved
@@ -276,6 +533,11 @@ contrast, create-prefixed tools exceeded non-create frames by 0.50 on average
 and create-minus-non-create contrasts ranged from 0 to 1.00. Figure
 `figure-task-robustness.svg` shows every family and matched lexical pair rather
 than only the aggregate.
+
+![Eight-family evidence effects and matched lexical-frame rates](../generated/figure-task-robustness.svg)
+
+**Figure 3.** Weak-minus-authoritative effects across the eight new task
+families (left) and matched create/non-create weak-evidence rates (right).
 
 The post-hoc within-frame check shows that wording does not fully explain away
 the evidence contrast. Within create frames, the equal-family
@@ -310,9 +572,22 @@ interpretation. Treating negative status as retry permission reached exact
 state in 12/24 extension episodes (50%). Its 12 failures occurred exclusively
 in the added worlds: six in-flight late commits and six stale negative reads.
 Terminal-aware status and stable-idempotency replay each reached 24/24 exact
-state [R7]. Table `table-closest-work.tex` reports the source and extension
-controls side by side. These are deterministic policy outcomes; no live model
-was called on the six closest-work tasks.
+state [R7].
+
+**Table 3. Source-faithful controls and deterministic schedule extension.**
+
+| World set | Recovery contract | Exact state | Rate |
+|---|---|---:|---:|
+| Source | Prompt-only stop | 4/12 | 33.3% |
+| Source | Prompt-only retry | 6/12 | 50.0% |
+| Source | Authoritative status | 12/12 | 100.0% |
+| Source | Stable idempotency | 12/12 | 100.0% |
+| Extended | Negative status as retry permission | 12/24 | 50.0% |
+| Extended | Terminal-aware status | 24/24 | 100.0% |
+| Extended | Stable idempotency | 24/24 | 100.0% |
+
+These are deterministic policy outcomes; no live model was called on the six
+closest-work tasks.
 
 **Answer to RQ3.** The closest work's status benefit remains valid inside its
 authoritative two-world contract. What changes is the generalization: a
@@ -330,8 +605,18 @@ idempotency produced no duplicates and reached exact state in 16/16 [R8].
 LangChain exposed a different manifestation of the same contract boundary.
 Its exception-retry runnable reported completion in 16/16 episodes, yet 12 had
 duplicate external effects and only 4/16 reached exact state. Stable
-idempotency again reached exact state in 16/16 without duplicates [R9]. Table
-`table-framework-audits.tex` reports both runtimes and their no-retry controls.
+idempotency again reached exact state in 16/16 without duplicates [R9].
+
+**Table 4. Configured framework retry-boundary audits.**
+
+| Framework | Policy | Framework completed | Retries | Duplicates | Unresolved | Exact state |
+|---|---|---:|---:|---:|---:|---:|
+| LangGraph | Exception retry | 0/16 | 16 | 12 | 16 | 0/16 |
+| LangGraph | No retry | 0/16 | 0 | 0 | 16 | 0/16 |
+| LangGraph | Stable idempotency | 16/16 | 16 | 0 | 0 | 16/16 |
+| LangChain Core | Exception retry | 16/16 | 16 | 12 | 0 | 4/16 |
+| LangChain Core | No retry | 0/16 | 0 | 0 | 16 | 0/16 |
+| LangChain Core | Stable idempotency | 16/16 | 16 | 0 | 0 | 16/16 |
 
 **Answer to RQ4.** In two tested, explicitly configured framework/version
 boundaries, exception eligibility was insufficient to authorize external-effect
@@ -481,10 +766,84 @@ the development repository remains private at the owner's direction; external
 reproduction and citation adoption require a venue-compatible public archival
 release after the anonymity decision.
 
-## Artifact references used in this draft
+## 7. Artifact and Data Availability
 
-- Model table: [`../generated/table-model-results.tex`](../generated/table-model-results.tex)
-- Robustness figure: [`../generated/figure-task-robustness.svg`](../generated/figure-task-robustness.svg)
-- Closest-work table: [`../generated/table-closest-work.tex`](../generated/table-closest-work.tex)
-- Framework table: [`../generated/table-framework-audits.tex`](../generated/table-framework-audits.tex)
-- Claim ledger: [`evidence-ledger.json`](evidence-ledger.json)
+RetryBench provides a deterministic local fault-injection service, five
+reference policies, guarded live-model runners, exact-state scoring, configured
+LangGraph and LangChain adapters, and a language-independent export/score
+interface. The default deterministic suite runs with:
+
+```sh
+python -m pip install .
+retrybench run
+```
+
+External methods can export 160 public decisions and score them against 240
+hidden outcomes without receiving schedule labels:
+
+```sh
+retrybench export-cases --output public-cases-v1.jsonl
+retrybench score-decisions --decisions my-decisions.jsonl
+```
+
+The repository contains sanitized outcome logs, machine-readable analyses,
+frozen manifests, source-provenance hashes, and a claim ledger. The eight-family
+robustness figure is available as
+[`figure-task-robustness.svg`](../generated/figure-task-robustness.svg). The
+numeric manuscript claims resolve through
+[`evidence-ledger.json`](evidence-ledger.json), and the test suite recomputes the
+post-hoc within-frame contrasts from sanitized outcomes.
+
+The current development repository remains private by owner decision. Before
+external release, the artifact requires a venue-compatible anonymity decision,
+an archival version and DOI, and a public benchmark card. The present
+PolyForm-Noncommercial-1.0.0 license permits noncommercial use but may limit
+industrial adoption; this constraint should be reconsidered deliberately at
+release rather than silently changed. No repository visibility or license
+change is part of this manuscript draft.
+
+## 8. Conclusion
+
+Ambiguous tool recovery is not only a prediction problem; it is a contract
+problem. A timeout, negative lookup, or retryable exception does not establish
+that an earlier side effect is terminal and effect-free. RetryBench makes the
+missing assumptions executable by crossing attempt terminality, evidence
+authority, and replay protection while holding the model-visible decision
+fixed.
+
+Across two fixed snapshots, weak negative evidence increased false retry
+permission relative to authoritative state evidence. The effect persisted
+across eight new, disjoint GPT-5.4 task families, but its magnitude and
+consistency were task- and wording-sensitive. Deterministic reproduction and
+configured framework audits locate the same boundary outside the model:
+exception eligibility and a negative status label are insufficient to authorize
+external-effect replay.
+
+The actionable principle is narrow and testable. Retry only when evidence
+establishes terminal non-execution, or when a valid provider-enforced guarantee
+makes replay safe. Otherwise wait, reconcile, escalate, or return an unresolved
+outcome—and report that liveness cost rather than hiding it inside a success
+score.
+
+## References
+
+1. Shengyao Sun. 2026. *Did It Happen? Counterfactual Evaluation of LLM Agent
+   Recovery from Ambiguous Tool Outcomes*. Software artifact, version 0.1.0.
+   [DOI](https://doi.org/10.5281/zenodo.21888869) ·
+   [Repository](https://github.com/shushuyang231/ambiguous-tool-outcomes-benchmark)
+2. Isham Kalappurackal Mansoor, Abhishek Phadke, and Pratip Rana. 2026.
+   *Verified Tool Calls Improve LLM Agent Reliability Under Non-Atomic
+   Failures*. arXiv:2608.02645. [Preprint](https://arxiv.org/abs/2608.02645)
+3. MemoV. 2026. *OpenOnce: Durable Side Effects for AI Agent Tool Calls*.
+   [Repository](https://github.com/memovai/openonce)
+4. Sanjana Gopnal Swamy. 2026. *Do LLM Agents Act Exactly Once? Measuring
+   Idempotency Violations Under Retries*. Under review; artifact and manuscript.
+   [Repository](https://github.com/gssanjana4/idempotencybench)
+5. Amazon Web Services. *Eventual Consistency in the Amazon EC2 API*.
+   [Documentation](https://docs.aws.amazon.com/ec2/latest/devguide/eventual-consistency.html)
+6. Stripe. *Idempotent Requests*.
+   [Documentation](https://docs.stripe.com/api/idempotent_requests)
+7. LangChain. *LangGraph RetryPolicy Reference*.
+   [Documentation](https://langchain-ai.github.io/langgraph/reference/types/)
+8. LangChain. *Runnable.with_retry Reference*.
+   [Documentation](https://reference.langchain.com/python/langchain-core/runnables/base/Runnable/with_retry)

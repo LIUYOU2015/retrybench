@@ -11,6 +11,22 @@ claim.
 This repository is an executable research preview. It does not estimate
 production failure prevalence or rank general model capability.
 
+## Paper draft
+
+The complete venue-neutral Markdown manuscript is
+[`paper/manuscript/paper.md`](paper/manuscript/paper.md). Its numerical claims
+are bound to committed JSON evidence through
+[`paper/manuscript/evidence-ledger.json`](paper/manuscript/evidence-ledger.json),
+and the citation/claim audit is
+[`paper/manuscript/citation-claim-audit.md`](paper/manuscript/citation-claim-audit.md).
+
+The bounded result is that weak negative evidence increased false retry
+permission in two fixed model snapshots and persisted across eight new,
+disjoint GPT-5.4 task families, with task- and wording-sensitive magnitude.
+Deterministic closest-work reproduction and configured LangGraph/LangChain
+audits locate the tested contract boundary; they do not establish production
+prevalence, universal model behavior, or framework defects.
+
 ## Run RetryBench
 
 ```bash
