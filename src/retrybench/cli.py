@@ -112,7 +112,7 @@ def build_parser() -> argparse.ArgumentParser:
     replication.add_argument("--resume", action="store_true")
     robustness_preflight = subparsers.add_parser(
         "robustness-preflight",
-        help="freeze and audit independent-task robustness without API calls",
+        help="freeze and audit the new-task robustness block without API calls",
     )
     robustness_preflight.add_argument(
         "--manifest", default="protocol/task-robustness-v1-manifest.jsonl"
@@ -121,7 +121,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--report", default="protocol/task-robustness-v1-preflight.json"
     )
     robustness = subparsers.add_parser(
-        "robustness", help="execute the frozen independent-task robustness block"
+        "robustness", help="execute the frozen new-task robustness block"
     )
     robustness.add_argument(
         "--manifest", default="protocol/task-robustness-v1-manifest.jsonl"

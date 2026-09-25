@@ -99,7 +99,7 @@ observed state without caution-specific advice. The cautious prompt explicitly
 requires evidence before replaying a side effect. We report snapshots rather
 than product-family names to avoid implying stability across later releases.
 
-### 3.6 Independent-task robustness and lexical counterbalance
+### 3.6 New-task robustness and lexical counterbalance
 
 After observing cross-model task heterogeneity, we designed and commit-froze a
 separate GPT-5.4 block before executing it. It contains eight new semantic task
@@ -265,8 +265,10 @@ The predeclared, commit-frozen robustness block met its stronger-paper rule.
 All eight new task families had a positive weak-minus-authoritative
 effect. The equal-family mean difference was 0.625, with an eight-family 95%
 t interval of [0.402, 0.848] [R6]. This addresses the specific within-study
-uncertainty left by the four-task GPT-5.4 replication: the effect was not
-confined to the two original create-oriented cases or their identifiers.
+uncertainty left by the four-task GPT-5.4 replication by broadening the observed
+effect beyond the original cases. It does not resolve the heterogeneity: the
+within-frame analysis below shows that lexical framing remains associated with
+where the effect appears.
 
 Magnitude nevertheless remained heterogeneous. In the matched lexical
 contrast, create-prefixed tools exceeded non-create frames by 0.50 on average

@@ -27,7 +27,7 @@
     },
     {
       "id": "M3",
-      "description": "Independent-task robustness design",
+      "description": "New, disjoint held-out task-block design",
       "source": "protocol/task-robustness-v1.json",
       "assertions": [
         {"pointer": "/task_families", "expected": 8},
@@ -107,7 +107,7 @@
     },
     {
       "id": "R6",
-      "description": "Independent-task robustness decision",
+      "description": "New, disjoint held-out task-block decision",
       "source": "runs/task-robustness-v1/analysis.json",
       "assertions": [
         {"pointer": "/decision", "expected": "STRONGER_EMPIRICAL_PAPER_PATH"},

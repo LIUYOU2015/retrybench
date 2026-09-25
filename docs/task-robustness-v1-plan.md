@@ -1,4 +1,4 @@
-# Frozen independent-task robustness block
+# Frozen new-task robustness and lexical-counterbalance block
 
 This block is the decision experiment for the conditional full-paper gate. It
 tests whether GPT-5.4's earlier issue/release effect versus CI/review ties

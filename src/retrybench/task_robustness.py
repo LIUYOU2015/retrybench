@@ -1,4 +1,4 @@
-"""Frozen independent-task and lexical-counterbalancing robustness protocol."""
+"""Frozen new-task and lexical-counterbalancing robustness protocol."""
 
 from __future__ import annotations
 

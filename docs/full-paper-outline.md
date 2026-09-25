@@ -138,7 +138,7 @@ authority, original-attempt terminality, and replay protection.
 - Confirmation-v2 and fixed GPT-5.4 replication.
 - Prompts, response sharing, repetitions, and fixed snapshots.
 
-### 6.2 Independent-task robustness
+### 6.2 New-task robustness and lexical counterbalance
 
 - Predeclared 8 × 2 matched design and decision criterion.
 - Task family as the top-level generalization unit.
