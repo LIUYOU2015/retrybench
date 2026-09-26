@@ -35,6 +35,36 @@ class ManuscriptEvidenceTests(unittest.TestCase):
             with self.subTest(claim=claim["id"]):
                 self.assertIn("[%s]" % claim["id"], manuscript)
 
+    def test_table_control_rows_are_machine_checked(self):
+        ledger = json.loads(LEDGER.read_text(encoding="utf-8"))
+        pointers_by_claim = {
+            claim["id"]: {assertion["pointer"] for assertion in claim["assertions"]}
+            for claim in ledger["claims"]
+        }
+        required = {
+            "R7": {
+                "/source_faithful/by_control/prompt_only_stop/exact_state_successes",
+                "/source_faithful/by_control/prompt_only_retry/exact_state_successes",
+            },
+            "R8": {
+                "/by_policy/no_retry/graph_completed",
+                "/by_policy/no_retry/retries",
+                "/by_policy/no_retry/duplicates",
+                "/by_policy/no_retry/unresolved",
+                "/by_policy/no_retry/exact_state_success",
+            },
+            "R9": {
+                "/by_policy/no_retry/runnable_completed",
+                "/by_policy/no_retry/retries",
+                "/by_policy/no_retry/duplicates",
+                "/by_policy/no_retry/unresolved",
+                "/by_policy/no_retry/exact_state_success",
+            },
+        }
+        for claim_id, pointers in required.items():
+            with self.subTest(claim=claim_id):
+                self.assertTrue(pointers <= pointers_by_claim[claim_id])
+
     def test_complete_markdown_manuscript_has_required_sections_and_sources(self):
         manuscript = MANUSCRIPT.read_text(encoding="utf-8")
         for heading in (
@@ -64,6 +94,9 @@ class ManuscriptEvidenceTests(unittest.TestCase):
         self.assertNotIn("TODO", manuscript)
         self.assertNotIn("methods-results.md", manuscript)
         self.assertNotIn(".tex", manuscript)
+        references = manuscript.split("## References", 1)[1]
+        self.assertNotIn("\n1. ", references)
+        self.assertIn("only a separate authoritative observation", manuscript)
 
 
 if __name__ == "__main__":

@@ -54,7 +54,9 @@ flowchart LR
 ```
 
 **Figure 1.** The same visible timeout and weak negative observation can precede
-different external futures. The status token alone does not authorize replay.
+different external futures. The status token alone does not authorize replay;
+only a separate authoritative observation—not the weak `NOT_FOUND` itself—can
+establish terminal non-execution and permit an unprotected retry.
 
 This ambiguity is familiar in distributed systems, but agent evaluation adds a
 distinct measurement problem. A benchmark may show the model a status value
@@ -827,23 +829,23 @@ score.
 
 ## References
 
-1. Shengyao Sun. 2026. *Did It Happen? Counterfactual Evaluation of LLM Agent
+- Amazon Web Services. *Eventual Consistency in the Amazon EC2 API*.
+  [Documentation](https://docs.aws.amazon.com/ec2/latest/devguide/eventual-consistency.html)
+- LangChain. *LangGraph RetryPolicy Reference*.
+  [Documentation](https://langchain-ai.github.io/langgraph/reference/types/)
+- LangChain. *Runnable.with_retry Reference*.
+  [Documentation](https://reference.langchain.com/python/langchain-core/runnables/base/Runnable/with_retry)
+- Isham Kalappurackal Mansoor, Abhishek Phadke, and Pratip Rana. 2026.
+  *Verified Tool Calls Improve LLM Agent Reliability Under Non-Atomic
+  Failures*. arXiv:2608.02645. [Preprint](https://arxiv.org/abs/2608.02645)
+- MemoV. 2026. *OpenOnce: Durable Side Effects for AI Agent Tool Calls*.
+  [Repository](https://github.com/memovai/openonce)
+- Stripe. *Idempotent Requests*.
+  [Documentation](https://docs.stripe.com/api/idempotent_requests)
+- Shengyao Sun. 2026. *Did It Happen? Counterfactual Evaluation of LLM Agent
    Recovery from Ambiguous Tool Outcomes*. Software artifact, version 0.1.0.
    [DOI](https://doi.org/10.5281/zenodo.21888869) ·
    [Repository](https://github.com/shushuyang231/ambiguous-tool-outcomes-benchmark)
-2. Isham Kalappurackal Mansoor, Abhishek Phadke, and Pratip Rana. 2026.
-   *Verified Tool Calls Improve LLM Agent Reliability Under Non-Atomic
-   Failures*. arXiv:2608.02645. [Preprint](https://arxiv.org/abs/2608.02645)
-3. MemoV. 2026. *OpenOnce: Durable Side Effects for AI Agent Tool Calls*.
-   [Repository](https://github.com/memovai/openonce)
-4. Sanjana Gopnal Swamy. 2026. *Do LLM Agents Act Exactly Once? Measuring
-   Idempotency Violations Under Retries*. Under review; artifact and manuscript.
-   [Repository](https://github.com/gssanjana4/idempotencybench)
-5. Amazon Web Services. *Eventual Consistency in the Amazon EC2 API*.
-   [Documentation](https://docs.aws.amazon.com/ec2/latest/devguide/eventual-consistency.html)
-6. Stripe. *Idempotent Requests*.
-   [Documentation](https://docs.stripe.com/api/idempotent_requests)
-7. LangChain. *LangGraph RetryPolicy Reference*.
-   [Documentation](https://langchain-ai.github.io/langgraph/reference/types/)
-8. LangChain. *Runnable.with_retry Reference*.
-   [Documentation](https://reference.langchain.com/python/langchain-core/runnables/base/Runnable/with_retry)
+- Sanjana Gopnal Swamy. 2026. *Do LLM Agents Act Exactly Once? Measuring
+  Idempotency Violations Under Retries*. Under review; artifact and manuscript.
+  [Repository](https://github.com/gssanjana4/idempotencybench)

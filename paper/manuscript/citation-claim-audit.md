@@ -26,6 +26,21 @@ Every qualifier is load-bearing. The manuscript does not convert this into a
 model-general, task-population, provider-prevalence, exactly-once, or framework
 defect claim.
 
+### Follow-up hostile-review closure — 2026-09-25
+
+A reviewer correctly found that the first audit did not register every printed
+control row in Tables 3 and 4. R7 now checks both prompt-only source controls,
+including the 4/12 stop result; R8 and R9 now check every displayed no-retry
+cell. The same claims also register the remaining displayed source, extension,
+exception-retry, and stable-idempotency cells. A dedicated regression test
+prevents the identified control-row pointers from being removed while the
+tables remain active.
+
+The two copyedits from that review are also closed: References now use an
+unnumbered, author/organization-ordered convention consistent with the
+name-based body citations, and Figure 1's caption states that authoritative
+proof is a separate observation rather than a property of weak `NOT_FOUND`.
+
 ## Primary-source audit
 
 | Source | Primary material checked | Manuscript use | Explicit non-use |
