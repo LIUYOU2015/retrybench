@@ -11,6 +11,14 @@ claim.
 This repository is an executable research preview. It does not estimate
 production failure prevalence or rank general model capability.
 
+## Interactive demo
+
+[**Try the interactive demo →**](https://liuyou2015.github.io/retrybench/)
+
+Explore an ambiguous payment outcome, compare recovery decisions, and inspect
+research results and assumptions. Available in English and Chinese; runs entirely
+in your browser using synthetic teaching examples, with no API keys or model calls.
+
 ## Paper draft
 
 The complete venue-neutral Markdown manuscript is
