@@ -1,109 +1,58 @@
 # RetryBench
 
-**A conformance benchmark for safe recovery from ambiguous tool outcomes in LLM agents.**
+**Separating retry permission from recovery outcomes in GPT tool use.**
 
-An agent calls a side-effecting tool, observes a timeout, and must decide whether
-to retry. The same timeout can mean that the operation never ran, committed but
-lost its response, or is still in flight. RetryBench evaluates recovery policies
-against the hidden execution state instead of trusting the agent's completion
-claim.
+When a tool call times out, it may have failed, completed without returning a
+reply, or still be running. RetryBench asks two separate questions: did the
+visible contract justify retrying, and did the resulting state match the intended
+operation? A successful outcome alone does not establish that a retry was justified.
 
-This repository is an executable research preview. It does not estimate
-production failure prevalence or rank general model capability.
+[**Read the paper**](https://arxiv.org/abs/2610.15884v1) ·
+[**Try the interactive demo**](https://liuyou2015.github.io/retrybench/)
 
-## Interactive demo
+The demo offers a plain-language payment example and a research view in English
+and Chinese. It uses synthetic examples and runs entirely in your browser.
 
-[**Try the interactive demo →**](https://liuyou2015.github.io/retrybench/)
+## Findings
 
-Explore an ambiguous payment outcome, compare recovery decisions, and inspect
-research results and assumptions. Available in English and Chinese; runs entirely
-in your browser using synthetic teaching examples, with no API keys or model calls.
+The [paper](https://arxiv.org/abs/2610.15884v1) reports:
 
-## Paper draft
+- **Protected recovery and rejection of unsupported retries are different abilities.**
+  In a 720-response key control, offered changed keys elicited unsupported retries
+  in Sol (1/80), Terra (55/80), and Luna (60/80), despite generally successful
+  recovery with valid keys.
+- **Errors can persist without a displayed candidate key.** In a separate
+  240-response supplied-key control, unsupported dispatches were 0/80 for Sol,
+  0/80 for Terra, and 8/80 for Luna. Output requirements and conditions also
+  changed, so this is not an isolated test of candidate display.
+- **Deferral avoids dispatch but does not establish recovery.** An explicit-contract
+  cue control elicited deferral in all 762 returned responses, leaving recovery
+  unresolved.
 
-The complete venue-neutral Markdown manuscript is
-[`paper/manuscript/paper.md`](paper/manuscript/paper.md). Its numerical claims
-are bound to committed JSON evidence through
-[`paper/manuscript/evidence-ledger.json`](paper/manuscript/evidence-ledger.json),
-and the citation/claim audit is
-[`paper/manuscript/citation-claim-audit.md`](paper/manuscript/citation-claim-audit.md).
+These results concern four selected software tasks, fixed GPT endpoints, and
+one recovery decision. They do not establish production failure rates, internal
+model mechanisms, or episode-level safety. Report retry permission and realized
+recovery together, including duplicates, omissions, and unresolved outcomes.
 
-The bounded result is that weak negative evidence increased false retry
-permission in two fixed model snapshots and persisted across eight new,
-disjoint GPT-5.4 task families, with task- and wording-sensitive magnitude.
-Deterministic closest-work reproduction and configured LangGraph/LangChain
-audits locate the tested contract boundary; they do not establish production
-prevalence, universal model behavior, or framework defects.
+## Reproduce the deterministic benchmark
 
-## Run RetryBench
-
-```bash
-python -m pip install .
-retrybench run
-```
-
-To evaluate a method implemented in any language or framework, export the 160
-public cases and score its actions against 240 hidden outcomes:
+Requires Python 3.9 or later. The core benchmark has no third-party runtime
+dependencies and makes no model calls.
 
 ```bash
-retrybench export-cases --output public-cases-v1.jsonl
-retrybench score-decisions --decisions my-decisions.jsonl
-```
-
-See [Evaluate your method](docs/evaluate-your-method.md) for the two-field JSONL
-interface and reporting checklist. Evaluated methods never receive hidden
-schedule labels.
-
-## What is included
-
-- Four deterministic schedules: pre-execution failure, commit then response
-  loss, in-flight late commit, and stale negative observation after commit.
-- Three evidence contracts: no status, weak/eventually consistent status, and
-  authoritative status.
-- Five baselines: always retry, always stop, single status check, tri-state
-  verification with backoff, and stable-key idempotent retry.
-- Four software-engineering-flavored side effects.
-- Exact-state scoring for duplicates, omissions, unresolved outcomes, probes,
-  retries, and recovery steps.
-- Reproducible JSONL episode logs and aggregate JSON summaries.
-
-## Quick start
-
-```bash
+git clone https://github.com/LIUYOU2015/retrybench.git
+cd retrybench
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install .
 retrybench run --output results/episodes.jsonl --summary results/summary.json
-python -m unittest discover -s tests -v
 ```
 
-The benchmark is deterministic. Re-running the same command produces the same
-episode records apart from output-file ordering only if caller options change.
+On Windows, activate the environment with `.venv\Scripts\activate`.
+Record `git rev-parse HEAD` with your results to identify the exact code version.
 
-## Example
-
-```bash
-retrybench run \
-  --policies always_retry tri_state_backoff stable_idempotency \
-  --evidence weak authoritative \
-  --schedules fail_before_execution in_flight_late_commit
-```
-
-Each JSONL row records the public observation, hidden schedule, policy decision,
-ground-truth effect count, and exact-state verdict. Hidden fields are supplied to
-the scorer only; policies receive only the declared evidence.
-
-## Interpretation
-
-`NOT_FOUND` under a weak status contract is not proof that an earlier attempt
-cannot still commit. Only `NOT_EXECUTED`, supplied by an authoritative contract,
-permits a non-idempotent retry. A stable idempotency key can permit retry under
-ambiguity, but only while the provider's deduplication guarantee is valid.
-
-## Deterministic reference baselines
-
-These 48-outcome-per-policy controls validate benchmark behavior; they are not
-model leaderboard results.
+The command evaluates five policies across four tasks, four execution schedules,
+and three evidence contracts: 240 deterministic outcomes, 48 per policy.
 
 | Policy | Exact state | Duplicates | Omissions | Unresolved |
 |---|---:|---:|---:|---:|
@@ -113,60 +62,80 @@ model leaderboard results.
 | Tri-state backoff | 28/48 | 0 | 8 | 20 |
 | Stable idempotency | 48/48 | 0 | 0 | 0 |
 
-The [benchmark card](BENCHMARK_CARD.md) defines intended use, leakage controls,
-metrics, and limitations. Frozen manifests follow the [versioning policy](VERSIONING.md).
+These are simulator reference results, not model scores. Omissions and unresolved
+outcomes can overlap. The [reference summary](runs/deterministic-baselines-v1/summary.json)
+contains the archived counts; current output also includes operation-identity
+error fields. Same-key retry assumes a valid provider deduplication guarantee,
+unchanged payload, and use of that key on the original call.
 
-## Research roadmap
-
-1. Reproduce the controls from the closest ambiguous-outcome work.
-2. Validate the in-flight and stale-negative schedules against an HTTP service.
-3. Add one agent framework adapter while holding observations and budgets fixed.
-4. Freeze RetryBench-v1 tasks, schedules, metrics, and container image.
-5. Report safety, liveness, latency, probe cost, and unresolved outcomes without
-   collapsing them into one success number.
-
-## Frozen targeted confirmation
-
-The exploratory pilot motivated a smaller confirmation rather than the original
-4,800-outcome expansion. Freeze and audit it without API spend:
+Run the core benchmark checks with:
 
 ```bash
-retrybench confirmation-preflight
+python -m unittest discover -s tests -p test_benchmark.py -v
 ```
 
-The resulting protocol has 240 scored outcomes per model but only 160 fresh
-model calls. For weak `NOT_FOUND`, one response is replayed across three hidden
-schedules with byte-identical visible transcripts. Paid execution is separately
-guarded by an explicit flag and a one-dollar maximum cap; pilot outcomes are not
-included in the confirmatory analysis.
+## Evaluate your own method
 
-Confirmation-v2 completed 160 fresh calls and 240 scored outcomes for $0.063987.
-Under neutral prompting, false retry permission was 51/60 with weak evidence and
-3/60 with authoritative evidence; weak prompting produced 34 duplicates, while
-cautious weak prompting produced zero duplicates but left all 60 outcomes
-unresolved. See the [confirmation-v2 analysis](docs/confirmation-v2-analysis.md).
-
-## Framework audit
-
-The optional LangGraph adapter tests an actual graph-node retry boundary without
-model calls:
+Export the visible cases, generate one action per case, then score those actions:
 
 ```bash
-python -m pip install -e '.[langgraph]'
-retrybench langgraph-audit
+retrybench export-cases --output results/public-cases-v1.jsonl
+retrybench score-decisions --decisions my-decisions.jsonl \
+  --output results/my-scores.jsonl --summary results/my-summary.json
 ```
 
-With `langgraph==0.6.11`, an opt-in `RetryPolicy` using the framework's default
-exception predicate retried ambiguous `ConnectionError` outcomes and produced
-duplicates in 12/16 side-effecting episodes. No-retry produced zero duplicates
-but left 16/16 unresolved; stable-idempotency replay reached exact state in
-16/16. This is a configured contract boundary, not a framework-defect claim.
-See the [LangGraph audit](docs/langgraph-v1-audit.md).
+`my-decisions.jsonl` must contain one JSON object per line with `case_id` and
+`action`. Valid actions are `retry`, `stop`, `wait`, and `unresolved`.
+The export has 160 visible cases; scoring replays decisions across compatible
+hidden schedules to produce 240 outcomes. Methods must not inspect hidden
+schedules when choosing actions.
 
-## License and citation
+See [Evaluate your method](docs/evaluate-your-method.md) for the format,
+case-sharing rules, and reporting requirements.
 
-RetryBench is available under the PolyForm Noncommercial License 1.0.0.
-Commercial use is not permitted. Citation metadata is in `CITATION.cff`.
-The first archival release will add a DOI and preferred paper citation. Until
-then, cite the exact Git commit used. Contributions are described in
-[CONTRIBUTING.md](CONTRIBUTING.md).
+## Research data and reproduction scope
+
+The public repository includes the deterministic benchmark, external-decision
+scorer, and archived results for the
+[confirmation study](runs/confirmation-v2/analysis.json),
+[replication study](runs/gpt54-replication-v1/analysis.json), and
+[task-robustness study](runs/task-robustness-v1/analysis.json).
+Their sanitized outcome files are stored alongside the reports.
+
+The commands above reproduce the simulator and score supplied decisions; they
+do not regenerate the paper's model responses. The public snapshot does not yet
+include the complete data and analysis code for the paper's key and interface
+controls. Full reproduction of those findings requires the corresponding
+artifacts; the demo's 81 synthetic rows are not a substitute.
+
+The [benchmark card](BENCHMARK_CARD.md) describes metrics and intended use.
+Optional framework checks are documented for
+[LangGraph](docs/langgraph-v1-audit.md) and
+[LangChain Core](docs/langchain-v1-audit.md).
+
+## Run the demo locally
+
+```bash
+python3 -m http.server 7860 --bind 127.0.0.1 --directory demo
+```
+
+Open <http://localhost:7860>. See the [demo guide](demo/README.md) for the
+interactive walkthrough and interpretation of its outcomes.
+
+## Citation and license
+
+```bibtex
+@misc{liu2026retrybench,
+  title = {RetryBench: Separating Retry Permission from Recovery Outcomes in GPT Tool Use},
+  author = {You Liu and Yue Liu and Quanchao Lu},
+  year = {2026},
+  eprint = {2610.15884},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.AI},
+  url = {https://arxiv.org/abs/2610.15884v1}
+}
+```
+
+Code is available under the [PolyForm Noncommercial License 1.0.0](LICENSE).
+See the license for permitted uses and conditions. For software results, also
+report the Git commit used.

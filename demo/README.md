@@ -35,11 +35,11 @@ python3 -m http.server 7860 --bind 127.0.0.1
 
 Open [http://localhost:7860](http://localhost:7860) in your browser. Press `Ctrl+C` in the terminal to stop the server.
 
-You can also open `index.html` directly in a browser: version 2 embeds the same 81 rows, so the interaction needs no server or network. Keep the other files beside it for the download and documentation links.
+You can also open `index.html` directly in a browser: the page embeds the same 81 rows, so the interaction needs no server or network. Keep the other files beside it for the download and documentation links.
 
 ## Technical explorer walkthrough
 
-Select **Research results & methods**, then scroll to **Make one recovery decision**. The default story path provides a separate plain-language walkthrough.
+Select **Research & methods**, then scroll to **Make one recovery decision**. The default story path provides a separate plain-language walkthrough.
 
 1. Select **Weak NOT_FOUND**, **Changed key**, and **RETRY**, then click **Reveal permission and outcomes**. The retry is unsupported: one world ends with exactly one effect, while the other compatible worlds produce duplicates.
 2. Change the key condition to **Same original key (valid guarantee)** and reveal the results again. Reusing the valid original key protects the retry across these worlds.
@@ -81,13 +81,11 @@ These rows were generated deterministically from the RetryBench simulator and sc
 
 The static interface displays precomputed outcomes. It does not call a model, connect to a payment service, or perform real side effects. Its external research link points to the paper.
 
-## Validation and scope
-
-All 81 outcome rows passed checks against independent contract and outcome expectations. Seven existing RetryBench scorer tests also passed. Browser checks verified both changed-key unsupported retry and valid original-key recovery.
+## Scope
 
 The payment scenario is fictional and serves as a teaching analogy. It is not an additional empirical task in the paper or a guarantee about any payment provider. The paper studies four selected software tasks, fixed GPT endpoints, and one recovery decision. Neither the demo nor those findings establish production error rates, general agent reliability, or episode-level safety.
 
-Demo version: **teaching-demo-v4**. This directory contains the static GitHub Pages demo. Only this directory is deployed; no research logs or credentials are included.
+Demo version: **teaching-demo-v4**. [Open the hosted demo](https://liuyou2015.github.io/retrybench/).
 
 ## Citation
 
