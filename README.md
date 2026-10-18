@@ -8,7 +8,9 @@ visible contract justify retrying, and did the resulting state match the intende
 operation? A successful outcome alone does not establish that a retry was justified.
 
 [**Read the paper**](https://arxiv.org/abs/2610.15884v1) ·
-[**Try the interactive demo**](https://liuyou2015.github.io/retrybench/)
+[**Hugging Face demo**](https://huggingface.co/spaces/uuhugg/retrybench-demo) ·
+[**Blog walkthrough**](https://huggingface.co/blog/uuhugg/retrybench-retry-permission) ·
+[**GitHub Pages mirror**](https://liuyou2015.github.io/retrybench/)
 
 The demo offers a plain-language payment example and a research view in English
 and Chinese. It uses synthetic examples and runs entirely in your browser.
