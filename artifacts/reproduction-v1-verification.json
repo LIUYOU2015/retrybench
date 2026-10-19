@@ -1,0 +1,14 @@
+{
+  "status": "passed",
+  "files_checked": 504,
+  "byte_identical_outputs": 49,
+  "python": "3.9.6 (default, Apr 30 2025, 02:07:18) \n[Clang 17.0.0 (clang-1700.0.13.5)]",
+  "commands": 28,
+  "tests_passed": 138,
+  "test_skips": 0,
+  "live_model_calls": 0,
+  "archive_sha256": "8864f27d5e621b26dac88711ddfdabdc4b51bb842506be1690b4efb0106360f2",
+  "archive_bytes": 2704825,
+  "verification_date": "2026-10-18",
+  "scope": "Fresh archive extraction and fresh Python environment. Scientific tests only; manuscript and documentation-navigation tests excluded. No live collection or PDF build."
+}

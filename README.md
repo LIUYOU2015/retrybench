@@ -104,11 +104,16 @@ scorer, and archived results for the
 [task-robustness study](runs/task-robustness-v1/analysis.json).
 Their sanitized outcome files are stored alongside the reports.
 
-The commands above reproduce the simulator and score supplied decisions; they
-do not regenerate the paper's model responses. The public snapshot does not yet
-include the complete data and analysis code for the paper's key and interface
-controls. Full reproduction of those findings requires the corresponding
-artifacts; the demo's 81 synthetic rows are not a substitute.
+The [versioned reproduction archive](artifacts/reproduction-v1.zip) includes the
+frozen data, protocols, collection-time source, and offline analyses for the
+revised paper's key and interface controls. See the
+[reproduction instructions](artifacts/README.md) for installation, checksums,
+and verification of 49 regenerated scientific outputs. This self-contained
+snapshot is separate from the lightweight benchmark installation above.
+
+Reproduction reanalyzes archived model responses; it does not obtain new model
+responses or incur inference charges. The demo's 81 synthetic teaching rows
+are separate from the research observations.
 
 The [benchmark card](BENCHMARK_CARD.md) describes metrics and intended use.
 Optional framework checks are documented for
