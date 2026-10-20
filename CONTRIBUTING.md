@@ -11,3 +11,7 @@ Before opening a pull request:
 5. State whether the change affects benchmark comparability or only implementation.
 
 New schedules or scoring semantics belong in a new versioned track. New model results should include decision JSONL, model snapshot, prompt/configuration, token usage, cost, and complete denominators.
+
+## Cross-model results
+
+Follow the [cross-model guide](docs/cross-model-evaluation.md), fill the [submission manifest](examples/cross_model/submission.json), and use the [model-result checklist](.github/PULL_REQUEST_TEMPLATE/model_result.md). Retain missing/invalid cases and raw predictions. Rescoring submitted decisions does not independently verify model identity or reproduce inference.

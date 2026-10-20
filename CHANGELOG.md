@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0 — 2026-10-20
+
+- Add the frozen cross-model suite, `export` / `score` / `eval`, Python adapter API, and optional Inspect integration.
+- Preserve first-decision scope, exact key matching, missing/invalid denominators, raw responses and reproducibility hashes.
+- Add the verified 240-case-per-model comparison and a self-contained offline evidence archive, including both pilots.
+- Add provider extras, contribution templates and CI. Existing study IDs and historical artifacts remain unchanged.
+
 All notable artifact changes are recorded here. Raw provider responses and
 local SQLite ledgers remain excluded from version control.
 

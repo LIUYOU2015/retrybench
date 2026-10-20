@@ -1,0 +1,32 @@
+{
+  "core_tests_python312": {
+    "failures": 0,
+    "run": 111,
+    "skipped": 6
+  },
+  "core_tests_python39": {
+    "failures": 0,
+    "run": 111,
+    "skipped": 10
+  },
+  "credential_scan": "no stored provider credential values or API token patterns found",
+  "evidence": {
+    "archive": "cross-model-v1.zip",
+    "bytes": 669841,
+    "files": 146,
+    "sha256": "95bf6f15aa1d884bbf6baa52b53b3656b7fe9a6571afeddd59b64012d0a4708c"
+  },
+  "fresh_extraction_offline_verification": "passed with Python 3.9; no runtime dependencies or inference",
+  "installed_wheel": {
+    "python312_inspect_mock": "240/240 valid; 240/240 raw responses retained",
+    "python39_export_score": "passed outside repository for both 240-case model prediction files",
+    "sha256": "77d0099aa617645975233ffad2cd1ee0b11bc5bf64d6c956bdeafb5160da7831"
+  },
+  "optional_inspect_tests": {
+    "failures": 0,
+    "run": 4
+  },
+  "package_version": "0.2.0",
+  "publication_date": "2026-10-20",
+  "scientific_scope": "Four reused tasks, two selected endpoints, public suite and explicit v2 interface. Raw output audits and score replay do not establish held-out generalization."
+}

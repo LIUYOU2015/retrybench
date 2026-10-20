@@ -1,5 +1,10 @@
 # Evaluate your method on RetryBench
 
+For new model comparisons, use the [versioned cross-model workflow](cross-model-evaluation.md)
+with `retrybench export`, `retrybench score`, or `retrybench eval`. It adds
+supplied-key cases, missing/invalid accounting and reproducibility reports.
+The instructions below retain the original confirmation-only interface.
+
 RetryBench accepts decisions from any model, agent framework, programming language, or runtime. Your method never receives hidden schedule labels.
 
 ## 1. Install and export public cases

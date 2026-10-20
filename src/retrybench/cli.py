@@ -20,9 +20,35 @@ def _values(enum_type: Type[EnumT], selected: Iterable[str]):
     return [enum_type(value) for value in values] if values else list(enum_type)
 
 
+def _print_json(value):
+    print(json.dumps(value, indent=2, sort_keys=True))
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="retrybench")
     subparsers = parser.add_subparsers(dest="command", required=True)
+    export = subparsers.add_parser("export", help="export versioned cross-model inference cases")
+    export.add_argument("--suite", default="retry-permission-v1")
+    export.add_argument("--output", default="results/cases.jsonl")
+    score = subparsers.add_parser("score", help="score external predictions without model APIs")
+    score.add_argument("--suite", default="retry-permission-v1")
+    score.add_argument("--predictions", required=True)
+    score.add_argument("--model", default=None)
+    score.add_argument("--settings", help="JSON object file describing inference settings")
+    score.add_argument("--output-dir", default="results/scored")
+    evaluate = subparsers.add_parser("eval", help="evaluate a model through an optional adapter")
+    evaluate.add_argument("--suite", default="retry-permission-v1")
+    evaluate.add_argument("--model", required=True)
+    evaluate.add_argument("--adapter", help="Python module:callable; defaults to Inspect AI")
+    evaluate.add_argument("--output-dir", default="results/evaluation")
+    evaluate.add_argument("--limit", type=int, help="diagnostic subset; full planned denominators remain")
+    evaluate.add_argument("--max-output-tokens", type=int, default=256)
+    evaluate.add_argument("--temperature", type=float)
+    evaluate.add_argument("--reasoning-effort")
+    evaluate.add_argument("--timeout", type=float, default=60)
+    evaluate.add_argument("--null-only-unkeyed", action="store_true",
+                          help="use the versioned v2 tool interface: null key for evidence-only cases")
+    evaluate.add_argument("--dry-run", action="store_true", help="show run size without loading a provider")
     run = subparsers.add_parser("run", help="run the deterministic benchmark matrix")
     run.add_argument("--output", default="results/episodes.jsonl")
     run.add_argument("--summary", default="results/summary.json")
@@ -246,6 +272,50 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command in {"export", "score", "eval"}:
+        from .evaluation import evaluate, load_predictions, public_cases, score_predictions
+        from .serialization import read_json_object, write_jsonl
+
+        try:
+            if args.command == "export":
+                cases = public_cases(args.suite)
+                write_jsonl(Path(args.output), cases)
+                _print_json({"suite": args.suite, "cases": len(cases), "output": args.output})
+                return 0
+            if args.command == "score":
+                settings = read_json_object(Path(args.settings)) if args.settings else {}
+                result = score_predictions(load_predictions(Path(args.predictions)), args.suite, args.model, settings)
+                result.save(Path(args.output_dir))
+            else:
+                cases = public_cases(args.suite)
+                if args.limit is not None and args.limit <= 0:
+                    raise ValueError("--limit must be positive")
+                if args.dry_run:
+                    _print_json({"suite": args.suite, "model": args.model,
+                                 "planned_cases": len(cases), "calls": len(cases[:args.limit]),
+                                 "max_output_tokens": args.max_output_tokens,
+                                 "null_only_unkeyed": args.null_only_unkeyed,
+                                 "inference_executed": False})
+                    return 0
+                if args.adapter:
+                    import importlib
+                    module, name = args.adapter.split(":", 1)
+                    adapter = getattr(importlib.import_module(module), name)
+                    result = evaluate(args.model, adapter, args.suite,
+                                      settings={"adapter": args.adapter}, limit=args.limit,
+                                      output_dir=Path(args.output_dir))
+                else:
+                    from .inspect_adapter import InspectAdapter
+                    with InspectAdapter(args.model, args.max_output_tokens, args.temperature,
+                                        args.reasoning_effort, args.timeout,
+                                        null_only_unkeyed=args.null_only_unkeyed) as adapter:
+                        result = evaluate(args.model, adapter, args.suite, settings=adapter.settings,
+                                          limit=args.limit, output_dir=Path(args.output_dir))
+            _print_json({"output_dir": args.output_dir, "complete": result.report["complete"],
+                         "metrics": result.report["metrics"]})
+            return 0 if result.report["complete"] else 2
+        except (ValueError, OSError, RuntimeError, ImportError, AttributeError) as exc:
+            raise SystemExit(str(exc)) from exc
     if args.command == "closest-work-audit":
         from .closest_work import run_closest_work, write_closest_work_outputs
 
