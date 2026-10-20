@@ -1,6 +1,6 @@
 # RetryBench
 
-**Separating retry permission from recovery outcomes in GPT tool use.**
+**Evaluate retry permission and recovery outcomes across models.**
 
 When a tool call times out, it may have failed, completed without returning a
 reply, or still be running. RetryBench asks two separate questions: did the
@@ -14,6 +14,52 @@ operation? A successful outcome alone does not establish that a retry was justif
 
 The demo offers a plain-language payment example and a research view in English
 and Chinese. It uses synthetic examples and runs entirely in your browser.
+
+## Evaluate your model
+
+Bring predictions from any provider, local model, or inference framework. Install
+with `python3 -m pip install .` from this checkout, export the visible cases, and
+score your model's first decisions without an API dependency:
+
+```bash
+retrybench export --suite retry-permission-v1 --output results/cases.jsonl
+retrybench score --predictions my_predictions.jsonl --suite retry-permission-v1 \
+  --model my-model --output-dir results/my-model
+```
+
+The frozen suite contains **240 visible cases / 480 replayed outcomes**, including
+evidence ambiguity and supplied-key cases. Reports separate false retry
+permission, permitted progress, protocol validity, and recovery outcomes, with
+condition breakdowns, exact denominators, and missing/invalid accounting.
+
+Use `from retrybench import evaluate` with your own Python adapter, or install
+`.[inspect]` on Python 3.11+ for an optional provider-independent runner. This
+one-command example uses a synthetic local model and costs nothing:
+
+```bash
+retrybench eval --model mockllm/retrybench-defer --output-dir results/inspect-smoke
+```
+
+Download the [raw-response evidence archive](artifacts/cross-model-v1.md) to reproduce
+the comparison without API calls.
+
+See the [cross-model guide](docs/cross-model-evaluation.md) for prediction formats,
+an offline end-to-end example, provider settings, and result contributions.
+
+## Project status
+
+The public cross-model suite is a versioned composition of existing prompts,
+separate from the paper's study-specific results below. It is publicly labeled,
+not a held-out test. The runner is verified with offline fixtures and Inspect's
+mock provider. A [live compatibility pilot](docs/cross-model-pilot-2026-10-19.md)
+also passed on 24 cases each for GPT-5.4 mini and Claude Sonnet 4.6 using the
+explicit v2 tool interface. A subsequent [full public-suite comparison](docs/cross-model-full-2026-10-19.md)
+collected 240 fresh responses per model: observed unsupported retries were 61/240
+for GPT-5.4 mini and 12/240 for Claude Sonnet 4.6, with permitted progress of 60/80
+and 80/80 respectively. These descriptive results use four reused tasks and the
+v2 interface; they are separate from the paper studies below. A leaderboard is deferred until independently
+reproducible submissions exist. Browse the [documentation map](docs/README.md)
+for research protocols and reproduction records.
 
 ## Findings
 
@@ -76,7 +122,7 @@ Run the core benchmark checks with:
 python -m unittest discover -s tests -p test_benchmark.py -v
 ```
 
-## Evaluate your own method
+## Legacy confirmation-only evaluation
 
 Export the visible cases, generate one action per case, then score those actions:
 
@@ -92,8 +138,8 @@ The export has 160 visible cases; scoring replays decisions across compatible
 hidden schedules to produce 240 outcomes. Methods must not inspect hidden
 schedules when choosing actions.
 
-See [Evaluate your method](docs/evaluate-your-method.md) for the format,
-case-sharing rules, and reporting requirements.
+See [Evaluate your method](docs/evaluate-your-method.md) for this legacy format.
+New cross-model runs should use the versioned `export` / `score` workflow above.
 
 ## Research data and reproduction scope
 

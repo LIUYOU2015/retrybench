@@ -1,0 +1,23 @@
+{
+  "submission_status": "unverified",
+  "suite": "retry-permission-v1",
+  "suite_sha256": "ebdfdbd7962cc532c82c27abffbdb9f93f3131a96f9eff3f2f98572272718235",
+  "code_commit": "REPLACE_WITH_COMMIT",
+  "dirty_patch_sha256": null,
+  "model_requested": "REPLACE_WITH_PROVIDER_AND_MODEL",
+  "model_returned": "REPLACE_WITH_RETURNED_MODEL",
+  "collection_time_utc": "REPLACE_WITH_TIME_RANGE",
+  "adapter_and_dependency_versions": {},
+  "inference_settings": {},
+  "prompt_or_schema_changes": "DECLARE_ALL_CHANGES_OR_NONE",
+  "additional_tools_memory_or_evidence": "DECLARE_ALL_OR_NONE",
+  "dataset_exposure_or_tuning": "DECLARE_KNOWN_EXPOSURE",
+  "planned_cases": 240,
+  "planned_outcomes": 480,
+  "predictions_path": "predictions.jsonl",
+  "report_path": "report.json",
+  "raw_provider_outputs_path": "REPLACE_WITH_PATH_OR_EXPLAIN_UNAVAILABLE",
+  "dependency_lock_path": "requirements-lock.txt",
+  "cost_basis": "REPLACE_WITH_PROVIDER_REPORTED_OR_ESTIMATED_OR_UNKNOWN",
+  "limitations": "REPLACE_WITH_DISCLOSURES"
+}

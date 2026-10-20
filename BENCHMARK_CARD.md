@@ -6,6 +6,15 @@ RetryBench tests whether recovery systems make safe retry decisions after ambigu
 
 ## Versioned evaluation unit
 
+The public `retry-permission-v1` suite composes 160 evidence cases from
+confirmation-v2 and 80 model-independent supplied-key cases from
+candidate-presence-v1: 240 visible decisions and 480 correlated outcomes.
+It is a public labeled evaluation set, not a held-out expansion or a pooled paper
+estimate. The [cross-model contract](docs/cross-model-evaluation.md) defines
+hashes, exact key matching, protocol validity, missingness bounds, and an
+80-case permitted-progress denominator. Report its blocks separately.
+
+
 Confirmation-v2 contains four software-engineering task templates, three decisive hidden schedules, two evidence contracts, two prompt conditions, and five fresh draws. It yields 160 public decision cases and 240 hidden-state outcomes per evaluated method/model.
 
 ## Primary construct
