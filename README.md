@@ -1,5 +1,18 @@
 # RetryBench
 
+```bash
+pip install "retrybench[inspect]"
+retrybench run --model X
+```
+
+Requires Python 3.11+. Replace `X` with an Inspect AI `provider/model` identifier
+and configure that provider's credentials. Use `mockllm/retrybench-defer` for a
+complete local run without credentials or inference charges.
+
+[**PyPI 0.3.0**](https://pypi.org/project/retrybench/0.3.0/) ·
+[**Hugging Face dataset**](https://huggingface.co/datasets/uuhugg/retrybench) ·
+[**Zenodo DOI: 10.5281/zenodo.24044371**](https://doi.org/10.5281/zenodo.24044371)
+
 **Evaluate retry permission and recovery outcomes across models.**
 
 When a tool call times out, it may have failed, completed without returning a
@@ -17,8 +30,8 @@ and Chinese. It uses synthetic examples and runs entirely in your browser.
 
 ## Evaluate your model
 
-Bring predictions from any provider, local model, or inference framework. Install
-with `python3 -m pip install .` from this checkout, export the visible cases, and
+The installed package includes the frozen suite. Bring predictions from any
+provider, local model, or inference framework: export the visible cases, then
 score your model's first decisions without an API dependency:
 
 ```bash
@@ -32,12 +45,11 @@ evidence ambiguity and supplied-key cases. Reports separate false retry
 permission, permitted progress, protocol validity, and recovery outcomes, with
 condition breakdowns, exact denominators, and missing/invalid accounting.
 
-Use `from retrybench import evaluate` with your own Python adapter, or install
-`.[inspect]` on Python 3.11+ for an optional provider-independent runner. This
-one-command example uses a synthetic local model and costs nothing:
+Use `from retrybench import evaluate` with your own Python adapter. The installed
+`retrybench[inspect]` package also supports this synthetic local model:
 
 ```bash
-retrybench eval --model mockllm/retrybench-defer --output-dir results/inspect-smoke
+retrybench run --model mockllm/retrybench-defer --output-dir results/inspect-smoke
 ```
 
 Download the [raw-response evidence archive](artifacts/cross-model-v1.md) to reproduce
